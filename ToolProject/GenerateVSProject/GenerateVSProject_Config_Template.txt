@@ -1,0 +1,15 @@
+RootPath=E:/Github/MicroLegend_Server
+[0]
+ProjectFilePath={RootPath}/MicroLegend_Server/MicroLegend_Server.vcxproj
+ProjectIncludePath={RootPath}/MicroLegend_Server/*,$(MYSQL_HOME)/include,{RootPath}/MicroLegend_Server_GameCore/*,{RootPath}/MicroLegend_Server_Frame/*
+ExcludePath={RootPath}/MicroLegend_Server_Frame/Frame/Dependency/libevent/event2
+
+[1]
+ProjectFilePath={RootPath}/MicroLegend_Server_GameCore/MicroLegend_Server_GameCore.vcxproj
+ProjectIncludePath={RootPath}/MicroLegend_Server_GameCore/*,$(MYSQL_HOME)/include,{RootPath}/MicroLegend_Server_Frame/*
+ExcludePath={RootPath}/MicroLegend_Server_Frame/Frame/Dependency/libevent/event2
+
+[2]
+ProjectFilePath={RootPath}/MicroLegend_Server_Frame/MicroLegend_Server_Frame.vcxproj
+ProjectIncludePath=$(MYSQL_HOME)/include,{RootPath}/MicroLegend_Server_Frame/*
+ExcludePath={RootPath}/MicroLegend_Server_Frame/Frame/Dependency/libevent/event2,{RootPath}/MicroLegend_Server_Frame/Frame/Dependency/json

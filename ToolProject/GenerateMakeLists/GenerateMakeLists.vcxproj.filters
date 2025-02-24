@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="STL">
+      <UniqueIdentifier>{930ba51e-a544-4271-8a1a-67ef3e901f95}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Utility\FileUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\FrameUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\MathUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\StringUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\BinaryUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="STL\mySTL.cpp">
+      <Filter>STL</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Utility\FileUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\FrameUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\MathUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\StringUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\BinaryUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerDefine.h" />
+    <ClInclude Include="STL\mySafeVector.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\mySet.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\myStack.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\mySTL.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\myVector.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\myMap.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\myQueue.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\mySafeMap.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="STL\mySafeSet.h">
+      <Filter>STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h" />
+  </ItemGroup>
+</Project>
