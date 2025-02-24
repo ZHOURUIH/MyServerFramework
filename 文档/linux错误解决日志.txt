@@ -1,0 +1,37 @@
+1.无法访问阿里云服务器指定端口
+解决方法:需要登录阿里云官网,打开控制台,在安全组中找到当前实例,然后选择配置规则,然后添加规则,填写指定端口范围.
+
+2.不支持GBK编码
+解决方法:https://blog.csdn.net/bing19880122/article/details/5047172
+在/var/lib/locales/supported.d/zh中添加zh_CN.GBK GBK和zh_CN.UTF-8 UTF-8,如果没有该文件,可以新建一个,在linux中使用vi或者其他文本编辑器进行编辑,在windows中由于换行符不一致,
+所以使用windows编辑的文件放到linux中会报错.文本编辑完以后使用locale-gen重新生成使用的编码.
+
+3.Navicat连接MySQL Server8.0版本时出现Client does not support authentication protocol requested  by server
+  解决方法：1、use mysql;
+  2、alter user 'root'@'localhost' identified with mysql_native_password by 'your_mysql_password';
+  这一步中如果提示'root'@'localhost'失败,就可以通过select user,host from mysql.user;查看root的host是什么,如果是%,则可以将上面一行的'root'@'localhost'替换为'root'@'%'
+  3、flush privileges;
+  需要确定mysql监听了3306端口,且3306端口已开放,而且是监听所有ip的此端口,0.0.0.0,而不是127.0.0.1. netstat -an | grep 3306可查看3306端口的监听情况,在mysqld.cnf中设置监听的地址
+  
+4.Navicat连接时出现1130 - Host 'xxxxxx' is not allowed to connect to this mysql server
+use mysql;
+select host from user where user='root';
+update user set host = '%' where user ='root';
+flush privileges;
+https://blog.csdn.net/iiiiiilikangshuai/article/details/100905996
+	
+5.编译报错
+	cannot find -lz
+	cannot find -lssl
+	cannot find -lcrypto
+	需要安装对应的包
+	apt-get install zlib1g-dev(安装zlib库)
+	apt-get install libssl-dev(安装ssl库和crypto库)
+	
+6.No CMAKE_CXX_COMPILER could be found.
+解决方法:
+sudo apt-get update
+sudo apt-get install -y build-essential
+
+7.生成github所需的ssh密钥
+https://zhuanlan.zhihu.com/p/688103044

@@ -1,0 +1,15 @@
+// 语法说明,string(utf8)表示在写入数据库时会将字符串转换为utf8格式再写入数据库
+// Account:account中,Account表示该表格的类名,account是数据库中的表格名称
+// 每个表格默认包含一个llong类型的ID字段,并且在第一列
+// 下面这个#start是定义起始标记,解析从下面这一行开始
+#start
+
+// 账号表
+Account:account
+{
+	string Account;					// 账号
+	string Password;				// 密码
+	llong CharacterGUID;			// 角色的ID
+index:
+	Account
+}

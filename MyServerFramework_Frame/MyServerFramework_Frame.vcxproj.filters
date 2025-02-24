@@ -1,0 +1,1764 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="Frame\Dependency\libevent\include.am">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </None>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Frame">
+      <UniqueIdentifier>{43516028-594e-4935-8bb7-4f7e20504c07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Character">
+      <UniqueIdentifier>{df6f487b-b2ef-4656-8874-3d0dba7b60fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Character\Component">
+      <UniqueIdentifier>{cd8de167-af88-4c26-bbc4-04d68ff3f5fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Character\Component\DecisionTree">
+      <UniqueIdentifier>{aaaa7859-4e32-42bf-8501-420e6f270e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Character\Component\StateMachine">
+      <UniqueIdentifier>{79ad7e2f-dbb2-4727-838d-9cfd437aedda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\ClassPool">
+      <UniqueIdentifier>{7670f606-3f78-48a5-a303-48eab6b84f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\ClassPool\ArrayPool">
+      <UniqueIdentifier>{5066ac10-8bb1-40ae-a8cc-eef004658fad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\ClassPool\Pool">
+      <UniqueIdentifier>{3f6de990-9c4d-417f-a7c3-6d4b0c812b1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\ClassPool\VectorPool">
+      <UniqueIdentifier>{d928c296-a0e9-4cde-aea2-161c8b82bc60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\CommandSystem">
+      <UniqueIdentifier>{b728dbc9-8ab8-44df-9da0-6abd6b22d928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\CommandSystem\CmdCharacterManager">
+      <UniqueIdentifier>{17f567d7-b69c-48cb-b4fa-78c2665fcf38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\CommandSystem\CmdGlobal">
+      <UniqueIdentifier>{13fa2320-179e-4f8f-8a97-aa9fcb648220}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\CommandSystem\CmdMySQLManager">
+      <UniqueIdentifier>{f0b1d39c-4f64-4620-ade8-553b56a6e3a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\CommandSystem\CmdNetServer">
+      <UniqueIdentifier>{ed84c5f3-45de-47ac-bdb7-81c06b922650}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Common">
+      <UniqueIdentifier>{8b89a52e-1a3a-486c-bd4f-87f7559d9e3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Component">
+      <UniqueIdentifier>{eda1e5ea-2134-478c-a14f-82855cd3c1cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Component\BaseComponent">
+      <UniqueIdentifier>{a3f292dd-3017-49dd-aa2a-7fd554e9b662}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Component\ComponentMovableObject">
+      <UniqueIdentifier>{ee186843-f092-4914-a803-3a91cfb18f79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Config">
+      <UniqueIdentifier>{f7bacba1-b299-4335-bd35-3b7e6146e8e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\DataBase">
+      <UniqueIdentifier>{d57e50f1-edf1-475e-ab7e-533fce4b6220}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\DataBase\Excel">
+      <UniqueIdentifier>{6d6baf97-d262-4369-825e-cfb49f5c4598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\DataBase\MySQL">
+      <UniqueIdentifier>{1e270849-c3ee-4610-9991-f75e9209fdf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\DataBase\SQLite">
+      <UniqueIdentifier>{04e1e10e-6290-4eb6-a0ea-505f61b03d46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency">
+      <UniqueIdentifier>{78897a8d-abed-4af9-8603-92d3590cd37e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\curl">
+      <UniqueIdentifier>{efbdea5b-d8db-4165-a482-99860ab34980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\json">
+      <UniqueIdentifier>{e2d40187-3b39-43e9-afe0-fd53012a7b0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\libevent">
+      <UniqueIdentifier>{2c530ec8-9cb6-4bf1-90ef-aba09fa378e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\libevent\event2">
+      <UniqueIdentifier>{778b21ba-81ec-4861-b1c2-d80b14c7fe07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\lz4">
+      <UniqueIdentifier>{14ea4025-e97b-46a4-8d22-e30a99abc534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\md5">
+      <UniqueIdentifier>{d00bdca2-fc6b-46b3-b2ae-3e593edc39ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Dependency\sqlite3">
+      <UniqueIdentifier>{12fa6b5b-1a3a-489b-b5ff-b6b3d43d4af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\EventSystem">
+      <UniqueIdentifier>{ee32fc27-2b7a-40eb-9657-865a0cf40fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Factory">
+      <UniqueIdentifier>{8f2fb38e-a921-465c-8260-1d9beed7484e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\InputSystem">
+      <UniqueIdentifier>{9f936c57-3a9a-4d8c-ad2d-a52e964a2ad3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\KeyframeManager">
+      <UniqueIdentifier>{257cba17-2786-49db-b033-0316aaa3d53d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\KeyframeManager\Curve">
+      <UniqueIdentifier>{74d773ca-986f-42f0-a687-574dc586caa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Log">
+      <UniqueIdentifier>{ce642e4b-d9b0-4ade-bb7d-1c519231c195}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Math">
+      <UniqueIdentifier>{b30b5fd3-1acb-47ba-9a96-38a28002ab1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Memory">
+      <UniqueIdentifier>{952d1b97-dd5d-4183-b389-bb713b5c8e80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net">
+      <UniqueIdentifier>{15f7ad91-b79d-471c-81b1-2169d93c804a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net\Http">
+      <UniqueIdentifier>{d46bac09-0d7b-40f2-b05e-b77f064dbee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net\TCPClient">
+      <UniqueIdentifier>{5d0cb82e-a11e-4ece-bfe7-d2018da893af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net\TCPServer">
+      <UniqueIdentifier>{3eab00d5-b3c8-42c5-a147-77e50f003b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net\UDPServer">
+      <UniqueIdentifier>{e04b5ed8-19f9-46a8-855a-ddf1c7a2f7ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Net\WebSocketServer">
+      <UniqueIdentifier>{a5be507b-2545-4957-addd-df3c369fb231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Param">
+      <UniqueIdentifier>{e35d54f9-c6ac-45e6-9caf-ba4594300868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Serialize">
+      <UniqueIdentifier>{29dd010e-d8aa-4a87-b6c5-ebbbb5976b60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\ServerFramework">
+      <UniqueIdentifier>{9b0fe54e-74cf-46d5-98b5-123b83a52fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\StateManager">
+      <UniqueIdentifier>{95c02fcd-08fe-410d-96f6-343622efbb22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\STL">
+      <UniqueIdentifier>{14849796-75cb-4501-82f9-ceedca7c21b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Thread">
+      <UniqueIdentifier>{625ec121-664d-4ea9-b9b0-a612d1d138c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\TimePointSystem">
+      <UniqueIdentifier>{45e855b7-0945-4ebc-8d1d-61bff7e8dbe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\TimePointSystem\TimePoint">
+      <UniqueIdentifier>{fe209553-39d4-4fcc-ab42-12ea8b4c144b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\TimeTaskSystem">
+      <UniqueIdentifier>{df4e2e05-cccb-49bc-a352-39ec5ab53d79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\UnitTest">
+      <UniqueIdentifier>{86536b8f-0a82-4087-bcba-7f4e7b0e10c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Utility">
+      <UniqueIdentifier>{8bdd594a-e508-41ec-b50b-97fe15eeb111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Utility\FileStruct">
+      <UniqueIdentifier>{f8ea1a21-d9de-4313-884e-e8a57a84a8c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Utility\MathStruct">
+      <UniqueIdentifier>{bdd60a56-3fe3-40c8-9c4b-796283c6edb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Utility\TypeTraits">
+      <UniqueIdentifier>{5511e39c-7d14-494d-a627-24ce23a3d273}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Frame\Character\Character.cpp">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Character.h">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\CharacterManager.cpp">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\CharacterManager.h">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\MovableObject.cpp">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\MovableObject.h">
+      <Filter>Frame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\COMCharacterStateMachine.cpp">
+      <Filter>Frame\Character\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\COMCharacterStateMachine.h">
+      <Filter>Frame\Character\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\COMMonsterDecisionTree.cpp">
+      <Filter>Frame\Character\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\COMMonsterDecisionTree.h">
+      <Filter>Frame\Character\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTAction.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTCondition.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTCondition.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroup.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroup.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupAnd.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupAnd.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupOr.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupOr.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTControl.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTDecorate.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTDecorate.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTNode.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTNode.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTParallel.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTParallel.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRandom.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRandom.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRepeater.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRepeater.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSelector.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSelector.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSequence.cpp">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSequence.h">
+      <Filter>Frame\Character\Component\DecisionTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\StateMachine\CharacterState.cpp">
+      <Filter>Frame\Character\Component\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\StateMachine\CharacterState.h">
+      <Filter>Frame\Character\Component\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateGroup.h">
+      <Filter>Frame\Character\Component\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateParam.cpp">
+      <Filter>Frame\Character\Component\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateParam.h">
+      <Filter>Frame\Character\Component\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassBaseTypePool.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassBaseTypePoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassKeyPool.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassKeyPoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassPool.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassPoolBase.cpp">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassPoolBase.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassPooledObject.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassPoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassTypePool.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ClassTypePoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\IntPoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\PodPoolThread.h">
+      <Filter>Frame\ClassPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPool.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPool.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingle.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingle.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingleChar.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingleChar.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolThread.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolThread.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayScope.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayScopeThread.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScope.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScope.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScopeThread.cpp">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScopeThread.h">
+      <Filter>Frame\ClassPool\ArrayPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\CharacterPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\CommandPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\CommandThreadPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\CounterThreadPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\DelayCommandPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\DTNodePool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\EventInfoPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\GameComponentPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\LogInfoPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\MySQLCacheDataPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\MySQLDataPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\PacketTCPPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\PacketTCPThreadPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\PacketWebSocketPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\PacketWebSocketThreadPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\StateParamPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\StatePool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\Pool\TimePointPool.h">
+      <Filter>Frame\ClassPool\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\FrameSTLPoolRegister.cpp">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\FrameSTLPoolRegister.h">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPool.h">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolBase.h">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolManager.cpp">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolManager.h">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolThread.h">
+      <Filter>Frame\ClassPool\VectorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CommandReceiver.cpp">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CommandReceiver.h">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CommandSystem.cpp">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CommandSystem.h">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\DelayCommand.h">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\GameCommand.cpp">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\GameCommand.h">
+      <Filter>Frame\CommandSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdCharacterManager\CmdCharacterManagerDestroyCharacter.cpp">
+      <Filter>Frame\CommandSystem\CmdCharacterManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdCharacterManager\CmdCharacterManagerDestroyCharacter.h">
+      <Filter>Frame\CommandSystem\CmdCharacterManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdGlobal\CmdGlobalDelayLambda.h">
+      <Filter>Frame\CommandSystem\CmdGlobal</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteAll.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteAll.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong2And.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong2And.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnString.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnString.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByID.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByID.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertCombine.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertCombine.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertData.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertData.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertDataT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertOrUpdateData.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertOrUpdateData.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnIntT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnLLongT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnStringT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByIDT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnInt.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnInt.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong2Or.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong2Or.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryExistByColumnString.cpp">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryExistByColumnString.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnIntT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnLLongListT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnLLongT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnStringListT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnStringT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByIDT.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateAllInt.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateBool.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateData.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateFloat.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateFloat2.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateInt.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateInt2.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateIntFloat.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLong.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLongInt.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLongList.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateString.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateString2.h">
+      <Filter>Frame\CommandSystem\CmdMySQLManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerLogoutAccount.cpp">
+      <Filter>Frame\CommandSystem\CmdNetServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerLogoutAccount.h">
+      <Filter>Frame\CommandSystem\CmdNetServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerReceiveUDPPacket.cpp">
+      <Filter>Frame\CommandSystem\CmdNetServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerReceiveUDPPacket.h">
+      <Filter>Frame\CommandSystem\CmdNetServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\ComponentRegisterFrame.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\ComponentRegisterFrame.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\DoubleBuffer.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\DoubleBuffer.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\DoubleBufferReadScope.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\Dump.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\Dump.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameBase.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameBase.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameCallback.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameClassDeclare.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameDefine.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameDefine.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameEnum.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameEnumCheck.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameHeader.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameMacro.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\FrameStringDefine.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\Keyframe.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\LocaleGBKScope.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\LocaleUTF8Scope.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\ObjectTool.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\ObjectTool.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\RandomSystem.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\RandomSystem.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\Singleton.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\StreamBuffer.cpp">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Common\StreamBuffer.h">
+      <Filter>Frame\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentOwner.cpp">
+      <Filter>Frame\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentOwner.h">
+      <Filter>Frame\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\IComponentInterface.h">
+      <Filter>Frame\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentKeyframe.cpp">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentKeyframe.h">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentTrackTarget.cpp">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentTrackTarget.h">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\GameComponent.cpp">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\BaseComponent\GameComponent.h">
+      <Filter>Frame\Component\BaseComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMove.cpp">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMove.h">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMoveCurve.cpp">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMoveCurve.h">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentTrackTarget.cpp">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentTrackTarget.h">
+      <Filter>Frame\Component\ComponentMovableObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Config\FrameConfigSystem.cpp">
+      <Filter>Frame\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Config\FrameConfigSystem.h">
+      <Filter>Frame\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelData.cpp">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelData.h">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelManager.cpp">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelManager.h">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTable.h">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTableBase.cpp">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTableBase.h">
+      <Filter>Frame\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\Counter.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheData.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheData.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheTable.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheTable.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLData.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLData.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataHashMapScope.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataHashMapScopeT.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataListScope.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataListScopeT.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataScope.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataScopeT.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLManager.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLManager.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTable.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTable.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTableT.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementRead.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementRead.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementWrite.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementWrite.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\QueryParam.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\QueryScope.cpp">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\MySQL\QueryScope.h">
+      <Filter>Frame\DataBase\MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SelectCount.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteData.cpp">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteData.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteDataReader.cpp">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteDataReader.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteManager.cpp">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteManager.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTable.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableBase.cpp">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableBase.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableParam.h">
+      <Filter>Frame\DataBase\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\curl.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\curlver.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\easy.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\mprintf.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\multi.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\stdcheaders.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\system.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\typecheck-gcc.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\curl\urlapi.h">
+      <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\assertions.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\autolink.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\config.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\features.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\forwards.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json-forwards.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_batchallocator.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_internalarray.inl">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_internalmap.inl">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_reader.cpp">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_tool.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_value.cpp">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_valueiterator.inl">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_writer.cpp">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\reader.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\value.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\version.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\writer.h">
+      <Filter>Frame\Dependency\json</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\evconfig-private.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\evdns.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\evhttp.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\evrpc.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\evutil.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\tree.h">
+      <Filter>Frame\Dependency\libevent</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\buffer.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_ssl.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\buffer_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\event-config.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\event.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\event_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\event_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\http.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\http_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\http_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\keyvalq_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\listener.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc_struct.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\tag.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\tag_compat.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\thread.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\util.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\libevent\event2\visibility.h">
+      <Filter>Frame\Dependency\libevent\event2</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\lz4.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\lz4file.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\lz4frame.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\lz4frame_static.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\lz4hc.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\lz4\xxhash.h">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\md5\md5.cpp">
+      <Filter>Frame\Dependency\md5</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\md5\md5.h">
+      <Filter>Frame\Dependency\md5</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\sqlite3\sqlite3.h">
+      <Filter>Frame\Dependency\sqlite3</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\sqlite3\sqlite3ext.h">
+      <Filter>Frame\Dependency\sqlite3</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\EventInfo.h">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\EventProcess.h">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\EventSystem.cpp">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\EventSystem.h">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\GameEvent.cpp">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\GameEvent.h">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\EventSystem\IEventListener.h">
+      <Filter>Frame\EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\CharacterFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\CharacterStateFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\FactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\GameComponentFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\PacketTCPFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\PacketWebSocketFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Factory\StateParamFactoryManager.h">
+      <Filter>Frame\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\InputSystem\InputSystem.cpp">
+      <Filter>Frame\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\InputSystem\InputSystem.h">
+      <Filter>Frame\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\InputSystem\KeyState.h">
+      <Filter>Frame\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\AnimationCurve.cpp">
+      <Filter>Frame\KeyframeManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\AnimationCurve.h">
+      <Filter>Frame\KeyframeManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\KeyframeManager.cpp">
+      <Filter>Frame\KeyframeManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\KeyframeManager.h">
+      <Filter>Frame\KeyframeManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearOneZero.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearOneZeroOne.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearZeroOne.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearZeroOneZero.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineIn.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineInOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineOut.h">
+      <Filter>Frame\KeyframeManager\Curve</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\GameLogWrap.cpp">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\GameLogWrap.h">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\LogFileInfo.h">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\LogInfo.cpp">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\LogInfo.h">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\LogSystem.cpp">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Log\LogSystem.h">
+      <Filter>Frame\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Color.cpp">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Color.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Quaternion.cpp">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Quaternion.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2.cpp">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2Int.cpp">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2Int.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2Short.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2UInt.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector2UShort.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector3.cpp">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector3.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector3Int.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector4.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Math\Vector4Int.h">
+      <Filter>Frame\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Memory\ShareMemoryServer.cpp">
+      <Filter>Frame\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Memory\ShareMemoryServer.h">
+      <Filter>Frame\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\Packet.cpp">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\Packet.h">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketBit.h">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketByte.h">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketTCP.cpp">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketTCP.h">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketWebSocket.cpp">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\PacketWebSocket.h">
+      <Filter>Frame\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\Http\HttpListenInfo.h">
+      <Filter>Frame\Net\Http</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\Http\HttpServerSystem.cpp">
+      <Filter>Frame\Net\Http</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\Http\HttpServerSystem.h">
+      <Filter>Frame\Net\Http</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPClient\TCPClient.cpp">
+      <Filter>Frame\Net\TCPClient</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPClient\TCPClient.h">
+      <Filter>Frame\Net\TCPClient</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerClient.cpp">
+      <Filter>Frame\Net\TCPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerClient.h">
+      <Filter>Frame\Net\TCPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerSystem.cpp">
+      <Filter>Frame\Net\TCPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerSystem.h">
+      <Filter>Frame\Net\TCPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPClientInfo.cpp">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPClientInfo.h">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerClient.cpp">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerClient.h">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerSystem.cpp">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerSystem.h">
+      <Filter>Frame\Net\UDPServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerClient.cpp">
+      <Filter>Frame\Net\WebSocketServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerClient.h">
+      <Filter>Frame\Net\WebSocketServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerSystem.cpp">
+      <Filter>Frame\Net\WebSocketServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerSystem.h">
+      <Filter>Frame\Net\WebSocketServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Param\ParamSet.cpp">
+      <Filter>Frame\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Param\ParamSet.h">
+      <Filter>Frame\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Param\StateParamMember.cpp">
+      <Filter>Frame\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Param\StateParamMember.h">
+      <Filter>Frame\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Param\StateParamMemberValue.h">
+      <Filter>Frame\Param</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializableBitData.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializableData.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerBitRead.cpp">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerBitRead.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerBitWrite.cpp">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerBitWrite.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerRead.cpp">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerRead.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerWrite.cpp">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Serialize\SerializerWrite.h">
+      <Filter>Frame\Serialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ServerFramework\FrameComponent.h">
+      <Filter>Frame\ServerFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ServerFramework\ServerFramework.cpp">
+      <Filter>Frame\ServerFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ServerFramework\ServerFramework.h">
+      <Filter>Frame\ServerFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\StateManager\FrameStateManager.cpp">
+      <Filter>Frame\StateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\StateManager\FrameStateManager.h">
+      <Filter>Frame\StateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Array.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\ArrayList.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\HashMap.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Map.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\MapModify.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\MyString.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Queue.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeHashMap.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeHashMapScope.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeMap.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeSet.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeSetScope.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeVector.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeVectorScope.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Set.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Stack.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\ValueModify.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\Vector.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\CustomThread.cpp">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\CustomThread.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadLock.cpp">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadLock.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadLockScope.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadManager.cpp">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadManager.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\TimeLock.cpp">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\TimeLock.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePointSystem.cpp">
+      <Filter>Frame\TimePointSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePointSystem.h">
+      <Filter>Frame\TimePointSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimeValue.cpp">
+      <Filter>Frame\TimePointSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimeValue.h">
+      <Filter>Frame\TimePointSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePoint.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePoint.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInDay.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInDay.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInHour.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInHour.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInMonth.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInMonth.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInWeek.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInWeek.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInYear.cpp">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInYear.h">
+      <Filter>Frame\TimePointSystem\TimePoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTask.cpp">
+      <Filter>Frame\TimeTaskSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTask.h">
+      <Filter>Frame\TimeTaskSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTaskSystem.cpp">
+      <Filter>Frame\TimeTaskSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTaskSystem.h">
+      <Filter>Frame\TimeTaskSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\SerializeTest.cpp">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\SerializeTest.h">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\BinaryUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\BinaryUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FileUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FileUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FrameMySQLUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FrameMySQLUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FrameUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FrameUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\StringUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\StringUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\SystemUtility.cpp">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\SystemUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\TypeUtility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\Utility.h">
+      <Filter>Frame\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FileStruct\FileContent.cpp">
+      <Filter>Frame\Utility\FileStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\FileStruct\FileContent.h">
+      <Filter>Frame\Utility\FileStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Line2.cpp">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Line2.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Line3.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Rect.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Rect3.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Triangle2.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\Triangle3.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\TriangleIntersect.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\MathStruct\TriangleIntersect3.h">
+      <Filter>Frame\Utility\MathStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\TypeTraits\IsPODType.h">
+      <Filter>Frame\Utility\TypeTraits</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Utility\TypeTraits\IsSubClassOf.h">
+      <Filter>Frame\Utility\TypeTraits</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Frame\UnityBuildFrame.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\lz4\lz4.c">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\lz4\lz4file.c">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\lz4\lz4frame.c">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\lz4\lz4hc.c">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\lz4\xxhash.c">
+      <Filter>Frame\Dependency\lz4</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\Dependency\sqlite3\sqlite3.c">
+      <Filter>Frame\Dependency\sqlite3</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

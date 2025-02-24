@@ -1,0 +1,9 @@
+#define FOR_VECTOR(stl) int count##stl = stl.size(); FOR(stl, int i = 0; i < count##stl; ++i)
+#define FOR_I(count) for (int i = 0; i < count; ++i)
+#define FOR_J(count) for (int j = 0; j < count; ++j)
+#define FOR_VECTOR_INVERSE(stl) int stl##Count = stl.size(); FOR(stl, int i = stl##Count - 1; i >= 0; --i)
+#define FOR_INVERSE_I(count) for (int i = count - 1; i >= 0; --i)
+#define ERROR(info) GameLogWrap::logError(info + string(" | ") + _FILE_LINE_, 0)
+#define ERROR
+#define CMD_STACK(classType, cmd) classType cmd; cmd.setShowDebugInfo(false); cmd.setType(GAME_NAME(classType));
+#define FOR_ONCE for(int tempI = 0; tempI < 1; ++tempI)

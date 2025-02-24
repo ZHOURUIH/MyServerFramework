@@ -1,0 +1,704 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+    <None Include="Frame\Dependency\libevent\include.am" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a5b37c0b-a053-4d0e-aebd-1156dbe358f0}</ProjectGuid>
+    <RootNamespace>MyServerFramework_Frame</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MICROLEGENDSERVERFRAME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MYSQL_HOME)/include;./;Frame;Frame/Character;Frame/Character/Component;Frame/Character/Component/DecisionTree;Frame/Character/Component/StateMachine;Frame/ClassPool;Frame/ClassPool/ArrayPool;Frame/ClassPool/Pool;Frame/ClassPool/VectorPool;Frame/CommandSystem;Frame/CommandSystem/CmdCharacterManager;Frame/CommandSystem/CmdGlobal;Frame/CommandSystem/CmdMySQLManager;Frame/CommandSystem/CmdNetServer;Frame/Common;Frame/Component;Frame/Component/BaseComponent;Frame/Component/ComponentMovableObject;Frame/Config;Frame/DataBase;Frame/DataBase/Excel;Frame/DataBase/MySQL;Frame/DataBase/SQLite;Frame/Dependency;Frame/Dependency/curl;Frame/Dependency/libevent;Frame/Dependency/lz4;Frame/Dependency/md5;Frame/Dependency/sqlite3;Frame/EventSystem;Frame/Factory;Frame/InputSystem;Frame/KeyframeManager;Frame/KeyframeManager/Curve;Frame/Log;Frame/Math;Frame/Memory;Frame/Net;Frame/Net/Http;Frame/Net/TCPClient;Frame/Net/TCPServer;Frame/Net/UDPServer;Frame/Net/WebSocketServer;Frame/Param;Frame/Serialize;Frame/ServerFramework;Frame/StateManager;Frame/STL;Frame/Thread;Frame/TimePointSystem;Frame/TimePointSystem/TimePoint;Frame/TimeTaskSystem;Frame/UnitTest;Frame/Utility;Frame/Utility/FileStruct;Frame/Utility/MathStruct;Frame/Utility/TypeTraits;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MICROLEGENDSERVERFRAME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MYSQL_HOME)/include;./;Frame;Frame/Character;Frame/Character/Component;Frame/Character/Component/DecisionTree;Frame/Character/Component/StateMachine;Frame/ClassPool;Frame/ClassPool/ArrayPool;Frame/ClassPool/Pool;Frame/ClassPool/VectorPool;Frame/CommandSystem;Frame/CommandSystem/CmdCharacterManager;Frame/CommandSystem/CmdGlobal;Frame/CommandSystem/CmdMySQLManager;Frame/CommandSystem/CmdNetServer;Frame/Common;Frame/Component;Frame/Component/BaseComponent;Frame/Component/ComponentMovableObject;Frame/Config;Frame/DataBase;Frame/DataBase/Excel;Frame/DataBase/MySQL;Frame/DataBase/SQLite;Frame/Dependency;Frame/Dependency/curl;Frame/Dependency/libevent;Frame/Dependency/lz4;Frame/Dependency/md5;Frame/Dependency/sqlite3;Frame/EventSystem;Frame/Factory;Frame/InputSystem;Frame/KeyframeManager;Frame/KeyframeManager/Curve;Frame/Log;Frame/Math;Frame/Memory;Frame/Net;Frame/Net/Http;Frame/Net/TCPClient;Frame/Net/TCPServer;Frame/Net/UDPServer;Frame/Net/WebSocketServer;Frame/Param;Frame/Serialize;Frame/ServerFramework;Frame/StateManager;Frame/STL;Frame/Thread;Frame/TimePointSystem;Frame/TimePointSystem/TimePoint;Frame/TimeTaskSystem;Frame/UnitTest;Frame/Utility;Frame/Utility/FileStruct;Frame/Utility/MathStruct;Frame/Utility/TypeTraits;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;MICROLEGENDSERVERFRAME_EXPORTS;WINDOWS;_USRDLL;_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MYSQL_HOME)/include;./;Frame;Frame/Character;Frame/Character/Component;Frame/Character/Component/DecisionTree;Frame/Character/Component/StateMachine;Frame/ClassPool;Frame/ClassPool/ArrayPool;Frame/ClassPool/Pool;Frame/ClassPool/VectorPool;Frame/CommandSystem;Frame/CommandSystem/CmdCharacterManager;Frame/CommandSystem/CmdGlobal;Frame/CommandSystem/CmdMySQLManager;Frame/CommandSystem/CmdNetServer;Frame/Common;Frame/Component;Frame/Component/BaseComponent;Frame/Component/ComponentMovableObject;Frame/Config;Frame/DataBase;Frame/DataBase/Excel;Frame/DataBase/MySQL;Frame/DataBase/SQLite;Frame/Dependency;Frame/Dependency/curl;Frame/Dependency/libevent;Frame/Dependency/lz4;Frame/Dependency/md5;Frame/Dependency/sqlite3;Frame/EventSystem;Frame/Factory;Frame/InputSystem;Frame/KeyframeManager;Frame/KeyframeManager/Curve;Frame/Log;Frame/Math;Frame/Memory;Frame/Net;Frame/Net/Http;Frame/Net/TCPClient;Frame/Net/TCPServer;Frame/Net/UDPServer;Frame/Net/WebSocketServer;Frame/Param;Frame/Serialize;Frame/ServerFramework;Frame/StateManager;Frame/STL;Frame/Thread;Frame/TimePointSystem;Frame/TimePointSystem/TimePoint;Frame/TimeTaskSystem;Frame/UnitTest;Frame/Utility;Frame/Utility/FileStruct;Frame/Utility/MathStruct;Frame/Utility/TypeTraits;</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>../DLL/MySQL8.0/64;../VisualLeakDetector/lib/Win64</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;MICROLEGENDSERVERFRAME_EXPORTS;_USRDLL;WINDOWS;_MYSQL;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(MYSQL_HOME)/include;./;Frame;Frame/Character;Frame/Character/Component;Frame/Character/Component/DecisionTree;Frame/Character/Component/StateMachine;Frame/ClassPool;Frame/ClassPool/ArrayPool;Frame/ClassPool/Pool;Frame/ClassPool/VectorPool;Frame/CommandSystem;Frame/CommandSystem/CmdCharacterManager;Frame/CommandSystem/CmdGlobal;Frame/CommandSystem/CmdMySQLManager;Frame/CommandSystem/CmdNetServer;Frame/Common;Frame/Component;Frame/Component/BaseComponent;Frame/Component/ComponentMovableObject;Frame/Config;Frame/DataBase;Frame/DataBase/Excel;Frame/DataBase/MySQL;Frame/DataBase/SQLite;Frame/Dependency;Frame/Dependency/curl;Frame/Dependency/libevent;Frame/Dependency/lz4;Frame/Dependency/md5;Frame/Dependency/sqlite3;Frame/EventSystem;Frame/Factory;Frame/InputSystem;Frame/KeyframeManager;Frame/KeyframeManager/Curve;Frame/Log;Frame/Math;Frame/Memory;Frame/Net;Frame/Net/Http;Frame/Net/TCPClient;Frame/Net/TCPServer;Frame/Net/UDPServer;Frame/Net/WebSocketServer;Frame/Param;Frame/Serialize;Frame/ServerFramework;Frame/StateManager;Frame/STL;Frame/Thread;Frame/TimePointSystem;Frame/TimePointSystem/TimePoint;Frame/TimeTaskSystem;Frame/UnitTest;Frame/Utility;Frame/Utility/FileStruct;Frame/Utility/MathStruct;Frame/Utility/TypeTraits;</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>NotSet</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>../DLL/MySQL8.0/64;../VisualLeakDetector/lib/Win64</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="Frame\UnityBuildFrame.cpp" />
+    <ClInclude Include="Frame\Character\Character.cpp" />
+    <ClInclude Include="Frame\Character\Character.h" />
+    <ClInclude Include="Frame\Character\CharacterManager.cpp" />
+    <ClInclude Include="Frame\Character\CharacterManager.h" />
+    <ClInclude Include="Frame\Character\MovableObject.cpp" />
+    <ClInclude Include="Frame\Character\MovableObject.h" />
+    <ClInclude Include="Frame\Character\Component\COMCharacterStateMachine.cpp" />
+    <ClInclude Include="Frame\Character\Component\COMCharacterStateMachine.h" />
+    <ClInclude Include="Frame\Character\Component\COMMonsterDecisionTree.cpp" />
+    <ClInclude Include="Frame\Character\Component\COMMonsterDecisionTree.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTAction.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTCondition.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTCondition.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroup.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroup.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupAnd.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupAnd.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupOr.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTConditionGroupOr.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTControl.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTDecorate.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTDecorate.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTNode.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTNode.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTParallel.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTParallel.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRandom.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRandom.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRepeater.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTRepeater.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSelector.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSelector.h" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSequence.cpp" />
+    <ClInclude Include="Frame\Character\Component\DecisionTree\DTSequence.h" />
+    <ClInclude Include="Frame\Character\Component\StateMachine\CharacterState.cpp" />
+    <ClInclude Include="Frame\Character\Component\StateMachine\CharacterState.h" />
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateGroup.h" />
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateParam.cpp" />
+    <ClInclude Include="Frame\Character\Component\StateMachine\StateParam.h" />
+    <ClInclude Include="Frame\ClassPool\ClassBaseTypePool.h" />
+    <ClInclude Include="Frame\ClassPool\ClassBaseTypePoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\ClassKeyPool.h" />
+    <ClInclude Include="Frame\ClassPool\ClassKeyPoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\ClassPool.h" />
+    <ClInclude Include="Frame\ClassPool\ClassPoolBase.cpp" />
+    <ClInclude Include="Frame\ClassPool\ClassPoolBase.h" />
+    <ClInclude Include="Frame\ClassPool\ClassPooledObject.h" />
+    <ClInclude Include="Frame\ClassPool\ClassPoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\ClassTypePool.h" />
+    <ClInclude Include="Frame\ClassPool\ClassTypePoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\IntPoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\PodPoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPool.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPool.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingle.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingle.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingleChar.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolSingleChar.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolThread.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayPoolThread.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayScope.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\ArrayScopeThread.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScope.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScope.h" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScopeThread.cpp" />
+    <ClInclude Include="Frame\ClassPool\ArrayPool\CharArrayScopeThread.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\CharacterPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\CommandPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\CommandThreadPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\CounterThreadPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\DelayCommandPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\DTNodePool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\EventInfoPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\GameComponentPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\LogInfoPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\MySQLCacheDataPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\MySQLDataPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\PacketTCPPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\PacketTCPThreadPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\PacketWebSocketPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\PacketWebSocketThreadPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\StateParamPool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\StatePool.h" />
+    <ClInclude Include="Frame\ClassPool\Pool\TimePointPool.h" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\FrameSTLPoolRegister.cpp" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\FrameSTLPoolRegister.h" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPool.h" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolBase.h" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolManager.cpp" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolManager.h" />
+    <ClInclude Include="Frame\ClassPool\VectorPool\VectorPoolThread.h" />
+    <ClInclude Include="Frame\CommandSystem\CommandReceiver.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CommandReceiver.h" />
+    <ClInclude Include="Frame\CommandSystem\CommandSystem.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CommandSystem.h" />
+    <ClInclude Include="Frame\CommandSystem\DelayCommand.h" />
+    <ClInclude Include="Frame\CommandSystem\GameCommand.cpp" />
+    <ClInclude Include="Frame\CommandSystem\GameCommand.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdCharacterManager\CmdCharacterManagerDestroyCharacter.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdCharacterManager\CmdCharacterManagerDestroyCharacter.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdGlobal\CmdGlobalDelayLambda.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteAll.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteAll.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong2And.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnLLong2And.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnString.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByColumnString.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByID.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseDeleteByID.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertCombine.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertCombine.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertData.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertData.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertDataT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertOrUpdateData.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseInsertOrUpdateData.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnIntT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnLLongT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByColumnStringT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryByIDT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnInt.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnInt.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong2Or.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryCountByColumnLLong2Or.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryExistByColumnString.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryExistByColumnString.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnIntT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnLLongListT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnLLongT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnStringListT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByColumnStringT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseQueryListByIDT.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateAllInt.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateBool.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateData.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateFloat.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateFloat2.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateInt.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateInt2.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateIntFloat.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLong.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLongInt.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateLLongList.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateString.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdMySQLManager\CmdMySQLDataBaseUpdateString2.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerLogoutAccount.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerLogoutAccount.h" />
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerReceiveUDPPacket.cpp" />
+    <ClInclude Include="Frame\CommandSystem\CmdNetServer\CmdNetServerReceiveUDPPacket.h" />
+    <ClInclude Include="Frame\Common\ComponentRegisterFrame.cpp" />
+    <ClInclude Include="Frame\Common\ComponentRegisterFrame.h" />
+    <ClInclude Include="Frame\Common\DoubleBuffer.cpp" />
+    <ClInclude Include="Frame\Common\DoubleBuffer.h" />
+    <ClInclude Include="Frame\Common\DoubleBufferReadScope.h" />
+    <ClInclude Include="Frame\Common\Dump.cpp" />
+    <ClInclude Include="Frame\Common\Dump.h" />
+    <ClInclude Include="Frame\Common\FrameBase.cpp" />
+    <ClInclude Include="Frame\Common\FrameBase.h" />
+    <ClInclude Include="Frame\Common\FrameCallback.h" />
+    <ClInclude Include="Frame\Common\FrameClassDeclare.h" />
+    <ClInclude Include="Frame\Common\FrameDefine.cpp" />
+    <ClInclude Include="Frame\Common\FrameDefine.h" />
+    <ClInclude Include="Frame\Common\FrameEnum.h" />
+    <ClInclude Include="Frame\Common\FrameEnumCheck.h" />
+    <ClInclude Include="Frame\Common\FrameHeader.h" />
+    <ClInclude Include="Frame\Common\FrameMacro.h" />
+    <ClInclude Include="Frame\Common\FrameStringDefine.h" />
+    <ClInclude Include="Frame\Common\Keyframe.h" />
+    <ClInclude Include="Frame\Common\LocaleGBKScope.h" />
+    <ClInclude Include="Frame\Common\LocaleUTF8Scope.h" />
+    <ClInclude Include="Frame\Common\ObjectTool.cpp" />
+    <ClInclude Include="Frame\Common\ObjectTool.h" />
+    <ClInclude Include="Frame\Common\RandomSystem.cpp" />
+    <ClInclude Include="Frame\Common\RandomSystem.h" />
+    <ClInclude Include="Frame\Common\Singleton.h" />
+    <ClInclude Include="Frame\Common\StreamBuffer.cpp" />
+    <ClInclude Include="Frame\Common\StreamBuffer.h" />
+    <ClInclude Include="Frame\Component\ComponentOwner.cpp" />
+    <ClInclude Include="Frame\Component\ComponentOwner.h" />
+    <ClInclude Include="Frame\Component\IComponentInterface.h" />
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentKeyframe.cpp" />
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentKeyframe.h" />
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentTrackTarget.cpp" />
+    <ClInclude Include="Frame\Component\BaseComponent\ComponentTrackTarget.h" />
+    <ClInclude Include="Frame\Component\BaseComponent\GameComponent.cpp" />
+    <ClInclude Include="Frame\Component\BaseComponent\GameComponent.h" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMove.cpp" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMove.h" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMoveCurve.cpp" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentMoveCurve.h" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentTrackTarget.cpp" />
+    <ClInclude Include="Frame\Component\ComponentMovableObject\MovableObjectComponentTrackTarget.h" />
+    <ClInclude Include="Frame\Config\FrameConfigSystem.cpp" />
+    <ClInclude Include="Frame\Config\FrameConfigSystem.h" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelData.cpp" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelData.h" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelManager.cpp" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelManager.h" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTable.h" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTableBase.cpp" />
+    <ClInclude Include="Frame\DataBase\Excel\ExcelTableBase.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\Counter.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheData.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheData.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheTable.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLCacheTable.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLData.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLData.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataHashMapScope.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataHashMapScopeT.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataListScope.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataListScopeT.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataScope.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLDataScopeT.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLManager.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLManager.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTable.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTable.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\MySQLTableT.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementRead.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementRead.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementWrite.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\PreStatementWrite.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\QueryParam.h" />
+    <ClInclude Include="Frame\DataBase\MySQL\QueryScope.cpp" />
+    <ClInclude Include="Frame\DataBase\MySQL\QueryScope.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SelectCount.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteData.cpp" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteData.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteDataReader.cpp" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteDataReader.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteManager.cpp" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteManager.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTable.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableBase.cpp" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableBase.h" />
+    <ClInclude Include="Frame\DataBase\SQLite\SQLiteTableParam.h" />
+    <ClInclude Include="Frame\Dependency\curl\curl.h" />
+    <ClInclude Include="Frame\Dependency\curl\curlver.h" />
+    <ClInclude Include="Frame\Dependency\curl\easy.h" />
+    <ClInclude Include="Frame\Dependency\curl\mprintf.h" />
+    <ClInclude Include="Frame\Dependency\curl\multi.h" />
+    <ClInclude Include="Frame\Dependency\curl\stdcheaders.h" />
+    <ClInclude Include="Frame\Dependency\curl\system.h" />
+    <ClInclude Include="Frame\Dependency\curl\typecheck-gcc.h" />
+    <ClInclude Include="Frame\Dependency\curl\urlapi.h" />
+    <ClInclude Include="Frame\Dependency\json\assertions.h" />
+    <ClInclude Include="Frame\Dependency\json\autolink.h" />
+    <ClInclude Include="Frame\Dependency\json\config.h" />
+    <ClInclude Include="Frame\Dependency\json\features.h" />
+    <ClInclude Include="Frame\Dependency\json\forwards.h" />
+    <ClInclude Include="Frame\Dependency\json\json-forwards.h" />
+    <ClInclude Include="Frame\Dependency\json\json.h" />
+    <ClInclude Include="Frame\Dependency\json\json_batchallocator.h" />
+    <ClInclude Include="Frame\Dependency\json\json_internalarray.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_internalmap.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_reader.cpp" />
+    <ClInclude Include="Frame\Dependency\json\json_tool.h" />
+    <ClInclude Include="Frame\Dependency\json\json_value.cpp" />
+    <ClInclude Include="Frame\Dependency\json\json_valueiterator.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\json\json_writer.cpp" />
+    <ClInclude Include="Frame\Dependency\json\reader.h" />
+    <ClInclude Include="Frame\Dependency\json\value.h" />
+    <ClInclude Include="Frame\Dependency\json\version.h" />
+    <ClInclude Include="Frame\Dependency\json\writer.h" />
+    <ClInclude Include="Frame\Dependency\libevent\evconfig-private.h" />
+    <ClInclude Include="Frame\Dependency\libevent\evdns.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event.h" />
+    <ClInclude Include="Frame\Dependency\libevent\evhttp.h" />
+    <ClInclude Include="Frame\Dependency\libevent\evrpc.h" />
+    <ClInclude Include="Frame\Dependency\libevent\evutil.h" />
+    <ClInclude Include="Frame\Dependency\libevent\tree.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\buffer.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_ssl.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\bufferevent_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\buffer_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\dns_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\event-config.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\event.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\event_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\event_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\http.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\http_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\http_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\keyvalq_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\listener.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\rpc_struct.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\tag.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\tag_compat.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\thread.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\util.h" />
+    <ClInclude Include="Frame\Dependency\libevent\event2\visibility.h" />
+    <ClCompile Include="Frame\Dependency\lz4\lz4.c" />
+    <ClInclude Include="Frame\Dependency\lz4\lz4.h" />
+    <ClCompile Include="Frame\Dependency\lz4\lz4file.c" />
+    <ClInclude Include="Frame\Dependency\lz4\lz4file.h" />
+    <ClCompile Include="Frame\Dependency\lz4\lz4frame.c" />
+    <ClInclude Include="Frame\Dependency\lz4\lz4frame.h" />
+    <ClInclude Include="Frame\Dependency\lz4\lz4frame_static.h" />
+    <ClCompile Include="Frame\Dependency\lz4\lz4hc.c" />
+    <ClInclude Include="Frame\Dependency\lz4\lz4hc.h" />
+    <ClCompile Include="Frame\Dependency\lz4\xxhash.c" />
+    <ClInclude Include="Frame\Dependency\lz4\xxhash.h" />
+    <ClInclude Include="Frame\Dependency\md5\md5.cpp" />
+    <ClInclude Include="Frame\Dependency\md5\md5.h" />
+    <ClCompile Include="Frame\Dependency\sqlite3\sqlite3.c" />
+    <ClInclude Include="Frame\Dependency\sqlite3\sqlite3.h" />
+    <ClInclude Include="Frame\Dependency\sqlite3\sqlite3ext.h" />
+    <ClInclude Include="Frame\EventSystem\EventInfo.h" />
+    <ClInclude Include="Frame\EventSystem\EventProcess.h" />
+    <ClInclude Include="Frame\EventSystem\EventSystem.cpp" />
+    <ClInclude Include="Frame\EventSystem\EventSystem.h" />
+    <ClInclude Include="Frame\EventSystem\GameEvent.cpp" />
+    <ClInclude Include="Frame\EventSystem\GameEvent.h" />
+    <ClInclude Include="Frame\EventSystem\IEventListener.h" />
+    <ClInclude Include="Frame\Factory\CharacterFactoryManager.h" />
+    <ClInclude Include="Frame\Factory\CharacterStateFactoryManager.h" />
+    <ClInclude Include="Frame\Factory\FactoryManager.h" />
+    <ClInclude Include="Frame\Factory\GameComponentFactoryManager.h" />
+    <ClInclude Include="Frame\Factory\PacketTCPFactoryManager.h" />
+    <ClInclude Include="Frame\Factory\PacketWebSocketFactoryManager.h" />
+    <ClInclude Include="Frame\Factory\StateParamFactoryManager.h" />
+    <ClInclude Include="Frame\InputSystem\InputSystem.cpp" />
+    <ClInclude Include="Frame\InputSystem\InputSystem.h" />
+    <ClInclude Include="Frame\InputSystem\KeyState.h" />
+    <ClInclude Include="Frame\KeyframeManager\AnimationCurve.cpp" />
+    <ClInclude Include="Frame\KeyframeManager\AnimationCurve.h" />
+    <ClInclude Include="Frame\KeyframeManager\KeyframeManager.cpp" />
+    <ClInclude Include="Frame\KeyframeManager\KeyframeManager.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBackOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveBounceOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCircleOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveCubicOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveElasticOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveExpoOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearOneZero.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearOneZeroOne.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearZeroOne.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveLinearZeroOneZero.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuadOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuartOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveQuintOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineIn.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineInOut.h" />
+    <ClInclude Include="Frame\KeyframeManager\Curve\CurveSineOut.h" />
+    <ClInclude Include="Frame\Log\GameLogWrap.cpp" />
+    <ClInclude Include="Frame\Log\GameLogWrap.h" />
+    <ClInclude Include="Frame\Log\LogFileInfo.h" />
+    <ClInclude Include="Frame\Log\LogInfo.cpp" />
+    <ClInclude Include="Frame\Log\LogInfo.h" />
+    <ClInclude Include="Frame\Log\LogSystem.cpp" />
+    <ClInclude Include="Frame\Log\LogSystem.h" />
+    <ClInclude Include="Frame\Math\Color.cpp" />
+    <ClInclude Include="Frame\Math\Color.h" />
+    <ClInclude Include="Frame\Math\Quaternion.cpp" />
+    <ClInclude Include="Frame\Math\Quaternion.h" />
+    <ClInclude Include="Frame\Math\Vector2.cpp" />
+    <ClInclude Include="Frame\Math\Vector2.h" />
+    <ClInclude Include="Frame\Math\Vector2Int.cpp" />
+    <ClInclude Include="Frame\Math\Vector2Int.h" />
+    <ClInclude Include="Frame\Math\Vector2Short.h" />
+    <ClInclude Include="Frame\Math\Vector2UInt.h" />
+    <ClInclude Include="Frame\Math\Vector2UShort.h" />
+    <ClInclude Include="Frame\Math\Vector3.cpp" />
+    <ClInclude Include="Frame\Math\Vector3.h" />
+    <ClInclude Include="Frame\Math\Vector3Int.h" />
+    <ClInclude Include="Frame\Math\Vector4.h" />
+    <ClInclude Include="Frame\Math\Vector4Int.h" />
+    <ClInclude Include="Frame\Memory\ShareMemoryServer.cpp" />
+    <ClInclude Include="Frame\Memory\ShareMemoryServer.h" />
+    <ClInclude Include="Frame\Net\Packet.cpp" />
+    <ClInclude Include="Frame\Net\Packet.h" />
+    <ClInclude Include="Frame\Net\PacketBit.h" />
+    <ClInclude Include="Frame\Net\PacketByte.h" />
+    <ClInclude Include="Frame\Net\PacketTCP.cpp" />
+    <ClInclude Include="Frame\Net\PacketTCP.h" />
+    <ClInclude Include="Frame\Net\PacketWebSocket.cpp" />
+    <ClInclude Include="Frame\Net\PacketWebSocket.h" />
+    <ClInclude Include="Frame\Net\Http\HttpListenInfo.h" />
+    <ClInclude Include="Frame\Net\Http\HttpServerSystem.cpp" />
+    <ClInclude Include="Frame\Net\Http\HttpServerSystem.h" />
+    <ClInclude Include="Frame\Net\TCPClient\TCPClient.cpp" />
+    <ClInclude Include="Frame\Net\TCPClient\TCPClient.h" />
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerClient.cpp" />
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerClient.h" />
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerSystem.cpp" />
+    <ClInclude Include="Frame\Net\TCPServer\TCPServerSystem.h" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPClientInfo.cpp" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPClientInfo.h" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerClient.cpp" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerClient.h" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerSystem.cpp" />
+    <ClInclude Include="Frame\Net\UDPServer\UDPServerSystem.h" />
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerClient.cpp" />
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerClient.h" />
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerSystem.cpp" />
+    <ClInclude Include="Frame\Net\WebSocketServer\WebSocketServerSystem.h" />
+    <ClInclude Include="Frame\Param\ParamSet.cpp" />
+    <ClInclude Include="Frame\Param\ParamSet.h" />
+    <ClInclude Include="Frame\Param\StateParamMember.cpp" />
+    <ClInclude Include="Frame\Param\StateParamMember.h" />
+    <ClInclude Include="Frame\Param\StateParamMemberValue.h" />
+    <ClInclude Include="Frame\Serialize\SerializableBitData.h" />
+    <ClInclude Include="Frame\Serialize\SerializableData.h" />
+    <ClInclude Include="Frame\Serialize\SerializerBitRead.cpp" />
+    <ClInclude Include="Frame\Serialize\SerializerBitRead.h" />
+    <ClInclude Include="Frame\Serialize\SerializerBitWrite.cpp" />
+    <ClInclude Include="Frame\Serialize\SerializerBitWrite.h" />
+    <ClInclude Include="Frame\Serialize\SerializerRead.cpp" />
+    <ClInclude Include="Frame\Serialize\SerializerRead.h" />
+    <ClInclude Include="Frame\Serialize\SerializerWrite.cpp" />
+    <ClInclude Include="Frame\Serialize\SerializerWrite.h" />
+    <ClInclude Include="Frame\ServerFramework\FrameComponent.h" />
+    <ClInclude Include="Frame\ServerFramework\ServerFramework.cpp" />
+    <ClInclude Include="Frame\ServerFramework\ServerFramework.h" />
+    <ClInclude Include="Frame\StateManager\FrameStateManager.cpp" />
+    <ClInclude Include="Frame\StateManager\FrameStateManager.h" />
+    <ClInclude Include="Frame\STL\Array.h" />
+    <ClInclude Include="Frame\STL\ArrayList.h" />
+    <ClInclude Include="Frame\STL\HashMap.h" />
+    <ClInclude Include="Frame\STL\Map.h" />
+    <ClInclude Include="Frame\STL\MapModify.h" />
+    <ClInclude Include="Frame\STL\MyString.h" />
+    <ClInclude Include="Frame\STL\Queue.h" />
+    <ClInclude Include="Frame\STL\SafeHashMap.h" />
+    <ClInclude Include="Frame\STL\SafeHashMapScope.h" />
+    <ClInclude Include="Frame\STL\SafeMap.h" />
+    <ClInclude Include="Frame\STL\SafeSet.h" />
+    <ClInclude Include="Frame\STL\SafeSetScope.h" />
+    <ClInclude Include="Frame\STL\SafeVector.h" />
+    <ClInclude Include="Frame\STL\SafeVectorScope.h" />
+    <ClInclude Include="Frame\STL\Set.h" />
+    <ClInclude Include="Frame\STL\Stack.h" />
+    <ClInclude Include="Frame\STL\ValueModify.h" />
+    <ClInclude Include="Frame\STL\Vector.h" />
+    <ClInclude Include="Frame\Thread\CustomThread.cpp" />
+    <ClInclude Include="Frame\Thread\CustomThread.h" />
+    <ClInclude Include="Frame\Thread\ThreadLock.cpp" />
+    <ClInclude Include="Frame\Thread\ThreadLock.h" />
+    <ClInclude Include="Frame\Thread\ThreadLockScope.h" />
+    <ClInclude Include="Frame\Thread\ThreadManager.cpp" />
+    <ClInclude Include="Frame\Thread\ThreadManager.h" />
+    <ClInclude Include="Frame\Thread\TimeLock.cpp" />
+    <ClInclude Include="Frame\Thread\TimeLock.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePointSystem.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePointSystem.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimeValue.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimeValue.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePoint.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePoint.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInDay.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInDay.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInHour.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInHour.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInMonth.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInMonth.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInWeek.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInWeek.h" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInYear.cpp" />
+    <ClInclude Include="Frame\TimePointSystem\TimePoint\TimePointInYear.h" />
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTask.cpp" />
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTask.h" />
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTaskSystem.cpp" />
+    <ClInclude Include="Frame\TimeTaskSystem\TimeTaskSystem.h" />
+    <ClInclude Include="Frame\UnitTest\SerializeTest.cpp" />
+    <ClInclude Include="Frame\UnitTest\SerializeTest.h" />
+    <ClInclude Include="Frame\Utility\BinaryUtility.cpp" />
+    <ClInclude Include="Frame\Utility\BinaryUtility.h" />
+    <ClInclude Include="Frame\Utility\FileUtility.cpp" />
+    <ClInclude Include="Frame\Utility\FileUtility.h" />
+    <ClInclude Include="Frame\Utility\FrameMySQLUtility.cpp" />
+    <ClInclude Include="Frame\Utility\FrameMySQLUtility.h" />
+    <ClInclude Include="Frame\Utility\FrameUtility.cpp" />
+    <ClInclude Include="Frame\Utility\FrameUtility.h" />
+    <ClInclude Include="Frame\Utility\MathUtility.cpp" />
+    <ClInclude Include="Frame\Utility\MathUtility.h" />
+    <ClInclude Include="Frame\Utility\StringUtility.cpp" />
+    <ClInclude Include="Frame\Utility\StringUtility.h" />
+    <ClInclude Include="Frame\Utility\SystemUtility.cpp" />
+    <ClInclude Include="Frame\Utility\SystemUtility.h" />
+    <ClInclude Include="Frame\Utility\TypeUtility.h" />
+    <ClInclude Include="Frame\Utility\Utility.h" />
+    <ClInclude Include="Frame\Utility\FileStruct\FileContent.cpp" />
+    <ClInclude Include="Frame\Utility\FileStruct\FileContent.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Line2.cpp" />
+    <ClInclude Include="Frame\Utility\MathStruct\Line2.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Line3.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Rect.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Rect3.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Triangle2.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\Triangle3.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\TriangleIntersect.h" />
+    <ClInclude Include="Frame\Utility\MathStruct\TriangleIntersect3.h" />
+    <ClInclude Include="Frame\Utility\TypeTraits\IsPODType.h" />
+    <ClInclude Include="Frame\Utility\TypeTraits\IsSubClassOf.h" />
+  </ItemGroup>
+</Project>

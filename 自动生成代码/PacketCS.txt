@@ -1,0 +1,25 @@
+﻿// 消息名后面的标签说明
+// [NoLog]:不打印调试信息
+
+// 请求服务器检查网络消息版本号是否正确,此消息应该排第一个
+CSCheckPacketVersion
+{
+	string mPacketVersion;
+}
+
+// 客户端回复主动发送延迟检测消息,需要排在前面
+CSServerCheckPing[NoLog]
+{
+	int mIndex;
+}
+
+// 通知服务器攻击了多个角色,可能是怪物或者玩家
+CSAttackCharacter[NoLog]
+{
+	Vector<llong> mTargetGUID;
+	int mSkillID;
+	int mBulletID;
+	int mDamageToken;
+	int mIndex;
+	llong mTimeStamp;
+}

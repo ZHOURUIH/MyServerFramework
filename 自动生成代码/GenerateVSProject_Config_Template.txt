@@ -1,0 +1,12 @@
+GameName=MyServerFramwork
+FrameName=MyServerFramwork_Frame
+RootPath=E:\Github\Project\{GameName}
+[0]
+ProjectFilePath={RootPath}/{GameName}/{GameName}.vcxproj
+ProjectIncludePath={RootPath}/{GameName}/*,$(MYSQL_HOME)/include,{RootPath}/{FrameName}/*
+ExcludePath={RootPath}/MicroLegend_Server_Frame/Frame/Dependency/libevent/event2
+
+[1]
+ProjectFilePath={RootPath}/{FrameName}/{FrameName}.vcxproj
+ProjectIncludePath=$(MYSQL_HOME)/include,{RootPath}/{FrameName}/*
+ExcludePath={RootPath}/{FrameName}/Frame/Dependency/libevent/event2,{RootPath}/{FrameName}/Frame/Dependency/json

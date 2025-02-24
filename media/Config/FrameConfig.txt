@@ -1,0 +1,43 @@
+﻿// 注意
+// 该文件中可使用双斜杠来对单行进行注释
+// 可以添加任意的换行和空格
+// 变量命名应与代码中枚举命名相同
+
+// tcp绑定的端口号(每个服务器不一样),固定5开头
+TCP_PORT = 50002
+
+// udp绑定的端口号(每个服务器不一样),固定4开头
+UDP_PORT = 40002
+
+// 心跳超时时间
+HEART_BEAT_TIME_OUT = 100.0
+
+// 连接请求队列的最大长度
+BACK_LOG = 4096
+
+// 是否显示命令调试信息
+SHOW_COMMAND_DEBUG_INFO = 0
+
+// 是否显示网络日志信息
+OUTPUT_NET_LOG = 1
+
+// 服务器绑定的域名,暂未使用
+DOMAIN_NAME = www.inothingtodo.com
+
+// 服务器在客户端显示的名字(每个服务器不一样)
+SERVER_NAME = 测试服home
+
+// 数据库地址
+MYSQL_HOST = 127.0.0.1
+
+// mysql数据库端口号
+MYSQL_PORT_NUMBER = 3306
+
+// 数据库名称(每个服务器不一样)
+MYSQL_DATABASE = micro_legend
+
+// 数据库用户名
+MYSQL_USER = root
+
+// 数据库密码
+MYSQL_PASSWORD = zhourui

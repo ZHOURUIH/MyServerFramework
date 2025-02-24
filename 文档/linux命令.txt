@@ -1,0 +1,77 @@
+screen
+screen -ls   列出当前所有的screen程序会话
+screen -r 进程ID   重新连接指定程序与screen,并且显示指定程序的界面
+screen -D -r 进程ID   强制重新连接指定程序与screen,并且显示指定程序的界面,用于上一次进程意外结束而导致screen没有断开连接而造成的错误
+screen -wipe   清除所有已死亡的进程
+screen -S 会话名   创建screen会话时为会话指定一个名字
+Ctrl+a,c   创建新的screen窗口,并显示该窗口
+Ctrl+a,d   暂时断开当前程序与screen的连接
+Ctrl+a,w   显示所有程序窗口列表
+Ctrl+a,n   切换到下一个程序窗口
+Ctrl+a,p   切换到上一个程序窗口
+Ctrl+a,a   发送Ctrl+a键盘消息到当前程序窗口
+Ctrl+a,k   结束当前程序窗口
+Ctrl+a,[   进入拷贝/回滚模式
+
+gdb
+输入gdb进入调试模式
+开启gdb调试需要在编译选项中加入-g
+file 调试的文件名	载入要调试的文件
+start 				启动调试文件,在main函数的第一条语句前面停下来
+continue 			继续运行,缩写c
+list 				显示代码,缩写l
+list 代码文件名  	显示指定文件的代码
+list 类名.函数名	显示指定类的函数,如果此功能无效,则先进入此类,如list 类名,然后再进入函数,如list 函数名吧
+info b				显示断点列表,缩写i
+break				设置断点,缩写b
+break 代码文件名 行号	在指定文件的指定行设置断点
+step 				执行下一条指令,相当于vs的F11,缩写s
+next				执行下一行语句,相当于vs的F10,缩写n
+print 变量名		打印变量值,缩写p
+frame 栈帧序号		查看栈帧,缩写f
+quit				退出gdb,缩写q
+delete 断点编号		删除断点
+backtrace			查看堆栈,缩写bt
+
+swap
+用于在硬盘上建立swap分区,当作内存用.每次开机需要手动开启
+开启步骤
+进入到/swap目录,如果没有则需要新建一个
+下面这条命令的of=swap中的swap是一个文件名,会在当前目录下创建这样名字的一个文件.bs是块大小,count是块数量,bs*count=swap的总字节大小
+dd if=/dev/zero of=swap bs=1024 count=2000000
+// mkswap把第一步的文件设置成swap交换区
+mkswap swap
+启用swap交换分区
+swapon swap
+swapon -s
+//如果提示dd: failed to open '/swapfile': Text file busy则使用swapoff -a命令将分区关闭
+
+// 将编译的一般日志信息和错误信息全部重定向输出到CompileLog.txt中
+make &> CompileLog.txt
+
+mysql操作命令
+service mysql start
+service mysql stop
+service mysql status
+
+nginx命令
+service nginx start
+service nginx stop
+
+mysql日志目录:var/lib/mysql
+
+查看firewall服务状态 systemctl status firewalld
+查看firewall的状态 firewall-cmd --state
+# 开启  service firewalld start
+# 重启  service firewalld restart
+# 关闭  service firewalld stop
+查看防火墙规则 firewall-cmd --list-all
+# 查询端口是否开放 firewall-cmd --query-port=8080/tcp
+# 开放80端口 firewall-cmd --permanent --add-port=80/tcp
+# 移除端口 firewall-cmd --permanent --remove-port=8080/tcp
+#重启防火墙(修改配置后要重启防火墙) firewall-cmd --reload
+
+# 参数解释
+1、firwall-cmd：是Linux提供的操作firewall的一个工具；
+2、--permanent：表示设置为持久；
+3、--add-port：标识添加的端口；

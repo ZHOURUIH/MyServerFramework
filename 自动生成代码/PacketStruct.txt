@@ -1,0 +1,7 @@
+
+// 通用的物品信息结构体
+NetStructItemInfo
+{
+	int mItemID;
+	int mItemCount;
+}

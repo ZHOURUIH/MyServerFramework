@@ -1,0 +1,4 @@
+需要删除Frame/libevent/event2/event-config.h
+此文件只能在windows系统中编译,不能在linux中包含该文件,linux使用的是安装目录中的头文件
+
+生成目录列表时,Dependency下的需要删除除了libevent以外的所有目录,否则会编译报错

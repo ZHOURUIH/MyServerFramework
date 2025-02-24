@@ -1,0 +1,35 @@
+﻿// 消息名后面的标签说明
+// [NoLog]:不打印调试信息
+
+// 向客户端返回网络消息版本号检查结果,此消息应该排第一个
+SCCheckPacketVersion
+{
+	bool mResult;
+}
+
+// 主动向客户端发送延迟检测消息,也需要排在前面
+SCServerCheckPing[NoLog]
+{
+	int mIndex;
+}
+
+// 角色在Game层的完整数据,也是登陆时必要的数据,比如行会,任务等
+SCCharacterFullGameData[NoLog]
+{
+	[Optional]int mGuildID;
+	[Optional]Vector<byte> mAllMission;
+	[Optional]byte mGuildTitle;
+	[Optional]llong mLastLoginTime;
+	[Optional]llong mCreateTime;
+	[Optional]int mQuickSellCount;
+	[Optional]int mQuickDecomposeCount;
+	[Optional]llong mPayExpiration;
+	[Optional]string mQQ;
+	[Optional]int mPKArenaScore;
+}
+
+// 通用的奖励物品提示
+SCGetItemTip[NoLog]
+{
+	Vector<NetStructItemInfo> mIDCountList;
+}

@@ -1,0 +1,12 @@
+// 下面这些是临时变量的定义,用于替换字符串
+GameName=MyServerFramework
+FrameName=MyServerFramework_Frame
+ServerProjectPath=E:\Github\Project\{GameName}
+ClientProjectPath=E:\Github\Project\MyGameFramework
+// #start表示路径的配置正式开始
+#start
+SERVER_GAME_PROJECT_PATH = {ServerProjectPath}\{GameName}
+SERVER_FRAME_PROJECT_PATH = {ServerProjectPath}\{FrameName}
+CLIENT_PROJECT_PATH = {ClientProjectPath}
+CLIENT_HOTFIX_PATH = {ClientProjectPath}\Assets\Scripts\HotFix
+SERVER_EXCLUDE_INCLUDE_PATH = {ServerProjectPath}\{FrameName}\Frame\Dependency\json
