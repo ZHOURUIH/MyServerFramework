@@ -1363,6 +1363,11 @@ llong MySQLTable::queryDataCount(const char* condition)
 
 bool MySQLTable::executeNonQuery(const char* str, const bool showError, const bool hideInfo, bool allowReconnect) const
 {
+	if (mMySQLManager != nullptr && mMySQLManager->getThread() != nullptr && getThreadID() != mMySQLManager->getThread()->getThisThreadID())
+	{
+		ERROR("禁止在mysql线程之外调用数据库操作,query:" + string(str));
+		return false;
+	}
 	if (str == nullptr || mMySQL == nullptr)
 	{
 		return false;
@@ -1391,7 +1396,7 @@ bool MySQLTable::executeNonQuery(const char* str, const bool showError, const bo
 			}
 		}
 		// 重连成功后再执行一次此语句
-		if (allowReconnect && mMySQLManager->checkReconnect(errorInfo))
+		if (allowReconnect && mMySQLManager != nullptr && mMySQLManager->checkReconnect(errorInfo))
 		{
 			return executeNonQuery(str, showError, hideInfo, false);
 		}
@@ -1402,6 +1407,11 @@ bool MySQLTable::executeNonQuery(const char* str, const bool showError, const bo
 
 MYSQL_RES* MySQLTable::executeQuery(const char* str, bool allowReconnect) const
 {
+	if (mMySQLManager != nullptr && mMySQLManager->getThread() != nullptr && getThreadID() != mMySQLManager->getThread()->getThisThreadID())
+	{
+		ERROR("禁止在mysql线程之外调用数据库操作,query:" + string(str));
+		return nullptr;
+	}
 	if (str == nullptr || mMySQL == nullptr)
 	{
 		return nullptr;
@@ -1428,7 +1438,7 @@ MYSQL_RES* MySQLTable::executeQuery(const char* str, bool allowReconnect) const
 			ERROR("query error!   " + errorInfo + ", query : " + str + ", 错误码:" + IToS(ret));
 		}
 		// 重连成功后再执行一次此语句
-		if (allowReconnect && mMySQLManager->checkReconnect(errorInfo.c_str()))
+		if (allowReconnect && mMySQLManager != nullptr && mMySQLManager->checkReconnect(errorInfo.c_str()))
 		{
 			return executeQuery(str, false);
 		}

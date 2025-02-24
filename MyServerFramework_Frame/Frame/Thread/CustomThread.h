@@ -11,17 +11,18 @@ public:
 	CustomThread(const string& name, CustomThreadCallback callback, void* args, CustomThreadCallback preCmdCallback = nullptr, CustomThreadCallback endCmdCallback = nullptr);
 	virtual ~CustomThread() { destroy(); }
 	void destroy();
-	void addCmd(const Vector<DelayCommand*>& cmdInfoList) { mCmdBuffer.add(cmdInfoList); }
-	void addCmd(DelayCommand* cmdInfo) { mCmdBuffer.add(cmdInfo); }
 	void setTime(int frameTimeMS, int forceSleep = 5) const;
-	void setBackground(const bool background)	{ mIsBackground = background; }
-	void setShowFPS(const bool showFPS)			{ mShowFPS = showFPS; }
-	void setPrintFPS(const bool print)			{ mPrintFPS = print; }
-	void setRunning(const bool running)			{ mRunning = running; }
-	void setCmdDebug(const bool cmdDebug)		{ mCmdDebug = cmdDebug; }
-	MY_THREAD getThreadHandle() const			{ return mThread; }
-	float getFrameTime() const					{ return mFrameTime; }
-	void* getArgs() const						{ return mArgs; }
+	void addCmd(const Vector<DelayCommand*>& cmdInfoList)	{ mCmdBuffer.add(cmdInfoList); }
+	void addCmd(DelayCommand* cmdInfo)						{ mCmdBuffer.add(cmdInfo); }
+	void setBackground(const bool background)				{ mIsBackground = background; }
+	void setShowFPS(const bool showFPS)						{ mShowFPS = showFPS; }
+	void setPrintFPS(const bool print)						{ mPrintFPS = print; }
+	void setRunning(const bool running)						{ mRunning = running; }
+	void setCmdDebug(const bool cmdDebug)					{ mCmdDebug = cmdDebug; }
+	MY_THREAD getThreadHandle() const						{ return mThread; }
+	float getFrameTime() const								{ return mFrameTime; }
+	void* getArgs() const									{ return mArgs; }
+	int getThisThreadID() const								{ return mThreadID; }
 protected:
 	THREAD_CALLBACK_DECLEAR(run)
 	{

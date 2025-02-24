@@ -2,7 +2,6 @@
 
 #include "ClassPooledObject.h"
 #include "MyString.h"
-#include "BinaryUtility.h"
 
 class MICRO_LEGEND_FRAME_API Packet : public ClassPooledObject
 {
