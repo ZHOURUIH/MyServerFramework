@@ -1,6 +1,6 @@
 ﻿#include "GameHeader.h"
 #ifdef WINDOWS
-#pragma comment(lib, "MicroLegend_Server_Frame.lib")
+#pragma comment(lib, "MyServerFramework_Frame.lib")
 #endif
 
 #ifdef WINDOWS

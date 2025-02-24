@@ -1148,6 +1148,7 @@ namespace BinaryUtility
 
 using BinaryUtility::hasBit;
 using BinaryUtility::setBitOne;
+using BinaryUtility::setBitZero;
 using BinaryUtility::getByte;
 using BinaryUtility::bitCountToByteCount;
 using BinaryUtility::setBit;

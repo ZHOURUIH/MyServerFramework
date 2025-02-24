@@ -1,5 +1,5 @@
-GameName=MyServerFramwork
-FrameName=MyServerFramwork_Frame
+GameName=MyServerFramework
+FrameName=MyServerFramework_Frame
 RootPath=E:\Github\Project\{GameName}
 [0]
 ProjectFilePath={RootPath}/{GameName}/{GameName}.vcxproj

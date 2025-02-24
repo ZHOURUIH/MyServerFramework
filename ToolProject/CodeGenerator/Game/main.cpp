@@ -1,5 +1,4 @@
 #include "Utility.h"
-#include "CodeState.h"
 #include "CodeMySQL.h"
 #include "CodeNetPacket.h"
 #include "CodeUnityBuild.h"
@@ -19,7 +18,6 @@ void main()
 	}
 	CodeNetPacket::generate();
 	CodeMySQL::generate();
-	CodeState::generate();
 	CodeUnityBuild::generate();
 	CodeFrameSystem::generate();
 	CodeClassDeclareAndHeader::generate();

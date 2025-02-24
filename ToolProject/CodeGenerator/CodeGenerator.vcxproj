@@ -175,7 +175,6 @@
     <ClCompile Include="Game\main.cpp" />
     <ClCompile Include="Game\CodeMySQL.cpp" />
     <ClCompile Include="Game\CodeNetPacket.cpp" />
-    <ClCompile Include="Game\CodeState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Frame\Common\FrameDefine.h" />
@@ -228,7 +227,6 @@
     <ClInclude Include="Game\GameDefine.h" />
     <ClInclude Include="Game\CodeMySQL.h" />
     <ClInclude Include="Game\CodeNetPacket.h" />
-    <ClInclude Include="Game\CodeState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

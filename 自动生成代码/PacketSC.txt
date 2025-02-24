@@ -1,5 +1,6 @@
 ﻿// 消息名后面的标签说明
 // [NoLog]:不打印调试信息
+// [Optional]:表示此字段在发送时可以不实际发出去,可调用消息对象进行指定是否发送
 
 // 向客户端返回网络消息版本号检查结果,此消息应该排第一个
 SCCheckPacketVersion
@@ -13,19 +14,12 @@ SCServerCheckPing[NoLog]
 	int mIndex;
 }
 
-// 角色在Game层的完整数据,也是登陆时必要的数据,比如行会,任务等
+// 角色在Game层的完整数据
 SCCharacterFullGameData[NoLog]
 {
-	[Optional]int mGuildID;
-	[Optional]Vector<byte> mAllMission;
-	[Optional]byte mGuildTitle;
-	[Optional]llong mLastLoginTime;
-	[Optional]llong mCreateTime;
-	[Optional]int mQuickSellCount;
-	[Optional]int mQuickDecomposeCount;
-	[Optional]llong mPayExpiration;
-	[Optional]string mQQ;
-	[Optional]int mPKArenaScore;
+	[Optional]int mHP;
+	[Optional]int mMaxHP;
+	[Optional]string mName;
 }
 
 // 通用的奖励物品提示
@@ -33,3 +27,7 @@ SCGetItemTip[NoLog]
 {
 	Vector<NetStructItemInfo> mIDCountList;
 }
+
+// 回复客户端攻击结果
+SCAttack[Nolog]
+{}

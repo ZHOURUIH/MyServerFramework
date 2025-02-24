@@ -85,8 +85,8 @@ protected:
 	bool mOutputLog = true;									// 是否输出日志
 	static constexpr float mDumpPacketTimeInternal = 20.0f;	// 每20秒打印一次收发数据信息
 	static constexpr float mServerHeartBeatTimeOut = 60.0f;	// 服务器自身心跳间隔时间
-	static constexpr int mKey0 = 41;
-	static constexpr int mKey1 = 3;
-	static constexpr int mKey2 = 600;
-	static constexpr int mKey3 = 34;
+	static constexpr int mKey0 = 1;
+	static constexpr int mKey1 = 2;
+	static constexpr int mKey2 = 3;
+	static constexpr int mKey3 = 4;
 };

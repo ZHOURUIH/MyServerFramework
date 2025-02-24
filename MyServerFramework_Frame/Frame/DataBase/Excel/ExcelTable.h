@@ -79,8 +79,8 @@ public:
 protected:
 	void decodeFile(char* fileBuffer, const int bufferSize)
 	{
-		const string preFileName = "ASLD" + mTableName;
-		const string key = generateFileMD5(preFileName.c_str(), (int)preFileName.length()) + "23y35y983";
+		const string preFileName = "AAAA" + mTableName;
+		const string key = generateFileMD5(preFileName.c_str(), (int)preFileName.length()) + "123456789";
 		int keyIndex = 0;
 		for (int i = 0; i < bufferSize; ++i)
 		{

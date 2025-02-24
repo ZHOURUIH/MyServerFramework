@@ -2,6 +2,7 @@
 
 #include "ClassPooledObject.h"
 #include "MyString.h"
+#include "BinaryUtility.h"
 
 class MICRO_LEGEND_FRAME_API Packet : public ClassPooledObject
 {
@@ -20,6 +21,8 @@ public:
 	void clearFieldFlag()							{ mFieldFlag = 0; }
 	template<typename T>
 	void setFieldValid(T index)						{ setBitOne(mFieldFlag, (byte)index); }
+	template<typename T>
+	void setFieldInvalid(T index)					{ setBitZero(mFieldFlag, (byte)index); }
 	void setType(ushort type)						{ mType = type; }
 	void setSequenceNumber(int sequence)			{ mSequenceNumber = sequence; }
 	void resetProperty() override;

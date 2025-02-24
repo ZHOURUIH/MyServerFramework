@@ -2,7 +2,7 @@
 GameName=MyServerFramework
 FrameName=MyServerFramework_Frame
 ServerProjectPath=E:\Github\Project\{GameName}
-ClientProjectPath=E:\Github\Project\MyGameFramework
+ClientProjectPath=E:\Github\Project\MyFramework
 // #start表示路径的配置正式开始
 #start
 SERVER_GAME_PROJECT_PATH = {ServerProjectPath}\{GameName}

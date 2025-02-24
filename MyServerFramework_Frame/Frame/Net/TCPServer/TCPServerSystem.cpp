@@ -534,7 +534,6 @@ void TCPServerSystem::encrypt(char* data, const int length, const byte* key, con
 	FOR_I(length)
 	{
 		const byte keyChar = (byte)(key[keyIndex] ^ (byte)param);
-		data[i] ^= keyChar;
 		data[i] += keyChar >> 1;
 		data[i] ^= (byte)(((keyChar * keyIndex) & (mKey0 * mKey1)) | ((mKey2 + mKey3) * keyIndex));
 		keyIndex += i;
@@ -557,7 +556,6 @@ void TCPServerSystem::decrypt(char* data, const int length, const byte* key, con
 		const byte keyChar = (byte)(key[keyIndex] ^ (byte)param);
 		data[i] ^= (byte)(((keyChar * keyIndex) & (mKey0 * mKey1)) | ((mKey2 + mKey3) * keyIndex));
 		data[i] -= keyChar >> 1;
-		data[i] ^= keyChar;
 		keyIndex += i;
 		if (keyIndex >= keyLen)
 		{

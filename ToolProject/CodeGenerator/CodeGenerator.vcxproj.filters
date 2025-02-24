@@ -105,9 +105,6 @@
     <ClCompile Include="Game\CodeNetPacket.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\CodeState.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Frame\Utility\CodeUtility.cpp">
       <Filter>Frame\Utility</Filter>
     </ClCompile>
@@ -231,9 +228,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Game\CodeNetPacket.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\CodeState.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Frame\Utility\CodeUtility.h">

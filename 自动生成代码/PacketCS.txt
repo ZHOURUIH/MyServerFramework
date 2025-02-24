@@ -13,13 +13,17 @@ CSServerCheckPing[NoLog]
 	int mIndex;
 }
 
-// 通知服务器攻击了多个角色,可能是怪物或者玩家
-CSAttackCharacter[NoLog]
+// 通知服务器攻击
+CSAttack[NoLog]
 {
 	Vector<llong> mTargetGUID;
 	int mSkillID;
-	int mBulletID;
-	int mDamageToken;
-	int mIndex;
 	llong mTimeStamp;
+}
+
+// 登录角色
+CSLogin[NoLog]
+{
+	string mAccount;
+	string mPassword;
 }
