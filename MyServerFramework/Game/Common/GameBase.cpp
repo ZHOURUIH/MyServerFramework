@@ -2,6 +2,11 @@
 
 namespace GameBase
 {
+	// auto generate start Excel Define
+	ExcelAchivement* mExcelAchivement;
+	ExcelTest* mExcelTest;
+	// auto generate end Excel Define
+
 	// auto generate start FrameSystem Define
 	GameConfigSystem* mGameConfigSystem;
 	// auto generate end FrameSystem Define
@@ -32,5 +37,10 @@ namespace GameBase
 
 		// auto generate start SQLite Clear
 		// auto generate end SQLite Clear
+
+		// auto generate start Excel Clear
+		mExcelAchivement = nullptr;
+		mExcelTest = nullptr;
+		// auto generate end Excel Clear
 	}
 }

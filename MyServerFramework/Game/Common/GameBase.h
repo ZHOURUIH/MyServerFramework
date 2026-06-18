@@ -17,6 +17,11 @@ namespace GameBase
 
 	// auto generate start SQLite Extern
 	// auto generate end SQLite Extern
+
+	// auto generate start Excel Extern
+	extern ExcelAchivement* mExcelAchivement;
+	extern ExcelTest* mExcelTest;
+	// auto generate end Excel Extern
 };
 
 using namespace GameBase;

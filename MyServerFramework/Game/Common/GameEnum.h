@@ -12,3 +12,10 @@ public:
 	static constexpr byte PLAYER = 1;		// 玩家
 	static constexpr byte MAX = 5;			// 最大值,用于获取类型数量
 };
+
+enum class TEST_ENUM : byte
+{
+	NONE,
+	VALUE0,
+	VALUE1,
+};

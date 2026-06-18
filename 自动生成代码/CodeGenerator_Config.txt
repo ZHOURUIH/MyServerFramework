@@ -1,12 +1,15 @@
 // 下面这些是临时变量的定义,用于替换字符串
-GameName=MyServerFramework
 FrameName=MyServerFramework_Frame
-ServerProjectPath=E:\Github\Project_Framework\{GameName}
+ServerProjectPath=E:\Github\Project_Framework\MyServerFramework
 ClientProjectPath=E:\Github\Project_Framework\MyFramework
+TablePath=E:\Github\Project_Framework\MyFramework\Excels
 // #start表示路径的配置正式开始
 #start
-SERVER_GAME_PROJECT_PATH = {ServerProjectPath}\{GameName}
+SERVER_GAME_PROJECT_PATH = {ServerProjectPath}\MyServerFramework
 SERVER_FRAME_PROJECT_PATH = {ServerProjectPath}\{FrameName}
 CLIENT_PROJECT_PATH = {ClientProjectPath}
 CLIENT_HOTFIX_PATH = {ClientProjectPath}\Assets\Scripts\HotFix
 SERVER_EXCLUDE_INCLUDE_PATH = {ServerProjectPath}\{FrameName}\Frame\Dependency\json
+SQLITE_PATH = {TablePath}
+EXCEL_PATH = {TablePath}
+VIRTUAL_CLIENT = false

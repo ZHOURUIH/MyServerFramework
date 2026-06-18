@@ -3,5 +3,9 @@
 void GameSTLPoolRegister::registeAll()
 {
 	// 自定义类型
-	// SQLite数据类型
+
+	// auto generate start Excel数据类型
+	mVectorPoolManager->registeVectorPool<EDAchivement*>();
+	mVectorPoolManager->registeVectorPool<EDTest*>();
+	// auto generate end Excel数据类型
 }

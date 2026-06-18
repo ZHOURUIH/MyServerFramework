@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// auto generate start
+#pragma once
 
 class CharacterGame;
 class CharacterGameData;
@@ -13,6 +14,11 @@ class GameSTLPoolRegister;
 class GameStringDefine;
 class GameComponentRegister;
 class GameConfigSystem;
+class EDAchivement;
+class EDTest;
+class ExcelRegister;
+class ExcelAchivement;
+class ExcelTest;
 class MDAccount;
 class MySQLRegister;
 class MySQLAccount;
@@ -30,3 +36,4 @@ class SCCheckPacketVersion;
 class SCGetItemTip;
 class SCServerCheckPing;
 class NetStructItemInfo;
+// auto generate end

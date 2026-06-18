@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// auto generate start
+#pragma once
 
 #include "FrameHeader.h"
 #include "CharacterGame.h"
@@ -18,6 +19,11 @@
 #include "GameStringDefine.h"
 #include "GameComponentRegister.h"
 #include "GameConfigSystem.h"
+#include "EDAchivement.h"
+#include "EDTest.h"
+#include "ExcelRegister.h"
+#include "ExcelAchivement.h"
+#include "ExcelTest.h"
 #include "MDAccount.h"
 #include "MySQLRegister.h"
 #include "MySQLAccount.h"
@@ -36,3 +42,4 @@
 #include "SCServerCheckPing.h"
 #include "NetStructItemInfo.h"
 #include "GameUtility.h"
+// auto generate end

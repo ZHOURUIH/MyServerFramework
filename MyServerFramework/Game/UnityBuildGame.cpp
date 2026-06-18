@@ -1,4 +1,5 @@
-﻿#include "CharacterGame.cpp"
+﻿// auto generate start
+#include "CharacterGame.cpp"
 #include "CharacterGameData.cpp"
 #include "CharacterPlayer.cpp"
 #include "CharacterPlayerData.cpp"
@@ -9,6 +10,11 @@
 #include "GameSTLPoolRegister.cpp"
 #include "GameComponentRegister.cpp"
 #include "GameConfigSystem.cpp"
+#include "EDAchivement.cpp"
+#include "EDTest.cpp"
+#include "ExcelRegister.cpp"
+#include "ExcelAchivement.cpp"
+#include "ExcelTest.cpp"
 #include "MDAccount.cpp"
 #include "MySQLRegister.cpp"
 #include "MySQLAccount.cpp"
@@ -27,3 +33,4 @@
 #include "NetStructItemInfo.cpp"
 #include "GameUtility.cpp"
 #include "main.cpp"
+// auto generate end

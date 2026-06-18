@@ -34,10 +34,10 @@ MYSQL_HOST = 127.0.0.1
 MYSQL_PORT_NUMBER = 3306
 
 // 数据库名称(每个服务器不一样)
-MYSQL_DATABASE = micro_legend
+MYSQL_DATABASE = test_demo
 
 // 数据库用户名
 MYSQL_USER = root
 
 // 数据库密码
-MYSQL_PASSWORD = zhourui
+MYSQL_PASSWORD = 3462124

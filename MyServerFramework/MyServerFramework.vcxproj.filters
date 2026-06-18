@@ -31,6 +31,12 @@
     <Filter Include="Game\DataBase\Excel">
       <UniqueIdentifier>{95c3b95c-4799-437f-b351-6747bab8ff4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\DataBase\Excel\Data">
+      <UniqueIdentifier>{2d8700f6-aaad-430b-8b75-3f67c1e1c1ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\DataBase\Excel\Table">
+      <UniqueIdentifier>{732d362b-0c5e-4d8f-a01b-2075b8375128}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Game\DataBase\MySQL">
       <UniqueIdentifier>{9ae0ab26-b61c-426b-a3ce-97a60202ece0}</UniqueIdentifier>
     </Filter>
@@ -156,6 +162,30 @@
     </ClInclude>
     <ClInclude Include="Game\DataBase\Excel\ExcelRegister.h">
       <Filter>Game\DataBase\Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDAchivement.cpp">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDAchivement.h">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDTest.cpp">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDTest.h">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelAchivement.cpp">
+      <Filter>Game\DataBase\Excel\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelAchivement.h">
+      <Filter>Game\DataBase\Excel\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelTest.cpp">
+      <Filter>Game\DataBase\Excel\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelTest.h">
+      <Filter>Game\DataBase\Excel\Table</Filter>
     </ClInclude>
     <ClInclude Include="Game\DataBase\MySQL\MySQLRegister.cpp">
       <Filter>Game\DataBase\MySQL</Filter>
