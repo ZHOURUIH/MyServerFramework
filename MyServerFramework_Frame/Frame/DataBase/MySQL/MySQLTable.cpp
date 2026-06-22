@@ -68,8 +68,25 @@ bool MySQLTable::queryExistByID(const llong instanceID)
 
 Vector<MySQLData*> MySQLTable::queryAll(const bool createTempData)
 {
+	Vector<MySQLData*> dataList = queryAllNoCache(createTempData);
+	mCacheTable->addOrUpdateDataList(dataList);
+	return dataList;
+}
+
+Vector<MySQLData*> MySQLTable::queryAllNoCache(const bool createTempData)
+{
 	QueryParam param;
 	param.mQueryAll = true;
+	return queryList(param, createTempData);
+}
+
+Vector<MySQLData*> MySQLTable::queryAllPartial(const Vector<string>& columns, bool createTempData)
+{
+	// 仅查询部分字段的数据就不能进入缓存
+	QueryParam param;
+	param.mQueryAll = true;
+	param.mColumns = new Vector<string>();
+	param.mColumns->addRangeCopy(columns);
 	return queryList(param, createTempData);
 }
 
@@ -77,8 +94,11 @@ Vector<MySQLData*> MySQLTable::queryListByFullParam(const QueryParam& param)
 {
 	// 全表查询不走缓存
 	Vector<MySQLData*> dataList = queryList(param, true);
-	// 更新缓存
-	mCacheTable->addOrUpdateDataList(dataList);
+	// 更新缓存,只有非部分字段查询时才会更新缓存
+	if (param.mColumns == nullptr || param.mColumns->isEmpty())
+	{
+		mCacheTable->addOrUpdateDataList(dataList);
+	}
 	return dataList;
 }
 
@@ -176,6 +196,17 @@ Vector<MySQLData*> MySQLTable::queryList(const QueryParam& param, const bool cre
 		}
 	}
 
+	string selectContent = "*";
+	if (param.mColumns != nullptr && !param.mColumns->isEmpty())
+	{
+		selectContent = "";
+		for (const string& col : *param.mColumns)
+		{
+			selectContent += col + ",";
+		}
+		removeLastComma(selectContent);
+	}
+
 	// 生成最终的查询语句
 	string heapQueryStr;
 	MyString<2048> stackQueryStr;
@@ -184,13 +215,16 @@ Vector<MySQLData*> MySQLTable::queryList(const QueryParam& param, const bool cre
 	{
 		// 由于使用了自定义的缓存,为了避免条件删除时由于有要判断的列没有查询而导致未能将缓存中的数据删除,然后导致缓存与数据库不一致
 		// 所以在查询时都是查询全部列的数据
-		stackQueryStr.add("SELECT * FROM ", mTableName, stackWhereStr.str(), orderStr.str(), limitStr.str());
+		stackQueryStr.add("SELECT ", selectContent.c_str(), " FROM ", mTableName);
+		stackQueryStr.add(stackWhereStr.str(), orderStr.str(), limitStr.str());
 	}
 	// 如果where使用的是堆内存
 	else if (!heapWhereStr.empty())
 	{
 		heapQueryStr.reserve(2048);
-		heapQueryStr += string("SELECT * FROM ");
+		heapQueryStr += string("SELECT ");
+		heapQueryStr += selectContent;
+		heapQueryStr += string(" FROM ");
 		heapQueryStr += mTableName;
 		heapQueryStr += heapWhereStr;
 		heapQueryStr += orderStr.str();
@@ -199,18 +233,19 @@ Vector<MySQLData*> MySQLTable::queryList(const QueryParam& param, const bool cre
 	// 没有where条件
 	else
 	{
-		stackQueryStr.add("SELECT * FROM ", mTableName, orderStr.str(), limitStr.str());
+		stackQueryStr.add("SELECT ", selectContent.c_str(), " FROM ", mTableName, orderStr.str(), limitStr.str());
 	}
 
 	// 获得查询结果
+	QueryScope scope(this);
 	MYSQL_RES* result = nullptr;
 	if (!stackQueryStr.isEmpty())
 	{
-		result = executeQuery(stackQueryStr.str());
+		result = scope.query(stackQueryStr.str());
 	}
 	else if (!heapQueryStr.empty())
 	{
-		result = executeQuery(heapQueryStr.c_str());
+		result = scope.query(heapQueryStr.c_str());
 	}
 	Vector<MySQLData*> dataList;
 	const bool ret = result != nullptr && result->row_count > 0;
@@ -226,7 +261,6 @@ Vector<MySQLData*> MySQLTable::queryList(const QueryParam& param, const bool cre
 		}
 		mysqlToResultData(result, dataList);
 	}
-	endQuery(result);
 	const llong time1 = readTSC();
 	const double timeMS = Profiler::ticksToMS(time1 - time0);
 	if (ret && timeMS > 5)
@@ -234,6 +268,32 @@ Vector<MySQLData*> MySQLTable::queryList(const QueryParam& param, const bool cre
 		LOG("查询数据的耗时较长:" + FToS((float)timeMS) + "毫秒, sql:" + (!stackQueryStr.isEmpty() ? stackQueryStr.str() : heapQueryStr.c_str()));
 	}
 	return dataList;
+}
+
+void MySQLTable::queryAllID(Vector<llong>& idList)
+{
+	idList.clear();
+	MyString<256> sql;
+	sql.add("SELECT ID FROM ", mTableName);
+	QueryScope scope(this, sql.str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return;
+	}
+	idList.reserve((int)result->row_count);
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] != nullptr)
+		{
+			idList.add(SToLL(row[0]));
+		}
+	}
 }
 
 MySQLData* MySQLTable::queryByInt(const int column, const int value)
@@ -1243,6 +1303,105 @@ int MySQLTable::queryInt(const llong id, const int colIndex)
 	return value;
 }
 
+HashMap<llong, int> MySQLTable::queryIntList(const Vector<llong>& idList, const int colIndex)
+{
+	HashMap<llong, int> valueList;
+	if (idList.isEmpty())
+	{
+		return valueList;
+	}
+	// 先从缓存中查询
+	Vector<llong> tempList = idList;
+	for (int i = 0; i < tempList.size(); ++i)
+	{
+		if (MySQLData* cacheData = mCacheTable->getCacheData(tempList[i]))
+		{
+			valueList.add(tempList[i], cacheData->getInt(colIndex));
+			tempList.removeAt(i--);
+		}
+	}
+	if (tempList.isEmpty())
+	{
+		return valueList;
+	}
+
+	// 剩下的再去查数据库
+	const llong time0 = getRealTimeMS();
+	string queryStr;
+	queryStr += "SELECT ID,";
+	queryStr += getColName(colIndex);
+	queryStr += " FROM ";
+	queryStr += mTableName;
+	queryStr += " WHERE ID in (";
+	queryStr += LLsToS(tempList);
+	queryStr += ")";
+	
+	QueryScope scope(this, queryStr.c_str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToI(row[1]) : 0);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询Int数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr);
+	}
+	return valueList;
+}
+
+HashMap<llong, int> MySQLTable::queryIntList(const int colIndex)
+{
+	HashMap<llong, int> valueList;
+	const llong time0 = getRealTimeMS();
+	MyString<128> queryStr;
+	queryStr.add("SELECT ID,");
+	queryStr.add(getColName(colIndex));
+	queryStr.add(" FROM ");
+	queryStr.add(mTableName);
+
+	QueryScope scope(this, queryStr.str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToI(row[1]) : 0);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询Int数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
+	}
+	return valueList;
+}
+
 float MySQLTable::queryFloat(const llong id, const int col)
 {
 	// 先查询缓存
@@ -1265,7 +1424,102 @@ float MySQLTable::queryFloat(const llong id, const int col)
 	return value;
 }
 
-llong MySQLTable::queryULLong(const llong id, const int col)
+HashMap<llong, float> MySQLTable::queryFloatList(const Vector<llong>& idList, const int colIndex)
+{
+	HashMap<llong, float> valueList;
+	if (idList.isEmpty())
+	{
+		return valueList;
+	}
+	// 先从缓存中查询
+	Vector<llong> tempList = idList;
+	for (int i = 0; i < tempList.size(); ++i)
+	{
+		if (MySQLData* cacheData = mCacheTable->getCacheData(tempList[i]))
+		{
+			valueList.add(tempList[i], cacheData->getFloat(colIndex));
+			tempList.removeAt(i--);
+		}
+	}
+	if (tempList.isEmpty())
+	{
+		return valueList;
+	}
+
+	// 剩下的再去查数据库
+	const llong time0 = getRealTimeMS();
+	string queryStr;
+	queryStr += "SELECT ID,";
+	queryStr += getColName(colIndex);
+	queryStr += " FROM ";
+	queryStr += mTableName;
+	queryStr += " WHERE ID in (";
+	queryStr += LLsToS(tempList);
+	queryStr += ")";
+
+	QueryScope scope(this, queryStr.c_str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToF(row[1]) : 0.0f);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询Float数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr);
+	}
+	return valueList;
+}
+
+HashMap<llong, float> MySQLTable::queryFloatList(const int colIndex)
+{
+	HashMap<llong, float> valueList;
+	const llong time0 = getRealTimeMS();
+	MyString<128> queryStr;
+	queryStr.add("SELECT ID,", getColName(colIndex).c_str(), " FROM ", mTableName);
+	QueryScope scope(this, queryStr.str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToF(row[1]) : 0.0f);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询Float数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
+	}
+	return valueList;
+}
+
+llong MySQLTable::queryLLong(const llong id, const int col)
 {
 	// 先查询缓存
 	if (MySQLData* cacheData = mCacheTable->getCacheData(id))
@@ -1285,6 +1539,101 @@ llong MySQLTable::queryULLong(const llong id, const int col)
 		LOG("查询ULLong数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
 	}
 	return value;
+}
+
+HashMap<llong, llong> MySQLTable::queryLLongList(const Vector<llong>& idList, const int colIndex)
+{
+	HashMap<llong, llong> valueList;
+	if (idList.isEmpty())
+	{
+		return valueList;
+	}
+	// 先从缓存中查询
+	Vector<llong> tempList = idList;
+	for (int i = 0; i < tempList.size(); ++i)
+	{
+		if (MySQLData* cacheData = mCacheTable->getCacheData(tempList[i]))
+		{
+			valueList.add(tempList[i], cacheData->getLLong(colIndex));
+			tempList.removeAt(i--);
+		}
+	}
+	if (tempList.isEmpty())
+	{
+		return valueList;
+	}
+
+	// 剩下的再去查数据库
+	const llong time0 = getRealTimeMS();
+	string queryStr;
+	queryStr += "SELECT ID,";
+	queryStr += getColName(colIndex);
+	queryStr += " FROM ";
+	queryStr += mTableName;
+	queryStr += " WHERE ID in (";
+	queryStr += LLsToS(tempList);
+	queryStr += ")";
+
+	QueryScope scope(this, queryStr.c_str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToLL(row[1]) : 0LL);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询LLong数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr);
+	}
+	return valueList;
+}
+
+HashMap<llong, llong> MySQLTable::queryLLongList(const int colIndex)
+{
+	HashMap<llong, llong> valueList;
+	const llong time0 = getRealTimeMS();
+	MyString<128> queryStr;
+	queryStr.add("SELECT ID,", getColName(colIndex).c_str(), " FROM ", mTableName);
+	QueryScope scope(this, queryStr.str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? SToLL(row[1]) : 0LL);
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询LLong数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
+	}
+	return valueList;
 }
 
 string MySQLTable::queryString(const llong id, const int col)
@@ -1307,6 +1656,101 @@ string MySQLTable::queryString(const llong id, const int col)
 		LOG("查询MyString数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
 	}
 	return value;
+}
+
+HashMap<llong, string> MySQLTable::queryStringList(const Vector<llong>& idList, const int colIndex)
+{
+	HashMap<llong, string> valueList;
+	if (idList.isEmpty())
+	{
+		return valueList;
+	}
+	// 先从缓存中查询
+	Vector<llong> tempList = idList;
+	for (int i = 0; i < tempList.size(); ++i)
+	{
+		if (MySQLData* cacheData = mCacheTable->getCacheData(tempList[i]))
+		{
+			valueList.add(tempList[i], cacheData->getString(colIndex));
+			tempList.removeAt(i--);
+		}
+	}
+	if (tempList.isEmpty())
+	{
+		return valueList;
+	}
+
+	// 剩下的再去查数据库
+	const llong time0 = getRealTimeMS();
+	string queryStr;
+	queryStr += "SELECT ID,";
+	queryStr += getColName(colIndex);
+	queryStr += " FROM ";
+	queryStr += mTableName;
+	queryStr += " WHERE ID in (";
+	queryStr += LLsToS(tempList);
+	queryStr += ")";
+
+	QueryScope scope(this, queryStr.c_str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? row[1] : "");
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询LLong数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr);
+	}
+	return valueList;
+}
+
+HashMap<llong, string> MySQLTable::queryStringList(const int colIndex)
+{
+	HashMap<llong, string> valueList;
+	const llong time0 = getRealTimeMS();
+	MyString<128> queryStr;
+	queryStr.add("SELECT ID,", getColName(colIndex).c_str(), " FROM ", mTableName);
+	QueryScope scope(this, queryStr.str());
+	MYSQL_RES* result = scope.mResult;
+	if (result == nullptr)
+	{
+		return valueList;
+	}
+	while (true)
+	{
+		const MYSQL_ROW row = mysql_fetch_row(result);
+		if (row == nullptr)
+		{
+			break;
+		}
+		if (row[0] == nullptr)
+		{
+			continue;
+		}
+		valueList.add(SToLL(row[0]), row[1] != nullptr ? row[1] : "");
+	}
+
+	const llong time1 = getRealTimeMS();
+	if (time1 - time0 >= 5)
+	{
+		LOG("查询LLong数据耗时:" + IToS((int)(time1 - time0)) + ", sql:" + queryStr.str());
+	}
+	return valueList;
 }
 
 MySQLData* MySQLTable::mysqlToResultData(MYSQL_RES* result)
@@ -1343,8 +1787,30 @@ MySQLData* MySQLTable::mysqlToResultData(MYSQL_RES* result)
 
 void MySQLTable::mysqlToResultData(MYSQL_RES* result, const Vector<MySQLData*>& dataList) const
 {
-	string tempStr;
-	tempStr.reserve(32);
+	if (result == nullptr)
+	{
+		return;
+	}
+
+	const int fieldCount = (int)mysql_num_fields(result);
+	MYSQL_FIELD* fields = mysql_fetch_fields(result);
+	if (fields == nullptr)
+	{
+		return;
+	}
+
+	// MySQL结果列下标 -> 数据类列下标
+	ArrayList<256, int> fieldToColumnIndex;
+	FOR(fieldCount)
+	{
+		const int colIndex = getColIndex(fields[i].name);
+		if (colIndex < 0)
+		{
+			ERROR("找不到列名的下标:" + string(fields[i].name));
+		}
+		fieldToColumnIndex.add(colIndex);
+	}
+
 	int index = 0;
 	while (true)
 	{
@@ -1353,17 +1819,13 @@ void MySQLTable::mysqlToResultData(MYSQL_RES* result, const Vector<MySQLData*>& 
 		{
 			break;
 		}
-		// 重置列的下标
-		mysql_field_seek(result, 0);
 		mTemp.clear();
-		FOR(mysql_num_fields(result))
+		FOR(fieldCount)
 		{
-			// 将char*转换为string,然后查找相同名字列的真实列名,后续就可以一直使用const char*类型,效率比string高很多
-			tempStr = mysql_fetch_field(result)->name;
-			const int colIndex = getColIndex(tempStr);
+			const int colIndex = fieldToColumnIndex[i];
 			if (colIndex < 0)
 			{
-				ERROR("找不到列名的下标:" + tempStr);
+				continue;
 			}
 			mTemp.add(colIndex, sql_row[i]);
 		}

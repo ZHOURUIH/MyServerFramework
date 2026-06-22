@@ -11,6 +11,8 @@ public:
 	MYSQL_RES* mResult = nullptr;
 public:
 	QueryScope(const MySQLTable* table, const char* queryStr);
+	QueryScope(const MySQLTable* table);
+	MYSQL_RES* query(const char* queryStr);
 	~QueryScope();
 };
 

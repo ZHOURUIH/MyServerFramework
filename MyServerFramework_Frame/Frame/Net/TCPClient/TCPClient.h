@@ -50,6 +50,7 @@ protected:
 	uint mSequenceNumber = 0;						// 当前发送包的序列号
 	int mParsedCount = 0;							// 已成功解析的消息数量
 	uint mLastReceiveSequenceNumber = 0;			// 上一次接收到的消息序列号
+	bool mWinsockInitialized = false;				// 是否已经初始化了winsock,防止重复调用WSACleanup
 private:
 	Vector<PacketTCP*> mTempPacketList;
 };

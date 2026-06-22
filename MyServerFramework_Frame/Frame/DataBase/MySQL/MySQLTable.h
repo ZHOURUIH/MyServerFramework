@@ -78,6 +78,7 @@ public:
 	llong queryCount(const char* condition);
 	int queryMaxInt(int column);
 	llong queryMaxLLong(int column);
+	void queryAllID(Vector<llong>& idList);
 
 	// 删除
 	bool deleteByID(llong instanceID) const;
@@ -124,12 +125,20 @@ public:
 	bool updateAllBool(int col, bool paramValue) const;
 	// 查询单条数据的一个整数字段
 	int queryInt(llong id, int col);
+	HashMap<llong, int> queryIntList(const Vector<llong>& id, int col);
+	HashMap<llong, int> queryIntList(int col);
 	// 查询单条数据的一个浮点数字段
 	float queryFloat(llong id, int col);
+	HashMap<llong, float> queryFloatList(const Vector<llong>& id, int col);
+	HashMap<llong, float> queryFloatList(int col);
 	// 查询单条数据的一个长整型字段
-	llong queryULLong(llong id, int col);
+	llong queryLLong(llong id, int col);
+	HashMap<llong, llong> queryLLongList(const Vector<llong>& id, int col);
+	HashMap<llong, llong> queryLLongList(int col);
 	// 查询单条数据的一个字符串字段
 	string queryString(llong id, int col);
+	HashMap<llong, string> queryStringList(const Vector<llong>& id, int col);
+	HashMap<llong, string> queryStringList(int col);
 
 	void addColName(const string& name) 
 	{
@@ -160,6 +169,9 @@ public:
 protected:
 	// 查询全部数据,需要手动使用MySQLDataBase::destroyData销毁获取到的数据对象
 	Vector<MySQLData*> queryAll(bool createTempData = true);
+	Vector<MySQLData*> queryAllNoCache(bool createTempData = true);
+	// 仅查询全表的指定字段
+	Vector<MySQLData*> queryAllPartial(const Vector<string>& columns, bool createTempData = true);
 	Vector<MySQLData*> queryListByFullParam(const QueryParam& param);
 	MySQLData* queryByID(llong instanceID);
 	MySQLData* queryByInt(int column, int value);

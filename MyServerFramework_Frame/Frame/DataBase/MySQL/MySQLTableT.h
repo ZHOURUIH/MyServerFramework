@@ -148,9 +148,22 @@ public:
 	{
 		return queryExistByLLongStringAnd((int)column0, value0, (int)column1, value1);
 	}
+	MySQLDataListScopeT<T> queryAllPartialT(const Vector<typename T::Column>& columns, bool createTempData = true)
+	{
+		Vector<string> columnInts;
+		for (const T::Column col : columns)
+		{
+			columnInts.add(getColName((int)col));
+		}
+		return MySQLDataListScopeT<T>(queryAllPartial(columnInts, createTempData));
+	}
 	MySQLDataListScopeT<T> queryAllT(bool createTempData = true) 
 	{
 		return MySQLDataListScopeT<T>(queryAll(createTempData));
+	}
+	MySQLDataListScopeT<T> queryAllNoCacheT(bool createTempData = true)
+	{
+		return MySQLDataListScopeT<T>(queryAllNoCache(createTempData));
 	}
 	MySQLDataHashMapScopeT<T> queryAllMapT(bool createTempData = true)
 	{
@@ -270,6 +283,58 @@ public:
 	MySQLDataScopeT<T> queryByLLongT(typename T::Column column, llong value)
 	{
 		return MySQLDataScopeT<T>(static_cast<T*>(queryByLLong((int)column, value)));
+	}
+	// 查询单条数据的一个整数字段
+	int queryIntT(llong id, typename T::Column column)
+	{
+		return queryInt(id, (int)column);
+	}
+	HashMap<llong, int> queryIntListT(const Vector<llong>& id, typename T::Column column)
+	{
+		return queryIntList(id, (int)column);
+	}
+	HashMap<llong, int> queryIntListT(typename T::Column column)
+	{
+		return queryIntList((int)column);
+	}
+	// 查询单条数据的一个浮点数字段
+	float queryFloatT(llong id, typename T::Column column)
+	{
+		return queryFloat(id, (int)column);
+	}
+	HashMap<llong, float> queryFloatListT(const Vector<llong>& id, typename T::Column column)
+	{
+		return queryFloatList(id, (int)column);
+	}
+	HashMap<llong, float> queryFloatListT(typename T::Column column)
+	{
+		return queryFloatList((int)column);
+	}
+	// 查询单条数据的一个长整型字段
+	llong queryLLongT(llong id, typename T::Column column)
+	{
+		return queryLLong(id, (int)column);
+	}
+	HashMap<llong, llong> queryLLongListT(const Vector<llong>& id, typename T::Column column)
+	{
+		return queryLLongList(id, (int)column);
+	}
+	HashMap<llong, llong> queryLLongListT(typename T::Column column)
+	{
+		return queryLLongList((int)column);
+	}
+	// 查询单条数据的一个字符串字段
+	string queryStringT(llong id, typename T::Column column)
+	{
+		return queryString(id, (int)column);
+	}
+	HashMap<llong, string> queryStringListT(const Vector<llong>& id, typename T::Column column)
+	{
+		return queryStringList(id, (int)column);
+	}
+	HashMap<llong, string> queryStringListT(typename T::Column column)
+	{
+		return queryStringList((int)column);
 	}
 };
 #endif

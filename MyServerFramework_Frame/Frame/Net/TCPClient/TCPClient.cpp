@@ -30,7 +30,11 @@ void TCPClient::disconnect()
 	CLOSE_SOCKET(mSocket);
 #ifdef WINDOWS
 	// 需要在CLOSE_SOCKET后面调用
-	WSACleanup();
+	if (mWinsockInitialized)
+	{
+		mWinsockInitialized = false;
+		WSACleanup();
+	}
 #endif
 	mCurServerHeartBeatTime = -1.0f;
 	mSequenceNumber = 0;
@@ -42,6 +46,10 @@ void TCPClient::disconnect()
 
 void TCPClient::init(const string& ip, const ushort port)
 {
+	if (mWinsockInitialized)
+	{
+		return;
+	}
 	mServerIP = ip;
 	mServerPort = port;
 	// 初始化Socket环境
@@ -52,6 +60,7 @@ void TCPClient::init(const string& ip, const ushort port)
 		ERROR("WSAStartup failed!");
 		return;
 	}
+	mWinsockInitialized = true;
 #endif
 	// 创建监听的Socket
 	mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -73,10 +82,11 @@ void TCPClient::init(const string& ip, const ushort port)
 	// 连接服务器
 	if (connect(mSocket, (const struct sockaddr*)&addrServ, sizeof(SOCKADDR_IN)) != 0)
 	{
-		mSocket = INVALID_SOCKET;
+		CLOSE_SOCKET(mSocket);
 		LOG("connect failed!");
 		return;
 	}
+	mWinsockInitialized = true;
 	mCurServerHeartBeatTime = mHeartBeatTimeOut;
 #ifndef STRESS_TEST
 	mSendThread = mThreadManager->createThread("TCPClient_SendSocket", [this] { sendThread(); });

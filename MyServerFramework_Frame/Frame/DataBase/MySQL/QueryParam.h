@@ -8,9 +8,11 @@ public:
 	virtual ~QueryParam()
 	{
 		DELETE(mIDList);
+		DELETE(mColumns);
 	}
 public:
 	Vector<llong>* mIDList = nullptr;			// 要查询的ID列表,优先判断mCondition,mCondition为空时才会判断mIDList
+	Vector<string>* mColumns = nullptr;			// 也支持可以指定只查询某些字段,而不是所有字段
 	MyString<128> mConditionStack;				// 查询的条件,如果条件比较短的就用栈字符串存储
 	string mConditionHeap;						// 查询的条件,如果条件比较长的就用普通字符串
 	llong mLimitStart = 0;						// 返回结果在查询结果中的起始下标,0表示从查询结果的第一个开始返回

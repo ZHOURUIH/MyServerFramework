@@ -14,7 +14,11 @@ void UDPServerSystem::quit()
 	CLOSE_SOCKET(mSocket);
 #ifdef WINDOWS
 	// 需要在CLOSE_SOCKET后面调用
-	WSACleanup();
+	if (mWinsockInitialized)
+	{
+		mWinsockInitialized = false;
+		WSACleanup();
+	}
 #endif
 	DELETE(mClient);
 	DELETE(mPacketDataBuffer);
@@ -23,6 +27,10 @@ void UDPServerSystem::quit()
 
 void UDPServerSystem::init()
 {
+	if (mWinsockInitialized)
+	{
+		return;
+	}
 	mPort = (ushort)mFrameConfigSystem->getUDPPort();
 	// 未配置udp端口,则不启动udp服务器
 	if (mPort == 0)
@@ -37,6 +45,7 @@ void UDPServerSystem::init()
 		ERROR("WSAStartup failed!");
 		return;
 	}
+	mWinsockInitialized = true;
 #endif
 	//创建监听的Socket
 	mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -52,7 +61,7 @@ void UDPServerSystem::init()
 	//绑定Sockets Server
 	if (bind(mSocket, (const struct sockaddr*)&addrServ, sizeof(sockaddr_in)) != 0)
 	{
-		mSocket = INVALID_SOCKET;
+		CLOSE_SOCKET(mSocket);
 		ERROR("bind failed!");
 		// linux下只要绑定端口失败就退出,否则会一直无法连接此服务器
 #ifdef LINUX
@@ -70,6 +79,7 @@ void UDPServerSystem::init()
 #endif
 	if (ret != 0)
 	{
+		CLOSE_SOCKET(mSocket);
 		ERROR("设置socket选项失败");
 		return;
 	}

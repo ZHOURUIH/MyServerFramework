@@ -27,4 +27,5 @@ protected:
 	MY_SOCKET mSocket = INVALID_SOCKET;				// 服务器套接字
 	char* mTempRecvBuffer = nullptr;				// 数据接收缓冲区
 	ushort mPort = 0;								// UDP服务器端口
+	bool mWinsockInitialized = false;				// 是否已经初始化了winsock,防止重复调用WSACleanup
 };

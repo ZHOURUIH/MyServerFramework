@@ -633,6 +633,8 @@ void FileUtilityTest::testDeleteEmptyFolder()
 // ============================================================
 void FileUtilityTest::testComprehensiveScenario()
 {
+    cleanupTestRoot();
+
     const string workDir = kTestRoot + "/scenario";
     createFolder(workDir);
 
@@ -674,16 +676,16 @@ void FileUtilityTest::testComprehensiveScenario()
     createFolder(backupDir);
     for (int i = 0; i < (int)allFiles.size(); ++i)
     {
-        const string fileName = "data_" + IToS(i) + ".txt";
+        const string fileName = getFileName(allFiles[i]);
         copyFile(allFiles[i], backupDir + "/" + fileName);
     }
 
-    // 校验备份 MD5 与原始一致
-    for (int i = 0; i < 10; ++i)
+    // 校验备份 MD5 与原始一致（用文件真实名称，不依赖索引）
+    for (int i = 0; i < (int)allFiles.size(); ++i)
     {
-        const string name = "/data_" + IToS(i) + ".txt";
-        const string md5Src = generateFileMD5(workDir + name, false);
-        const string md5Dst = generateFileMD5(backupDir + name, false);
+        const string fileName = getFileName(allFiles[i]);
+        const string md5Src = generateFileMD5(allFiles[i], false);
+        const string md5Dst = generateFileMD5(backupDir + "/" + fileName, false);
         FUT_FILE_ASSERT(md5Src == md5Dst, "scenario: backup MD5 matches original");
     }
 

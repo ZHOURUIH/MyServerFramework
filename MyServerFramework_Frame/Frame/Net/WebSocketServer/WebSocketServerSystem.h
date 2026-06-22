@@ -67,6 +67,7 @@ protected:
 	atomic<int> mReceivePacketCount;							// 记录接收到的包数量
 	ushort mPort = 0;											// 端口号
 	bool mOutputLog = true;										// 是否输出日志
+	bool mWinsockInitialized = false;							// 是否已经初始化了winsock,防止重复调用WSACleanup
 	static constexpr float mDumpPacketTimeInternal = 10.0f;		// 每10秒打印一次收发数据信息
 	static constexpr float mServerHeartBeatTimeOut = 60.0f;		// 服务器自身心跳间隔时间
 };

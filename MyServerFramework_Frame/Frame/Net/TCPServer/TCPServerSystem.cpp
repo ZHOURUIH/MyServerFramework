@@ -18,7 +18,11 @@ void TCPServerSystem::quit()
 	CLOSE_SOCKET(mSocket);
 #ifdef WINDOWS
 	// 需要在CLOSE_SOCKET后面调用
-	WSACleanup();
+	if (mWinsockInitialized)
+	{
+		mWinsockInitialized = false;
+		WSACleanup();
+	}
 #endif
 	DELETE(mPacketDataBuffer);
 	DELETE_ARRAY(mRecvBuffer);
@@ -26,6 +30,10 @@ void TCPServerSystem::quit()
 
 void TCPServerSystem::init()
 {
+	if (mWinsockInitialized)
+	{
+		return;
+	}
 	mPort = (ushort)mFrameConfigSystem->getTCPPort();
 	mHeartBeatTimeOut = mFrameConfigSystem->getHeartBeatTimeout();
 	mOutputLog = mFrameConfigSystem->getOutputNetLog();
@@ -42,6 +50,7 @@ void TCPServerSystem::init()
 		ERROR("WSAStartup failed!");
 		return;
 	}
+	mWinsockInitialized = true;
 #endif
 	//创建监听的Socket
 	mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -58,7 +67,7 @@ void TCPServerSystem::init()
 	int bindCode = bind(mSocket, (const struct sockaddr*)&addrServ, sizeof(sockaddr_in));
 	if (bindCode != 0)
 	{
-		mSocket = INVALID_SOCKET;
+		CLOSE_SOCKET(mSocket);
 		ERROR("bind failed! code:" + IToS(bindCode));
 		// linux下只要绑定端口失败就退出,否则会一直无法连接此服务器
 #ifdef LINUX
@@ -69,7 +78,7 @@ void TCPServerSystem::init()
 	//在Sockets Server上进行监听
 	if (listen(mSocket, mFrameConfigSystem->getBacklog()) != 0)
 	{
-		mSocket = INVALID_SOCKET;
+		CLOSE_SOCKET(mSocket);
 		ERROR("listen failed!");
 		// linux下只要绑定端口失败就退出,否则会一直无法连接此服务器
 #ifdef LINUX
@@ -110,7 +119,7 @@ void TCPServerSystem::acceptThread()
 #endif
 	MY_SOCKET socket = accept(mSocket, (struct sockaddr*)&addr, &nLen);
 	// 因为设置了2秒超时,所以accept每2秒就会返回一次INVALID_SOCKET
-	if (socket == (MY_SOCKET)INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 	{
 		return;
 	}
