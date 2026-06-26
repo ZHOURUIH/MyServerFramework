@@ -14,5 +14,6 @@ public:
 public:
 	void cloneTo(ExcelData* target) override;
 	void read(SerializerRead* reader) override;
+	static void postLoadAll(ExcelTableBase* tableBase){}
 };
 // auto generate end

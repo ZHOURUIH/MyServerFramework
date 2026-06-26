@@ -1,6 +1,9 @@
 ﻿// auto generate start
 #include "EDTest.h"
 
+EDTest* EDTest::TEST_0 = nullptr;
+EDTest* EDTest::TEST_1 = nullptr;
+
 void EDTest::cloneTo(ExcelData* target)
 {
 	base::cloneTo(target);
@@ -36,5 +39,11 @@ void EDTest::read(SerializerRead* reader)
 	reader->read(mTestLinkTable0);
 	reader->readList(mTestLinkTable1);
 	reader->readString(mTestPath);
+}
+void EDTest::postLoadAll(ExcelTableBase* tableBase)
+{
+	auto* table = static_cast<ExcelTable<EDTest>*>(tableBase);
+	TEST_0 = table->getData(TEST_0_ID);
+	TEST_1 = table->getData(TEST_1_ID);
 }
 // auto generate end

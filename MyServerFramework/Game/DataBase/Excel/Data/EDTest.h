@@ -9,6 +9,12 @@ class EDTest : public ExcelData
 {
 	BASE(EDTest, ExcelData);
 public:
+	static constexpr int TEST_0_ID = 1;							// 测试字段
+	static constexpr int TEST_1_ID = 2;							// 测试字段
+
+	static EDTest* TEST_0;										// 测试字段
+	static EDTest* TEST_1;										// 测试字段
+
 	string mTestString;										// 测试字符串
 	int mTestInt = 0;										// 测试整数
 	llong mTestLong = 0;									// 测试长整数
@@ -25,5 +31,6 @@ public:
 public:
 	void cloneTo(ExcelData* target) override;
 	void read(SerializerRead* reader) override;
+	static void postLoadAll(ExcelTableBase* tableBase);
 };
 // auto generate end
