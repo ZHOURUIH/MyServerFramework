@@ -6,6 +6,7 @@ void GameSTLPoolRegister::registeAll()
 
 	// auto generate start Excel数据类型
 	mVectorPoolManager->registeVectorPool<EDAchivement*>();
+	mVectorPoolManager->registeVectorPool<EDGlobal*>();
 	mVectorPoolManager->registeVectorPool<EDTest*>();
 	// auto generate end Excel数据类型
 }

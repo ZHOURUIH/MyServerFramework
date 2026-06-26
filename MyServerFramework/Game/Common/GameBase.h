@@ -20,6 +20,7 @@ namespace GameBase
 
 	// auto generate start Excel Extern
 	extern ExcelAchivement* mExcelAchivement;
+	extern ExcelGlobal* mExcelGlobal;
 	extern ExcelTest* mExcelTest;
 	// auto generate end Excel Extern
 };

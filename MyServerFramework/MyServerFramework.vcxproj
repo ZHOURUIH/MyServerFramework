@@ -212,10 +212,14 @@ xcopy $(ProjectDir)..\DLL\libevent\Release\event_openssl.dll $(TargetDir) /Y</Co
     <ClInclude Include="Game\DataBase\Excel\ExcelRegister.h" />
     <ClInclude Include="Game\DataBase\Excel\Data\EDAchivement.cpp" />
     <ClInclude Include="Game\DataBase\Excel\Data\EDAchivement.h" />
+    <ClInclude Include="Game\DataBase\Excel\Data\EDGlobal.cpp" />
+    <ClInclude Include="Game\DataBase\Excel\Data\EDGlobal.h" />
     <ClInclude Include="Game\DataBase\Excel\Data\EDTest.cpp" />
     <ClInclude Include="Game\DataBase\Excel\Data\EDTest.h" />
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelAchivement.cpp" />
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelAchivement.h" />
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelGlobal.cpp" />
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelGlobal.h" />
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelTest.cpp" />
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelTest.h" />
     <ClInclude Include="Game\DataBase\MySQL\MySQLRegister.cpp" />

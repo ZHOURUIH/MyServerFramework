@@ -169,6 +169,12 @@
     <ClInclude Include="Game\DataBase\Excel\Data\EDAchivement.h">
       <Filter>Game\DataBase\Excel\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDGlobal.cpp">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Data\EDGlobal.h">
+      <Filter>Game\DataBase\Excel\Data</Filter>
+    </ClInclude>
     <ClInclude Include="Game\DataBase\Excel\Data\EDTest.cpp">
       <Filter>Game\DataBase\Excel\Data</Filter>
     </ClInclude>
@@ -179,6 +185,12 @@
       <Filter>Game\DataBase\Excel\Table</Filter>
     </ClInclude>
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelAchivement.h">
+      <Filter>Game\DataBase\Excel\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelGlobal.cpp">
+      <Filter>Game\DataBase\Excel\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\DataBase\Excel\Table\ExcelGlobal.h">
       <Filter>Game\DataBase\Excel\Table</Filter>
     </ClInclude>
     <ClInclude Include="Game\DataBase\Excel\Table\ExcelTest.cpp">

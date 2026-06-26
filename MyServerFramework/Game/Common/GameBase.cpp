@@ -4,6 +4,7 @@ namespace GameBase
 {
 	// auto generate start Excel Define
 	ExcelAchivement* mExcelAchivement;
+	ExcelGlobal* mExcelGlobal;
 	ExcelTest* mExcelTest;
 	// auto generate end Excel Define
 
@@ -40,6 +41,7 @@ namespace GameBase
 
 		// auto generate start Excel Clear
 		mExcelAchivement = nullptr;
+		mExcelGlobal = nullptr;
 		mExcelTest = nullptr;
 		// auto generate end Excel Clear
 	}
