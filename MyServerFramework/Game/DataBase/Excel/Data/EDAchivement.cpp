@@ -1,7 +1,6 @@
 ﻿// auto generate start
 #include "EDAchivement.h"
 
-
 void EDAchivement::cloneTo(ExcelData* target)
 {
 	base::cloneTo(target);
