@@ -16,6 +16,7 @@ class GameComponentRegister;
 class GameConfigSystem;
 class EDAchivement;
 class EDTest;
+class EDTest_TEST_0;
 class ExcelRegister;
 class ExcelAchivement;
 class ExcelTest;

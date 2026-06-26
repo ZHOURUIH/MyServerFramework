@@ -33,4 +33,11 @@ public:
 	void read(SerializerRead* reader) override;
 	static void postLoadAll(ExcelTableBase* tableBase);
 };
+
+class EDTest_TEST_0
+{
+public:
+	static constexpr int mTestParam0 = 1;
+	static constexpr float mTestParam1 = 1.5f;
+};
 // auto generate end
