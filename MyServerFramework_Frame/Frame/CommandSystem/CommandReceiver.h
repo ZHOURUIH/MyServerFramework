@@ -8,7 +8,7 @@ class MICRO_LEGEND_FRAME_API CommandReceiver : public ClassObject
 	BASE(CommandReceiver, ClassObject);
 public:
 	~CommandReceiver() override;
-	virtual void setName(const string& name) 
+	void setName(const string& name) 
 	{
 		mUTF8Name = name;
 		// 只有在真正要用到的时候才转换编码

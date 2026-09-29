@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define CR_ASSERT(expr, msg) \
 	if (!(expr)) { ERROR(string("CommandReceiverExtTest FAIL: ") + (msg)); }
@@ -7,34 +8,34 @@
 // CommandReceiver — setName / getUTF8Name
 // =====================================================================
 
-static void testCrNameDefault()
+void CommandReceiverTest::testCrNameDefault()
 {
 	CommandReceiver cr;
 	CR_ASSERT(cr.getUTF8Name().empty(), "name default empty");
 }
 
-static void testCrSetNameBasic()
+void CommandReceiverTest::testCrSetNameBasic()
 {
 	CommandReceiver cr;
 	cr.setName("receiver_1");
 	CR_ASSERT(cr.getUTF8Name() == "receiver_1", "name basic");
 }
 
-static void testCrSetNameWithUnderscore()
+void CommandReceiverTest::testCrSetNameWithUnderscore()
 {
 	CommandReceiver cr;
 	cr.setName("my_command_receiver_test");
 	CR_ASSERT(cr.getUTF8Name() == "my_command_receiver_test", "name with underscores");
 }
 
-static void testCrSetNameWithNumbers()
+void CommandReceiverTest::testCrSetNameWithNumbers()
 {
 	CommandReceiver cr;
 	cr.setName("cmd_123_456");
 	CR_ASSERT(cr.getUTF8Name() == "cmd_123_456", "name with numbers");
 }
 
-static void testCrSetNameEmpty()
+void CommandReceiverTest::testCrSetNameEmpty()
 {
 	CommandReceiver cr;
 	cr.setName("something");
@@ -42,7 +43,7 @@ static void testCrSetNameEmpty()
 	CR_ASSERT(cr.getUTF8Name().empty(), "name set empty");
 }
 
-static void testCrSetNameOverride()
+void CommandReceiverTest::testCrSetNameOverride()
 {
 	CommandReceiver cr;
 	cr.setName("first");
@@ -51,7 +52,7 @@ static void testCrSetNameOverride()
 	CR_ASSERT(cr.getUTF8Name() == "third", "name override");
 }
 
-static void testCrSetNameLong()
+void CommandReceiverTest::testCrSetNameLong()
 {
 	CommandReceiver cr;
 	string longName;
@@ -60,7 +61,7 @@ static void testCrSetNameLong()
 	CR_ASSERT(cr.getUTF8Name() == longName, "name long (100 chars)");
 }
 
-static void testCrSetNameVeryLong()
+void CommandReceiverTest::testCrSetNameVeryLong()
 {
 	CommandReceiver cr;
 	string longName;
@@ -69,21 +70,21 @@ static void testCrSetNameVeryLong()
 	CR_ASSERT(cr.getUTF8Name() == longName, "name very long (3000 chars)");
 }
 
-static void testCrSetNameSingleChar()
+void CommandReceiverTest::testCrSetNameSingleChar()
 {
 	CommandReceiver cr;
 	cr.setName("a");
 	CR_ASSERT(cr.getUTF8Name() == "a", "name single char");
 }
 
-static void testCrSetNameSpecial()
+void CommandReceiverTest::testCrSetNameSpecial()
 {
 	CommandReceiver cr;
 	cr.setName("test-name_with.special~chars!");
 	CR_ASSERT(cr.getUTF8Name() == "test-name_with.special~chars!", "name special chars");
 }
 
-static void testCrSetNameMultipleCR()
+void CommandReceiverTest::testCrSetNameMultipleCR()
 {
 	CommandReceiver cr1, cr2, cr3;
 	cr1.setName("alpha");
@@ -98,7 +99,7 @@ static void testCrSetNameMultipleCR()
 // CommandReceiver — getPrintName
 // =====================================================================
 
-static void testCrPrintNameDefault()
+void CommandReceiverTest::testCrPrintNameDefault()
 {
 	CommandReceiver cr;
 	// 默认空名字，getPrintName 需要先 setName
@@ -107,7 +108,7 @@ static void testCrPrintNameDefault()
 	CR_ASSERT(!print.empty(), "printName non-empty after setName");
 }
 
-static void testCrPrintNameAfterReset()
+void CommandReceiverTest::testCrPrintNameAfterReset()
 {
 	CommandReceiver cr;
 	cr.setName("print_before_reset");
@@ -120,7 +121,7 @@ static void testCrPrintNameAfterReset()
 // CommandReceiver — resetProperty
 // =====================================================================
 
-static void testCrResetPropertyName()
+void CommandReceiverTest::testCrResetPropertyName()
 {
 	CommandReceiver cr;
 	cr.setName("will_be_reset");
@@ -128,7 +129,7 @@ static void testCrResetPropertyName()
 	CR_ASSERT(cr.getUTF8Name().empty(), "resetProperty name empty");
 }
 
-static void testCrResetPropertyThenSet()
+void CommandReceiverTest::testCrResetPropertyThenSet()
 {
 	CommandReceiver cr;
 	cr.setName("old");
@@ -137,7 +138,7 @@ static void testCrResetPropertyThenSet()
 	CR_ASSERT(cr.getUTF8Name() == "new", "resetProperty then setName");
 }
 
-static void testCrResetPropertyMultipleTimes()
+void CommandReceiverTest::testCrResetPropertyMultipleTimes()
 {
 	CommandReceiver cr;
 	for (int i = 0; i < 10; ++i)
@@ -148,7 +149,7 @@ static void testCrResetPropertyMultipleTimes()
 	}
 }
 
-static void testCrResetPropertyEmptyName()
+void CommandReceiverTest::testCrResetPropertyEmptyName()
 {
 	CommandReceiver cr;
 	cr.resetProperty();
@@ -159,7 +160,7 @@ static void testCrResetPropertyEmptyName()
 // CommandReceiver — 继承自 ClassObject 的 resetProperty
 // =====================================================================
 
-static void testCrClassObjectResetChain()
+void CommandReceiverTest::testCrClassObjectResetChain()
 {
 	CommandReceiver cr;
 	cr.setName("test");
@@ -195,3 +196,4 @@ void CommandReceiverTest::test()
 
 	testCrClassObjectResetChain();
 }
+#endif

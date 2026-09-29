@@ -27,10 +27,9 @@ bool SerializerBitWrite::writeStringList(const Vector<string>& list)
 
 void SerializerBitWrite::writeCheck(const int writeLen)
 {
-	if (mMainThreadOnly)
-	{
-		checkMainThread();
-	}
+	// 主线程检查不需要在每次写字段时重复执行。
+	// mMainThreadOnly为true时,真正涉及ArrayPool申请/释放的newChar/deleteChar内部本身会检查主线程。
+	// 普通写入只操作当前Serializer自身的buffer,这里重复checkMainThread会给短消息和多字段消息增加固定开销。
 	// 如果缓冲区为空,则创建缓冲区
 	if (mBuffer == nullptr)
 	{

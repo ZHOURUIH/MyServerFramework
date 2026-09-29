@@ -29,7 +29,7 @@ public:
 	const char* getDebugString() const 				{ return mDebugString; }
 	int getExecuteCount() const						{ return mExecuteCount; }
 #endif
-	const Vector<DTNode*>* getChildList() const		{ return mChildList; }
+	const Vector<DTNode*>& getChildList() const		{ return mChildList != nullptr ? *mChildList : Vector<DTNode*>::mDefaultList; }
 	virtual void notifyChildStart(DTNode* child);
 	DTNode* getNextSibling(DTNode* node);
 	virtual void addChild(DTNode* child);

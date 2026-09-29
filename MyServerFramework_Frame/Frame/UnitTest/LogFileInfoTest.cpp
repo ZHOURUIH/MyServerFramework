@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define LFIT_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("LogFileInfoTest FAILED: ") + (msg)); } } while(0)
@@ -128,3 +129,4 @@ void LogFileInfoTest::testLogVsErrorFileNameDiffers()
 	// 完整文件名必须不同
 	LFIT_ASSERT(logInfo.mFileName != errInfo.mFileName, "log and error file names must differ");
 }
+#endif

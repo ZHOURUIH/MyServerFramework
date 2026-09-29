@@ -4,6 +4,7 @@
 #include "FrameStringDefine.h"
 #include "FrameDefine.h"
 #include "DTConditionGroup.h"
+#include "DTRepeater.h"
 #include "DTNodePool.h"
 
 class MICRO_LEGEND_FRAME_API COMMonsterDecisionTree : public GameComponent

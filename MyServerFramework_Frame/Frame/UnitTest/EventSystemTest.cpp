@@ -1,7 +1,8 @@
+ï»¿#ifdef WINDOWS
 #include "FrameHeader.h"
 
 // -----------------------------------------------------------
-// ²âÊÔÓÃÊÂ¼ş¶¨Òå
+// æµ‹è¯•ç”¨äº‹ä»¶å®šä¹‰
 // -----------------------------------------------------------
 class TestEventA : public GameEvent
 {
@@ -26,7 +27,7 @@ public:
 };
 
 // -----------------------------------------------------------
-// ²âÊÔÓÃÊÂ¼ş¼àÌıÆ÷
+// æµ‹è¯•ç”¨äº‹ä»¶ç›‘å¬å™¨
 // -----------------------------------------------------------
 class TestListener : public IEventListener
 {
@@ -59,8 +60,120 @@ public:
     }
 };
 
+class EventDispatchModifyTestEvent : public GameEvent
+{
+public:
+    EventDispatchModifyTestEvent()
+    {
+        mType = (int)typeid(EventDispatchModifyTestEvent).hash_code();
+    }
+};
+
+class EventDispatchRemoveSelfListener : public IEventListener
+{
+public:
+    void init(EventSystem* eventSystem)
+    {
+        mEventSystem = eventSystem;
+    }
+    void onEvent(EventDispatchModifyTestEvent* event)
+    {
+        ++mCallbackCount;
+        mEventSystem->unlistenEvent(this);
+    }
+public:
+    EventSystem* mEventSystem = nullptr;
+    int mCallbackCount = 0;
+};
+
+class EventDispatchNormalListener : public IEventListener
+{
+public:
+    void onEvent(EventDispatchModifyTestEvent* event)
+    {
+        ++mCallbackCount;
+    }
+public:
+    int mCallbackCount = 0;
+};
+
+class EventModifyListener : public IEventListener
+{
+public:
+    void init(EventSystem* eventSystem, Character* character = nullptr)
+    {
+        mEventSystem = eventSystem;
+        mCharacter = character;
+    }
+
+    void onEvent(TestEventA* event)
+    {
+        ++mEventACount;
+        mLastValue = event->value;
+        mLastCharacterGUID = event->mCharacterGUID;
+
+        if (mPushNested && !mNestedPushed)
+        {
+            mNestedPushed = true;
+            TestEventA nestedEvent;
+            nestedEvent.value = event->value + 1;
+            if (mCharacter != nullptr)
+            {
+                mEventSystem->pushEvent(nestedEvent, mCharacter);
+            }
+            else
+            {
+                mEventSystem->pushEvent(nestedEvent);
+            }
+        }
+
+        if (mAddTarget != nullptr && !mAddedTarget)
+        {
+            mAddedTarget = true;
+            if (mCharacter != nullptr && mAddTargetAsLocal)
+            {
+                mEventSystem->listenEvent<TestEventA>(mCharacter, mAddTarget);
+            }
+            else
+            {
+                mEventSystem->listenEvent<TestEventA>(mAddTarget);
+            }
+        }
+
+        if (mUnlistenTarget != nullptr)
+        {
+            mEventSystem->unlistenEvent(mUnlistenTarget);
+        }
+
+        if (mUnlistenSelf)
+        {
+            mEventSystem->unlistenEvent(this);
+        }
+
+        if (mRemoveCharacterEvent && mCharacter != nullptr)
+        {
+            mEventSystem->removeCharacterEvent(mCharacter->getGUID());
+        }
+    }
+
+public:
+    EventSystem* mEventSystem = nullptr;
+    Character* mCharacter = nullptr;
+    IEventListener* mUnlistenTarget = nullptr;
+    EventModifyListener* mAddTarget = nullptr;
+    bool mAddTargetAsLocal = true;
+    bool mUnlistenSelf = false;
+    bool mRemoveCharacterEvent = false;
+    bool mPushNested = false;
+    bool mNestedPushed = false;
+    bool mAddedTarget = false;
+    int mEventACount = 0;
+    int mLastValue = 0;
+    llong mLastCharacterGUID = 0;
+};
+
 // -----------------------------------------------------------
-// ²âÊÔÊµÏÖ
+// æµ‹è¯•å®ç°
 // -----------------------------------------------------------
 #define EVT_ASSERT(expr, msg) \
     do { if (!(expr)) { ERROR(string("EventSystemTest FAILED: ") + (msg)); } } while(0)
@@ -75,6 +188,24 @@ void EventSystemTest::test()
     testEventProcessCallback();
     testMultipleListeners();
     testEventTypeIsolation();
+    testEventSystemUnlistenInCallbackSkipNext();
+    testLocalUnlistenSelfInCallback();
+    testGlobalUnlistenSelfInCallback();
+    testUnlistenPreviousInCallback();
+    testUnlistenNextInCallback();
+    testAddListenerInCallback();
+    testNestedSameEventPush();
+    testRemoveCharacterEventInCallback();
+    testDuplicateListenUnlistenSelf();
+    testGlobalAndLocalDispatch();
+    testLocalUnlistenGlobalBeforeGlobalDispatch();
+    testLocalUnlistenSelfAlsoRemovesGlobal();
+    testGlobalAddListenerInCallback();
+    testRemoveCharacterEventKeepsOtherScopes();
+    testRemoveCharacterEventAfterNullSlotInCallback();
+    testEventCharacterGUID();
+    testNoDestroyedEventInfoProfileOnNormalMutations();
+	testExtended();
 }
 
 void EventSystemTest::testEventInfoResetProperty()
@@ -84,22 +215,48 @@ void EventSystemTest::testEventInfoResetProperty()
     EVT_ASSERT(info != nullptr, "newClass returns valid pointer");
 }
 
+void EventSystemTest::testEventSystemUnlistenInCallbackSkipNext()
+{
+    EventInfoPool eventInfoPool;
+    EventSystem eventSystem;
+
+    Character character;
+    character.setGUID(10000001);
+
+    EventDispatchRemoveSelfListener listener0;
+    listener0.init(&eventSystem);
+
+    EventDispatchNormalListener listener1;
+
+    eventSystem.listenEvent<EventDispatchModifyTestEvent>(&character, &listener0);
+    eventSystem.listenEvent<EventDispatchModifyTestEvent>(&character, &listener1);
+
+    EventDispatchModifyTestEvent event;
+    eventSystem.pushEvent(event, &character);
+
+    if (listener1.mCallbackCount == 0)
+    {
+        ERROR("åç»­ç›‘å¬è€…è¢«è·³è¿‡");
+    }
+    eventSystem.quit();
+}
+
 void EventSystemTest::testPushAndListenEvent()
 {
     EventInfoPool pool;
     EventSystem eventSystem;
     TestListener listener;
 
-    // ¼àÌıÈ«¾ÖÊÂ¼ş
+    // ç›‘å¬å…¨å±€äº‹ä»¶
     eventSystem.listenEvent<TestEventA>(&listener);
 
-    // ÍÆËÍÊÂ¼ş
+    // æ¨é€äº‹ä»¶
     TestEventA event;
     event.value = 42;
     event.message = "test";
     eventSystem.pushEvent(event);
 
-    // ¸üĞÂÊÂ¼şÏµÍ³ÒÔ´¦ÀíÊÂ¼ş
+    // æ›´æ–°äº‹ä»¶ç³»ç»Ÿä»¥å¤„ç†äº‹ä»¶
     eventSystem.update(0.016f);
 
     EVT_ASSERT(listener.eventACount == 1, "listener received event A once");
@@ -115,11 +272,11 @@ void EventSystemTest::testUnlistenEvent()
     EventSystem eventSystem;
     TestListener listener;
 
-    // ¼àÌıÈ»ºóÈ¡Ïû¼àÌı
+    // ç›‘å¬ç„¶åå–æ¶ˆç›‘å¬
     eventSystem.listenEvent<TestEventA>(&listener);
     eventSystem.unlistenEvent(&listener);
 
-    // ÍÆËÍÊÂ¼ş
+    // æ¨é€äº‹ä»¶
     TestEventA event;
     event.value = 100;
     eventSystem.pushEvent(event);
@@ -136,30 +293,24 @@ void EventSystemTest::testRemoveCharacterEvent()
     EventSystem eventSystem;
     TestListener listener;
 
-    // ´´½¨Ò»¸öÄ£Äâ½ÇÉ«GUID
-    const llong charGUID = 12345;
+    Character character;
+    character.setGUID(12345);
 
-    // ¼àÌıÌØ¶¨½ÇÉ«µÄÊÂ¼ş
-    // ×¢Òâ£ºÕâÀïÎÒÃÇÊ¹ÓÃnullptr×÷Îªcharacter²ÎÊıÀ´Ä£Äâ¼àÌı
-    // Êµ¼ÊÏîÄ¿ÖĞĞèÒªÕæÊµµÄCharacter¶ÔÏó
-    eventSystem.listenEvent<TestEventA>(&listener);
+    eventSystem.listenEvent<TestEventA>(&character, &listener);
 
-    // ÍÆËÍÊÂ¼ş
     TestEventA event;
-    event.mCharacterGUID = charGUID;
     event.value = 200;
-    eventSystem.pushEvent(event, nullptr);
+    eventSystem.pushEvent(event, &character);
 
-    // ÒÆ³ı¸Ã½ÇÉ«µÄËùÓĞÊÂ¼ş¼àÌı
-    eventSystem.removeCharacterEvent(charGUID);
+    EVT_ASSERT(listener.eventACount == 1, "character listener received before removeCharacterEvent");
 
-    // ÔÙ´ÎÍÆËÍÊÂ¼ş
+    eventSystem.removeCharacterEvent(character.getGUID());
+
     listener.reset();
-    eventSystem.pushEvent(event, nullptr);
+    eventSystem.pushEvent(event, &character);
     eventSystem.update(0.016f);
 
-    // ÓÉÓÚ¼àÌıÊÇÈ«¾ÖµÄ£¬Ó¦¸ÃÈÔÈ»ÄÜÊÕµ½
-    EVT_ASSERT(listener.eventACount == 1, "global listener still receives after character removal");
+    EVT_ASSERT(listener.eventACount == 0, "character listener removed by removeCharacterEvent");
 
     eventSystem.quit();
 }
@@ -171,11 +322,11 @@ void EventSystemTest::testGlobalEventListen()
     TestListener listener1;
     TestListener listener2;
 
-    // Á½¸ö¼àÌıÆ÷¶¼¼àÌıÈ«¾ÖÊÂ¼ş
+    // ä¸¤ä¸ªç›‘å¬å™¨éƒ½ç›‘å¬å…¨å±€äº‹ä»¶
     eventSystem.listenEvent<TestEventA>(&listener1);
     eventSystem.listenEvent<TestEventA>(&listener2);
 
-    // ÍÆËÍÊÂ¼ş
+    // æ¨é€äº‹ä»¶
     TestEventA event;
     event.value = 999;
     eventSystem.pushEvent(event);
@@ -198,12 +349,12 @@ void EventSystemTest::testEventProcessCallback()
     eventSystem.listenEvent<TestEventA>(&listener);
     eventSystem.listenEvent<TestEventB>(&listener);
 
-    // ÍÆËÍÊÂ¼şA
+    // æ¨é€äº‹ä»¶A
     TestEventA eventA;
     eventA.value = 111;
     eventSystem.pushEvent(eventA);
 
-    // ÍÆËÍÊÂ¼şB
+    // æ¨é€äº‹ä»¶B
     TestEventB eventB;
     eventB.score = 3.14f;
     eventSystem.pushEvent(eventB);
@@ -226,12 +377,12 @@ void EventSystemTest::testMultipleListeners()
     TestListener listener2;
     TestListener listener3;
 
-    // Èı¸ö¼àÌıÆ÷¼àÌıÍ¬Ò»ÊÂ¼ş
+    // ä¸‰ä¸ªç›‘å¬å™¨ç›‘å¬åŒä¸€äº‹ä»¶
     eventSystem.listenEvent<TestEventA>(&listener1);
     eventSystem.listenEvent<TestEventA>(&listener2);
     eventSystem.listenEvent<TestEventA>(&listener3);
 
-    // ÍÆËÍ¶à¸öÊÂ¼ş
+    // æ¨é€å¤šä¸ªäº‹ä»¶
     for (int i = 0; i < 5; ++i)
     {
         TestEventA event;
@@ -255,10 +406,10 @@ void EventSystemTest::testEventTypeIsolation()
     EventSystem eventSystem;
     TestListener listener;
 
-    // Ö»¼àÌıÊÂ¼şA
+    // åªç›‘å¬äº‹ä»¶A
     eventSystem.listenEvent<TestEventA>(&listener);
 
-    // ÍÆËÍÊÂ¼şAºÍB
+    // æ¨é€äº‹ä»¶Aå’ŒB
     TestEventA eventA;
     eventA.value = 100;
     eventSystem.pushEvent(eventA);
@@ -269,10 +420,983 @@ void EventSystemTest::testEventTypeIsolation()
 
     eventSystem.update(0.016f);
 
-    // Ö»Ó¦¸ÃÊÕµ½ÊÂ¼şA
+    // åªåº”è¯¥æ”¶åˆ°äº‹ä»¶A
     EVT_ASSERT(listener.eventACount == 1, "only received event A");
     EVT_ASSERT(listener.eventBCount == 0, "did not receive event B (not listening)");
     EVT_ASSERT(listener.lastValue == 100, "event A value correct");
 
     eventSystem.quit();
 }
+void EventSystemTest::testLocalUnlistenSelfInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000001);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener0.mUnlistenSelf = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "local self-unlisten listener called once");
+    EVT_ASSERT(listener1.mEventACount == 1, "local self-unlisten should not skip next listener");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "local self-unlisten removed listener");
+    EVT_ASSERT(listener1.mEventACount == 2, "local remaining listener receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testGlobalUnlistenSelfInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem);
+    listener1.init(&eventSystem);
+    listener0.mUnlistenSelf = true;
+
+    eventSystem.listenEvent<TestEventA>(&listener0);
+    eventSystem.listenEvent<TestEventA>(&listener1);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "global self-unlisten listener called once");
+    EVT_ASSERT(listener1.mEventACount == 1, "global self-unlisten should not skip next listener");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "global self-unlisten removed listener");
+    EVT_ASSERT(listener1.mEventACount == 2, "global remaining listener receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testUnlistenPreviousInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000002);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    EventModifyListener listener2;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener2.init(&eventSystem, &character);
+    listener1.mUnlistenTarget = &listener0;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+    eventSystem.listenEvent<TestEventA>(&character, &listener2);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "previous target receives current event before being removed");
+    EVT_ASSERT(listener1.mEventACount == 1, "unlisten previous listener called");
+    EVT_ASSERT(listener2.mEventACount == 1, "unlisten previous should not skip next listener");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "previous target removed for next event");
+    EVT_ASSERT(listener1.mEventACount == 2, "middle listener receives next event");
+    EVT_ASSERT(listener2.mEventACount == 2, "last listener receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testUnlistenNextInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000003);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    EventModifyListener listener2;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener2.init(&eventSystem, &character);
+    listener0.mUnlistenTarget = &listener1;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+    eventSystem.listenEvent<TestEventA>(&character, &listener2);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "unlisten next listener called");
+    EVT_ASSERT(listener1.mEventACount == 0, "removed next listener should not receive current event");
+    EVT_ASSERT(listener2.mEventACount == 1, "unlisten next should not skip following listener");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 2, "first listener receives next event");
+    EVT_ASSERT(listener1.mEventACount == 0, "removed next listener stays removed");
+    EVT_ASSERT(listener2.mEventACount == 2, "following listener receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testAddListenerInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000004);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener0.mAddTarget = &listener1;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "add listener source receives current event");
+    EVT_ASSERT(listener1.mEventACount == 0, "listener added during callback should not receive current event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 2, "add listener source receives next event");
+    EVT_ASSERT(listener1.mEventACount == 1, "listener added during callback receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testNestedSameEventPush()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000005);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener0.mPushNested = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 2, "nested same event calls first listener in outer and nested dispatch");
+    EVT_ASSERT(listener1.mEventACount == 2, "nested same event calls second listener in outer and nested dispatch");
+    EVT_ASSERT(listener0.mLastValue == 2, "nested event value observed by first listener");
+    EVT_ASSERT(listener1.mLastValue == 1, "outer event remains current after nested dispatch");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testRemoveCharacterEventInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000006);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener0.mRemoveCharacterEvent = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+    eventSystem.update(0.016f);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "removeCharacterEvent source receives current event");
+    EVT_ASSERT(listener1.mEventACount == 0, "removeCharacterEvent prevents later local listener on destroyed character");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "removed character listener does not receive next event");
+    EVT_ASSERT(listener1.mEventACount == 0, "removed character listener stays removed");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testDuplicateListenUnlistenSelf()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000007);
+
+    EventModifyListener listener;
+    listener.init(&eventSystem, &character);
+    listener.mUnlistenSelf = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener);
+    eventSystem.listenEvent<TestEventA>(&character, &listener);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener.mEventACount == 1, "duplicate listener self-unlisten should only call once");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener.mEventACount == 1, "duplicate listener self-unlisten removes all own registrations");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testGlobalAndLocalDispatch()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000008);
+
+    EventModifyListener localListener;
+    EventModifyListener globalListener;
+    localListener.init(&eventSystem, &character);
+    globalListener.init(&eventSystem);
+
+    eventSystem.listenEvent<TestEventA>(&character, &localListener);
+    eventSystem.listenEvent<TestEventA>(&globalListener);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(localListener.mEventACount == 1, "local listener receives character event");
+    EVT_ASSERT(globalListener.mEventACount == 1, "global listener also receives character event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+    
+    EVT_ASSERT(localListener.mEventACount == 1, "local listener does not receive global event");
+    EVT_ASSERT(globalListener.mEventACount == 2, "global listener receives global event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testLocalUnlistenGlobalBeforeGlobalDispatch()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000009);
+
+    EventModifyListener localRemover;
+    EventModifyListener globalRemoved;
+    EventModifyListener globalRemain;
+    localRemover.init(&eventSystem, &character);
+    globalRemoved.init(&eventSystem);
+    globalRemain.init(&eventSystem);
+    localRemover.mUnlistenTarget = &globalRemoved;
+
+    eventSystem.listenEvent<TestEventA>(&character, &localRemover);
+    eventSystem.listenEvent<TestEventA>(&globalRemoved);
+    eventSystem.listenEvent<TestEventA>(&globalRemain);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(localRemover.mEventACount == 1, "local remover receives character event");
+    EVT_ASSERT(globalRemoved.mEventACount == 0, "local callback unlisten removes target before global dispatch");
+    EVT_ASSERT(globalRemain.mEventACount == 1, "other global listener still receives character event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(globalRemoved.mEventACount == 0, "unlistened global target stays removed");
+    EVT_ASSERT(globalRemain.mEventACount == 2, "remaining global listener receives later global event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testLocalUnlistenSelfAlsoRemovesGlobal()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000010);
+
+    EventModifyListener listener;
+    EventModifyListener globalRemain;
+    listener.init(&eventSystem, &character);
+    globalRemain.init(&eventSystem);
+    listener.mUnlistenSelf = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener);
+    eventSystem.listenEvent<TestEventA>(&listener);
+    eventSystem.listenEvent<TestEventA>(&globalRemain);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener.mEventACount == 1, "self-unlisten in local callback removes own global registration before global dispatch");
+    EVT_ASSERT(globalRemain.mEventACount == 1, "other global listener still receives event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(listener.mEventACount == 1, "self-unlistened listener does not receive later global event");
+    EVT_ASSERT(globalRemain.mEventACount == 2, "remaining global listener receives later event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testGlobalAddListenerInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    listener0.init(&eventSystem);
+    listener1.init(&eventSystem);
+    listener0.mAddTarget = &listener1;
+    listener0.mAddTargetAsLocal = false;
+
+    eventSystem.listenEvent<TestEventA>(&listener0);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "global add source receives current event");
+    EVT_ASSERT(listener1.mEventACount == 0, "global listener added during callback should not receive current event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(listener0.mEventACount == 2, "global add source receives next event");
+    EVT_ASSERT(listener1.mEventACount == 1, "global listener added during callback receives next event");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testRemoveCharacterEventKeepsOtherScopes()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character0;
+    Character character1;
+    character0.setGUID(10000011);
+    character1.setGUID(10000012);
+
+    EventModifyListener sharedListener;
+    sharedListener.init(&eventSystem, &character0);
+
+    eventSystem.listenEvent<TestEventA>(&character0, &sharedListener);
+    eventSystem.listenEvent<TestEventA>(&character1, &sharedListener);
+    eventSystem.listenEvent<TestEventA>(&sharedListener);
+
+    eventSystem.removeCharacterEvent(character0.getGUID());
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character0);
+    EVT_ASSERT(sharedListener.mEventACount == 1, "remove character0 keeps shared global registration");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character1);
+    EVT_ASSERT(sharedListener.mEventACount == 3, "remove character0 keeps character1 local and global registrations");
+
+    event.value = 3;
+    eventSystem.pushEvent(event);
+    EVT_ASSERT(sharedListener.mEventACount == 4, "remove character0 keeps later global event");
+
+    eventSystem.unlistenEvent(&sharedListener);
+
+    event.value = 4;
+    eventSystem.pushEvent(event, &character1);
+    eventSystem.pushEvent(event);
+    EVT_ASSERT(sharedListener.mEventACount == 4, "unlisten after removeCharacterEvent has no stale character0 EventInfo");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testRemoveCharacterEventAfterNullSlotInCallback()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000013);
+
+    EventModifyListener listener0;
+    EventModifyListener listener1;
+    EventModifyListener listener2;
+    listener0.init(&eventSystem, &character);
+    listener1.init(&eventSystem, &character);
+    listener2.init(&eventSystem, &character);
+    listener0.mUnlistenTarget = &listener1;
+    listener0.mRemoveCharacterEvent = true;
+
+    eventSystem.listenEvent<TestEventA>(&character, &listener0);
+    eventSystem.listenEvent<TestEventA>(&character, &listener1);
+    eventSystem.listenEvent<TestEventA>(&character, &listener2);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+    eventSystem.update(0.016f);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "removeCharacterEvent after null slot source receives current event");
+    EVT_ASSERT(listener1.mEventACount == 0, "listener removed before removeCharacterEvent is not called");
+    EVT_ASSERT(listener2.mEventACount == 0, "removeCharacterEvent clears later listener in same dispatch");
+
+    event.value = 2;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(listener0.mEventACount == 1, "character event list cleared after null-slot removeCharacterEvent");
+    EVT_ASSERT(listener1.mEventACount == 0, "removed listener stays removed after null-slot removeCharacterEvent");
+    EVT_ASSERT(listener2.mEventACount == 0, "later listener stays removed after null-slot removeCharacterEvent");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testEventCharacterGUID()
+{
+    EventInfoPool pool;
+    EventSystem eventSystem;
+    Character character;
+    character.setGUID(10000014);
+
+    EventModifyListener localListener;
+    EventModifyListener globalListener;
+    localListener.init(&eventSystem, &character);
+    globalListener.init(&eventSystem);
+
+    eventSystem.listenEvent<TestEventA>(&character, &localListener);
+    eventSystem.listenEvent<TestEventA>(&globalListener);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character);
+
+    EVT_ASSERT(localListener.mLastCharacterGUID == character.getGUID(), "local listener sees character GUID");
+    EVT_ASSERT(globalListener.mLastCharacterGUID == character.getGUID(), "global listener sees character GUID from character event");
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EVT_ASSERT(localListener.mEventACount == 1, "local listener does not receive global event");
+    EVT_ASSERT(globalListener.mEventACount == 2, "global listener receives global event");
+    EVT_ASSERT(globalListener.mLastCharacterGUID == 0, "global event without character has zero character GUID");
+
+    eventSystem.quit();
+}
+
+void EventSystemTest::testNoDestroyedEventInfoProfileOnNormalMutations()
+{
+    EventInfoPool pool;
+    int destroyedInfoErrorCount = 0;
+    ErrorProfileEvent oldErrorProfileEvent = ErrorProfile::mOnErrorProfileEvent;
+    ErrorProfile::mOnErrorProfileEvent = [&destroyedInfoErrorCount, oldErrorProfileEvent](string&& log, string&& file) mutable
+        {
+            if (file.find("EventSystem.cpp") != string::npos && !log.empty() && (log[0] == '0' || log[0] == '2'))
+            {
+                ++destroyedInfoErrorCount;
+            }
+            if (oldErrorProfileEvent)
+            {
+                oldErrorProfileEvent(move(log), move(file));
+            }
+        };
+
+    EventSystem eventSystem;
+    Character character0;
+    Character character1;
+    character0.setGUID(10000015);
+    character1.setGUID(10000016);
+
+    EventModifyListener duplicateSelf;
+    duplicateSelf.init(&eventSystem, &character0);
+    duplicateSelf.mUnlistenSelf = true;
+    eventSystem.listenEvent<TestEventA>(&character0, &duplicateSelf);
+    eventSystem.listenEvent<TestEventA>(&character0, &duplicateSelf);
+
+    TestEventA event;
+    event.value = 1;
+    eventSystem.pushEvent(event, &character0);
+
+    EventModifyListener globalSelf;
+    EventModifyListener globalRemain;
+    globalSelf.init(&eventSystem);
+    globalRemain.init(&eventSystem);
+    globalSelf.mUnlistenSelf = true;
+    eventSystem.listenEvent<TestEventA>(&globalSelf);
+    eventSystem.listenEvent<TestEventA>(&globalRemain);
+
+    event.value = 2;
+    eventSystem.pushEvent(event);
+
+    EventModifyListener removeCharacter0;
+    EventModifyListener removeCharacter1;
+    EventModifyListener removeCharacter2;
+    removeCharacter0.init(&eventSystem, &character1);
+    removeCharacter1.init(&eventSystem, &character1);
+    removeCharacter2.init(&eventSystem, &character1);
+    removeCharacter0.mUnlistenTarget = &removeCharacter1;
+    removeCharacter0.mRemoveCharacterEvent = true;
+    eventSystem.listenEvent<TestEventA>(&character1, &removeCharacter0);
+    eventSystem.listenEvent<TestEventA>(&character1, &removeCharacter1);
+    eventSystem.listenEvent<TestEventA>(&character1, &removeCharacter2);
+
+    event.value = 3;
+    eventSystem.pushEvent(event, &character1);
+    eventSystem.update(0.016f);
+
+    eventSystem.quit();
+    ErrorProfile::mOnErrorProfileEvent = oldErrorProfileEvent;
+
+    EVT_ASSERT(destroyedInfoErrorCount == 0, "normal EventSystem mutations should not dispatch destroyed EventInfo");
+}
+
+
+// ============================================================
+// EventSystemTest â€” æ‰©å±•äº‹ä»¶ç³»ç»Ÿæµ‹è¯•
+// è¦†ç›–ï¼šåµŒå¥—äº‹ä»¶æ¨é€ã€é‡å¤ç›‘å¬/å–æ¶ˆç›‘å¬ã€
+//       å¤šäº‹ä»¶ç±»å‹å®Œå…¨éš”ç¦»ã€äº‹ä»¶ä¸­ä¿®æ”¹ç›‘å¬åˆ—è¡¨
+// ============================================================
+
+// -----------------------------------------------------------
+// æµ‹è¯•ç”¨äº‹ä»¶ç±»å‹
+// -----------------------------------------------------------
+class TestEventX : public GameEvent
+{
+public:
+    int xValue = 0;
+    TestEventX() { mType = (int)typeid(TestEventX).hash_code(); }
+};
+
+class TestEventY : public GameEvent
+{
+public:
+    float yValue = 0.0f;
+    string yLabel;
+    TestEventY() { mType = (int)typeid(TestEventY).hash_code(); }
+};
+
+class TestEventZ : public GameEvent
+{
+public:
+    bool flag = false;
+    TestEventZ() { mType = (int)typeid(TestEventZ).hash_code(); }
+};
+
+// -----------------------------------------------------------
+// æµ‹è¯•ç”¨ç›‘å¬å™¨
+// -----------------------------------------------------------
+class ExtendedListener : public IEventListener
+{
+public:
+    int eventXCount = 0;
+    int eventYCount = 0;
+    int eventZCount = 0;
+    int lastXValue = 0;
+    float lastYValue = 0.0f;
+    string lastYLabel;
+    bool lastZFlag = false;
+
+    // åµŒå¥—æµ‹è¯•ï¼šåœ¨å›è°ƒä¸­å†æ¬¡ pushEvent
+    EventSystem* nestedPushTarget = nullptr;
+    int nestedDepth = 0;
+
+    void reset()
+    {
+        eventXCount = 0;
+        eventYCount = 0;
+        eventZCount = 0;
+        lastXValue = 0;
+        lastYValue = 0.0f;
+        lastYLabel.clear();
+        lastZFlag = false;
+        nestedDepth = 0;
+    }
+
+    void onEvent(TestEventX* event)
+    {
+        ++eventXCount;
+        lastXValue = event->xValue;
+        // å¦‚æœè®¾ç½®äº†åµŒå¥—ç›®æ ‡ï¼Œåœ¨ X äº‹ä»¶çš„å›è°ƒä¸­æ¨ä¸€ä¸ª Y äº‹ä»¶
+        if (nestedPushTarget != nullptr && nestedDepth < 5)
+        {
+            ++nestedDepth;
+            TestEventY nestedY;
+            nestedY.yValue = -1.0f;
+            nestedY.yLabel = "nested-from-X";
+            nestedPushTarget->pushEvent(nestedY);
+            --nestedDepth;
+        }
+    }
+
+    void onEvent(TestEventY* event)
+    {
+        ++eventYCount;
+        lastYValue = event->yValue;
+        lastYLabel = event->yLabel;
+    }
+
+    void onEvent(TestEventZ* event)
+    {
+        ++eventZCount;
+        lastZFlag = event->flag;
+    }
+};
+
+#define EVT_EXT_ASSERT(expr, msg) \
+do { if (!(expr)) { ERROR(string("EventSystemTest FAILED: ") + (msg)); } } while(0)
+
+// -----------------------------------------------------------
+// Case 1: åµŒå¥—äº‹ä»¶æ¨é€ â€” åœ¨ A çš„å›è°ƒä¸­ push B
+// -----------------------------------------------------------
+void EventSystemTest::testNestedEventPush()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    listener.nestedPushTarget = &evtSys;
+    evtSys.listenEvent<TestEventX>(&listener);
+    evtSys.listenEvent<TestEventY>(&listener);
+
+    // æ¨é€ X â†’ å›è°ƒä¸­ä¼šè‡ªåŠ¨æ¨é€ Y
+    TestEventX eventX;
+    eventX.xValue = 42;
+    evtSys.pushEvent(eventX);
+
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.eventXCount == 1, "nested: X received once");
+    EVT_EXT_ASSERT(listener.eventYCount >= 1, "nested: Y received from within X callback");
+    EVT_EXT_ASSERT(listener.lastYLabel == "nested-from-X", "nested: Y label correct");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 2: å¤šæ¬¡è¿ç»­æ¨é€åŒä¸€äº‹ä»¶
+// -----------------------------------------------------------
+void EventSystemTest::testMultipleSameEvents()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    evtSys.listenEvent<TestEventX>(&listener);
+
+    for (int i = 0; i < 20; ++i)
+    {
+        TestEventX e;
+        e.xValue = i;
+        evtSys.pushEvent(e);
+    }
+
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.eventXCount == 20, "multi-push: all 20 events received");
+    EVT_EXT_ASSERT(listener.lastXValue == 19, "multi-push: last value is 19");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 3: ä¸‰ç§äº‹ä»¶ç±»å‹å®Œå…¨éš”ç¦»
+// -----------------------------------------------------------
+void EventSystemTest::testEventTypeIsolation_Strict()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    evtSys.listenEvent<TestEventX>(&listener);
+    evtSys.listenEvent<TestEventY>(&listener);
+    evtSys.listenEvent<TestEventZ>(&listener);
+
+    listener.reset();
+
+    // åªæ¨é€ Y å’Œ Z
+    TestEventY eY;
+    eY.yValue = 77.0f;
+    eY.yLabel = "only-y";
+    evtSys.pushEvent(eY);
+
+    TestEventZ eZ;
+    eZ.flag = true;
+    evtSys.pushEvent(eZ);
+
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.eventXCount == 0, "isolation: X not triggered");
+    EVT_EXT_ASSERT(listener.eventYCount == 1, "isolation: Y triggered once");
+    EVT_EXT_ASSERT(listener.eventZCount == 1, "isolation: Z triggered once");
+    EVT_EXT_ASSERT(fabsf(listener.lastYValue - 77.0f) < 1e-6f, "isolation: Y value correct");
+    EVT_EXT_ASSERT(listener.lastZFlag == true, "isolation: Z flag correct");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 4: åŒä¸€ç›‘å¬å™¨ç›‘å¬åŒä¸€äº‹ä»¶ä¸¤æ¬¡ï¼ˆåº”æ”¶åˆ°ä¸¤ä»½ï¼‰
+// -----------------------------------------------------------
+void EventSystemTest::testDoubleListen_SameEvent()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener1;
+    ExtendedListener listener2;
+
+    // åŒä¸€äº‹ä»¶æ³¨å†Œä¸¤ä¸ªä¸åŒç›‘å¬å™¨
+    evtSys.listenEvent<TestEventX>(&listener1);
+    evtSys.listenEvent<TestEventX>(&listener2);
+
+    TestEventX e;
+    e.xValue = 888;
+    evtSys.pushEvent(e);
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener1.eventXCount == 1, "double listen: L1 got it");
+    EVT_EXT_ASSERT(listener2.eventXCount == 1, "double listen: L2 got it");
+    EVT_EXT_ASSERT(listener1.lastXValue == 888, "double listen: L1 value");
+    EVT_EXT_ASSERT(listener2.lastXValue == 888, "double listen: L2 value");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 5: å–æ¶ˆé‡ç›‘å¬åå†æ¨é€
+// -----------------------------------------------------------
+void EventSystemTest::testUnlistenThenPushAgain()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    evtSys.listenEvent<TestEventX>(&listener);
+
+    // ç¬¬ä¸€æ¬¡æ¨é€
+    TestEventX e1;
+    e1.xValue = 111;
+    evtSys.pushEvent(e1);
+    evtSys.update(0.016f);
+    EVT_EXT_ASSERT(listener.eventXCount == 1, "unlisten: first push received");
+
+    // å–æ¶ˆç›‘å¬
+    evtSys.unlistenEvent(&listener);
+
+    // ç¬¬äºŒæ¬¡æ¨é€
+    listener.reset();
+    TestEventX e2;
+    e2.xValue = 222;
+    evtSys.pushEvent(e2);
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.eventXCount == 0, "unlisten: second push NOT received after unlisten");
+
+    // é‡æ–°ç›‘å¬
+    evtSys.listenEvent<TestEventX>(&listener);
+
+    // ç¬¬ä¸‰æ¬¡æ¨é€
+    TestEventX e3;
+    e3.xValue = 333;
+    evtSys.pushEvent(e3);
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.eventXCount == 1, "unlisten: third push received after re-listen");
+    EVT_EXT_ASSERT(listener.lastXValue == 333, "unlisten: value after re-listen");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 6: å…¨å±€ç›‘å¬ vs è§’è‰²å±€éƒ¨ç›‘å¬éš”ç¦»
+// -----------------------------------------------------------
+void EventSystemTest::testGlobalVsCharacterScope()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener globalListener;
+    ExtendedListener charListener;
+    Character character;
+    character.setGUID(910001);
+
+    // å…¨å±€ç›‘å¬ï¼šè§’è‰²äº‹ä»¶å’Œå…¨å±€äº‹ä»¶éƒ½åº”è¯¥æ”¶åˆ°
+    evtSys.listenEvent<TestEventX>(&globalListener);
+
+    // è§’è‰²å±€éƒ¨ç›‘å¬ï¼šåªåº”è¯¥æ”¶åˆ°æŒ‡å®šè§’è‰²äº‹ä»¶
+    evtSys.listenEvent<TestEventX>(&character, &charListener);
+
+    TestEventX ex;
+    ex.xValue = 100;
+    evtSys.pushEvent(ex, &character);
+
+    ex.xValue = 101;
+    evtSys.pushEvent(ex);
+
+    EVT_EXT_ASSERT(globalListener.eventXCount == 2, "scope: global got character and global X");
+    EVT_EXT_ASSERT(charListener.eventXCount == 1, "scope: character listener only got character X");
+    EVT_EXT_ASSERT(globalListener.lastXValue == 101, "scope: global last value from global event");
+    EVT_EXT_ASSERT(charListener.lastXValue == 100, "scope: character last value from character event");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 7: é«˜é¢‘äº¤æ›¿æ¨é€å¤šç§äº‹ä»¶
+// -----------------------------------------------------------
+void EventSystemTest::testHighFrequencyMixedEvents()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    evtSys.listenEvent<TestEventX>(&listener);
+    evtSys.listenEvent<TestEventY>(&listener);
+    evtSys.listenEvent<TestEventZ>(&listener);
+
+    const int ROUNDS = 50;
+    for (int i = 0; i < ROUNDS; ++i)
+    {
+        if (i % 3 == 0)
+        {
+            TestEventX e;
+            e.xValue = i;
+            evtSys.pushEvent(e);
+        }
+        else if (i % 3 == 1)
+        {
+            TestEventY e;
+            e.yValue = (float)i;
+            evtSys.pushEvent(e);
+        }
+        else
+        {
+            TestEventZ e;
+            e.flag = (i % 2 == 0);
+            evtSys.pushEvent(e);
+        }
+    }
+
+    evtSys.update(0.016f);
+
+    // X: i%3==0 => 0,3,6,...,48 â†’ 17 ä¸ª
+    int expectedX = ROUNDS / 3 + (ROUNDS % 3 > 0 ? 1 : 0);
+    // Y: i%3==1 => 1,4,7,...,49 â†’ 17 ä¸ª
+    int expectedY = ROUNDS / 3 + (ROUNDS % 3 > 1 ? 1 : 0);
+    // Z: i%3==2 => 2,5,8,...,47 â†’ 16 ä¸ª
+    int expectedZ = ROUNDS / 3;
+
+    EVT_EXT_ASSERT(listener.eventXCount == expectedX, "high-freq: X count");
+    EVT_EXT_ASSERT(listener.eventYCount == expectedY, "high-freq: Y count");
+    EVT_EXT_ASSERT(listener.eventZCount == expectedZ, "high-freq: Z count");
+
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 8: æ— ç›‘å¬è€…æ—¶æ¨é€ä¸å´©æºƒ
+// -----------------------------------------------------------
+void EventSystemTest::testPushWithNoListeners()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+
+    // æ²¡æœ‰ä»»ä½•ç›‘å¬è€…ï¼Œç›´æ¥æ¨é€å„ç§äº‹ä»¶
+    FOR(200)
+    {
+        TestEventX e;
+        e.xValue = i;
+        evtSys.pushEvent(e);
+        TestEventY y;
+        evtSys.pushEvent(y);
+    }
+
+    evtSys.update(0.016f);
+    EVT_EXT_ASSERT(true, "no listeners: no crash");
+    evtSys.quit();
+}
+
+// -----------------------------------------------------------
+// Case 9: äº‹ä»¶æ•°æ®å®Œæ•´æ€§ â€” å­—æ®µä¸ä¸²æ‰°
+// -----------------------------------------------------------
+void EventSystemTest::testDataIntegrityAcrossTypes()
+{
+    EventInfoPool pool;
+    EventSystem evtSys;
+    ExtendedListener listener;
+
+    evtSys.listenEvent<TestEventX>(&listener);
+    evtSys.listenEvent<TestEventY>(&listener);
+
+    // æ¨é€å¸¦ç²¾ç¡®å€¼çš„ X
+    TestEventX ex;
+    ex.xValue = 12345;
+    evtSys.pushEvent(ex);
+
+    // æ¨é€å¸¦ç²¾ç¡®å€¼çš„ Y
+    TestEventY ey;
+    ey.yValue = 67.89f;
+    ey.yLabel = "integrity-check";
+    evtSys.pushEvent(ey);
+
+    evtSys.update(0.016f);
+
+    EVT_EXT_ASSERT(listener.lastXValue == 12345, "integrity: X value exact");
+    EVT_EXT_ASSERT(fabsf(listener.lastYValue - 67.89f) < 0.001f, "integrity: Y value exact");
+    EVT_EXT_ASSERT(listener.lastYLabel == "integrity-check", "integrity: Y label exact");
+
+    evtSys.quit();
+}
+
+void EventSystemTest::testExtended()
+{
+    testNestedEventPush();
+    testMultipleSameEvents();
+    testEventTypeIsolation_Strict();
+    testDoubleListen_SameEvent();
+    testUnlistenThenPushAgain();
+    testGlobalVsCharacterScope();
+    testHighFrequencyMixedEvents();
+    testPushWithNoListeners();
+    testDataIntegrityAcrossTypes();
+}
+#endif

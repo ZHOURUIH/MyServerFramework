@@ -524,6 +524,7 @@ protected:
 				// SPSCQueue 已满，回退到加锁溢出容器
 				THREAD_LOCK(mOverflowLock);
 				mOverflow.addOrGet(key).addRange(willList);
+				willList.clear();
 			}
 		}
 	}

@@ -19,6 +19,17 @@ namespace BinaryUtility
 	// 0到65535的每个数中的最高位1的下标,也就是需要用几个bit来表示,1可以用1个bit表示,5可以使用3个bit表示,8可以使用5个bit表示
 	MICRO_LEGEND_FRAME_API extern byte mBitCountTable[65536];
 	MICRO_LEGEND_FRAME_API extern ThreadLock mBitCountTableLock;
+	// uint完整按位编码缓存。0~2^22-1的最终编码最多27bit,低27bit保存完整编码,高5bit保存总bit数
+	constexpr uint UINT_WRITE_CACHE_COUNT_64K = 1u << 16;
+	constexpr uint UINT_WRITE_CACHE_COUNT_256K = 1u << 18;
+	constexpr uint UINT_WRITE_CACHE_COUNT_1M = 1u << 20;
+	constexpr uint UINT_WRITE_CACHE_COUNT_4M = 1u << 22;
+	constexpr uint UINT_WRITE_CACHE_PRODUCTION_COUNT = UINT_WRITE_CACHE_COUNT_256K;
+	constexpr uint USHORT_WRITE_CACHE_COUNT = 1u << 16;
+	constexpr byte UINT_WRITE_CACHE_BIT_COUNT_SHIFT = 27;
+	constexpr uint UINT_WRITE_CACHE_BITS_MASK = (1u << UINT_WRITE_CACHE_BIT_COUNT_SHIFT) - 1u;
+	MICRO_LEGEND_FRAME_API extern uint mUIntWriteCache[UINT_WRITE_CACHE_PRODUCTION_COUNT];
+	MICRO_LEGEND_FRAME_API extern uint mUShortWriteCache[USHORT_WRITE_CACHE_COUNT];
 	MICRO_LEGEND_FRAME_API extern const ushort crc16_table[256];
 	// 各个基础数据类型的类型hash值
 	MICRO_LEGEND_FRAME_API extern const int mStringType;
@@ -67,8 +78,10 @@ namespace BinaryUtility
 
 	//------------------------------------------------------------------------------------------------------------------------------
 	// protected
-	void MICRO_LEGEND_FRAME_API initBitCountTable();
-	byte MICRO_LEGEND_FRAME_API internalGenerateBitCount(ushort value);
+	MICRO_LEGEND_FRAME_API void initBitCountTable();
+	MICRO_LEGEND_FRAME_API void initUIntWriteCache();
+	MICRO_LEGEND_FRAME_API void initUShortWriteCache();
+	MICRO_LEGEND_FRAME_API byte internalGenerateBitCount(ushort value);
 	//------------------------------------------------------------------------------------------------------------------------------
 	// public
 	// 因为当前类中需要使用过,如果写到FrameUtility中,会有头文件互相包含的问题,所以即使下面的函数于二进制操作无关,也写到这里
@@ -148,8 +161,8 @@ namespace BinaryUtility
 		}
 		return maxAbsValue;
 	}
-	float MICRO_LEGEND_FRAME_API getFloatListMaxAbs(const float* list, int count);
-	double MICRO_LEGEND_FRAME_API getDoubleListMaxAbs(const double* list, int count);
+	MICRO_LEGEND_FRAME_API float getFloatListMaxAbs(const float* list, int count);
+	MICRO_LEGEND_FRAME_API double getDoubleListMaxAbs(const double* list, int count);
 	// 设置value的指定位置pos的字节的值为byte,并且不影响其他字节
 	template<typename T, typename TypeCheck = typename IsPodIntegerType<T>::mType>
 	constexpr void setByte(T& value, const byte b, const int pos) { value = (value & ~(0xFFLL << (8 * pos))) | ((T)b << (8 * pos)); }
@@ -279,6 +292,43 @@ namespace BinaryUtility
 			return part1 > 0 ? mBitCountTable[part1] + 16 * 1 : mBitCountTable[value & 0x000000000000FFFF];
 		}
 	}
+	// 生成uint的完整按位编码缓存项,低27bit是最终编码,高5bit是总bit数。仅用于0~2^22-1
+	inline uint encodeUIntWriteCacheValue(const uint value)
+	{
+		const byte bitCount = generateBitCount(value);
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(uint)];
+		constexpr byte REMOVE_HIGH_BIT_LIMIT = (1 << sizeof(uint)) - 1;
+		const bool removeHighBit = bitCount > 0 && bitCount < REMOVE_HIGH_BIT_LIMIT;
+		const byte dataBitCount = bitCount == 0 ? 0 : (removeHighBit ? bitCount - 1 : bitCount);
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+		const uint dataMask = dataBitCount == 0 ? 0u : (1u << dataBitCount) - 1u;
+		const uint packedValue = (uint)bitCount | ((value & dataMask) << TYPE_LENGTH_MAX_BIT);
+		return packedValue | ((uint)totalBitCount << UINT_WRITE_CACHE_BIT_COUNT_SHIFT);
+	}
+	// 生成ushort的完整按位编码缓存项。ushort最终编码最多20bit,加上任意bitOffset后仍可使用32位窗口一次写入。
+	inline uint encodeUShortWriteCacheValue(const ushort value)
+	{
+		const byte bitCount = generateBitCount(value);
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(ushort)];
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		constexpr byte REMOVE_HIGH_BIT_LIMIT = (1 << sizeof(ushort)) - 1;
+		byte writeLength = bitCount;
+		byte dataLength = bitCount;
+		if (bitCount == 1 << TYPE_LENGTH_MAX_BIT)
+		{
+			writeLength = bitCount - 1;
+		}
+		else if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++dataLength;
+		}
+		const bool removeHighBit = value != 0 && dataLength < REMOVE_HIGH_BIT_LIMIT;
+		const byte dataBitCount = value == 0 ? 0 : (removeHighBit ? dataLength - 1 : dataLength);
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+		const uint dataMask = dataBitCount == 0 ? 0u : (1u << dataBitCount) - 1u;
+		const uint packedValue = (uint)writeLength | (((uint)value & dataMask) << TYPE_LENGTH_MAX_BIT);
+		return packedValue | ((uint)totalBitCount << UINT_WRITE_CACHE_BIT_COUNT_SHIFT);
+	}
 	// 从buffer的bitIndex的位下标处读取writeBitCount个位,位数最多不超过8位
 	inline void readByteBits(const char* buffer, int& bitIndex, byte& value, const byte readBitCount)
 	{
@@ -321,6 +371,406 @@ namespace BinaryUtility
 		*((short*)(buffer + (bitIndex >> 3))) |= ((short)value & ((1 << writeBitCount) - 1)) << (bitIndex & 7);
 		bitIndex += writeBitCount;
 	}
+	// 读取不足8字节的尾部数据,避免运行时长度memcpy在短消息尾部产生额外开销
+	inline ullong readIntegerTail(const char* buffer, const int byteCount)
+	{
+		switch (byteCount)
+		{
+		case 7: return (ullong)*((const uint*)buffer) | ((ullong)*((const ushort*)(buffer + 4)) << 32) | ((ullong)*((const byte*)(buffer + 6)) << 48);
+		case 6: return (ullong)*((const uint*)buffer) | ((ullong)*((const ushort*)(buffer + 4)) << 32);
+		case 5: return (ullong)*((const uint*)buffer) | ((ullong)*((const byte*)(buffer + 4)) << 32);
+		case 4: return (ullong)*((const uint*)buffer);
+		case 3: return (ullong)*((const ushort*)buffer) | ((ullong)*((const byte*)(buffer + 2)) << 16);
+		case 2: return (ullong)*((const ushort*)buffer);
+		case 1: return (ullong)*((const byte*)buffer);
+		default: return 0;
+		}
+	}
+	// 一次读取最多64位整数数据,用于整数按位序列化的快速路径
+	inline ullong readIntegerBits(const char* buffer, const int bufferSize, int& bitIndex, const byte readBitCount)
+	{
+		if (readBitCount == 0)
+		{
+			return 0;
+		}
+		const int byteIndex = bitIndex >> 3;
+		const byte bitOffset = (byte)(bitIndex & 7);
+		const int remainByteCount = bufferSize - byteIndex;
+		ullong source = 0;
+		if (remainByteCount >= 8)
+		{
+			source = *((const ullong*)(buffer + byteIndex));
+		}
+		else if (remainByteCount > 0)
+		{
+			source = readIntegerTail(buffer + byteIndex, remainByteCount);
+		}
+		ullong value = source >> bitOffset;
+		if (bitOffset != 0 && readBitCount > 64 - bitOffset)
+		{
+			value |= (ullong)(byte)buffer[byteIndex + 8] << (64 - bitOffset);
+		}
+		if (readBitCount < 64)
+		{
+			value &= (1ULL << readBitCount) - 1ULL;
+		}
+		bitIndex += readBitCount;
+		return value;
+	}
+	// 一次写入最多64位整数数据,用于整数按位序列化的快速路径
+	inline void writeIntegerBits(char* buffer, const int bufferSize, int& bitIndex, ullong value, const byte writeBitCount)
+	{
+		if (writeBitCount == 0)
+		{
+			return;
+		}
+		if (writeBitCount < 64)
+		{
+			value &= (1ULL << writeBitCount) - 1ULL;
+		}
+		const int byteIndex = bitIndex >> 3;
+		const byte bitOffset = (byte)(bitIndex & 7);
+		const int remainByteCount = bufferSize - byteIndex;
+		const byte writeByteCount = (byte)bitCountToByteCount(bitOffset + writeBitCount);
+		const ullong writeValue = value << bitOffset;
+		if (remainByteCount >= 8)
+		{
+			*((ullong*)(buffer + byteIndex)) |= writeValue;
+		}
+		else
+		{
+			ullong dest = 0;
+			memcpy(&dest, buffer + byteIndex, writeByteCount);
+			dest |= writeValue;
+			memcpy(buffer + byteIndex, &dest, writeByteCount);
+		}
+		if (bitOffset != 0 && writeBitCount > 64 - bitOffset)
+		{
+			buffer[byteIndex + 8] |= (char)(value >> (64 - bitOffset));
+		}
+		bitIndex += writeBitCount;
+	}
+	// 写入一个已经预编码完成的uint缓存项,用于生产缓存和不同缓存范围的基准测试
+	inline bool writeEncodedUIntCacheBit(char* buffer, const int bufferSize, int& bitIndex, const uint cacheValue)
+	{
+		const byte writeBitCount = (byte)(cacheValue >> UINT_WRITE_CACHE_BIT_COUNT_SHIFT);
+		const int endBitIndex = bitIndex + writeBitCount;
+		if (bitCountToByteCount(endBitIndex) > bufferSize)
+		{
+			return false;
+		}
+		const uint bits = cacheValue & UINT_WRITE_CACHE_BITS_MASK;
+		const int byteIndex = bitIndex >> 3;
+		const byte bitOffset = (byte)(bitIndex & 7);
+		const int remainByteCount = bufferSize - byteIndex;
+		const byte writeByteCount = (byte)bitCountToByteCount(bitOffset + writeBitCount);
+		const ullong writeValue = (ullong)bits << bitOffset;
+		if (remainByteCount >= 8)
+		{
+			*((ullong*)(buffer + byteIndex)) |= writeValue;
+		}
+		else
+		{
+			ullong dest = 0;
+			memcpy(&dest, buffer + byteIndex, writeByteCount);
+			dest |= writeValue;
+			memcpy(buffer + byteIndex, &dest, writeByteCount);
+		}
+		bitIndex = endBitIndex;
+		return true;
+	}
+	// 生产uint缓存只覆盖0~2^18-1,最终编码最多23bit,再加bitOffset最多30bit,固定可以用32位窗口完成写入
+	inline bool writeEncodedUIntCache32Bit(char* buffer, const int bufferSize, int& bitIndex, const uint cacheValue)
+	{
+		const byte writeBitCount = (byte)(cacheValue >> UINT_WRITE_CACHE_BIT_COUNT_SHIFT);
+		const int endBitIndex = bitIndex + writeBitCount;
+		if (bitCountToByteCount(endBitIndex) > bufferSize)
+		{
+			return false;
+		}
+		const int byteIndex = bitIndex >> 3;
+		const byte bitOffset = (byte)(bitIndex & 7);
+		const uint writeValue = (cacheValue & UINT_WRITE_CACHE_BITS_MASK) << bitOffset;
+		const int remainByteCount = bufferSize - byteIndex;
+		if (remainByteCount >= 4)
+		{
+			*((uint*)(buffer + byteIndex)) |= writeValue;
+		}
+		else
+		{
+			const byte writeByteCount = (byte)bitCountToByteCount(bitOffset + writeBitCount);
+			uint dest = 0;
+			memcpy(&dest, buffer + byteIndex, writeByteCount);
+			dest |= writeValue;
+			memcpy(buffer + byteIndex, &dest, writeByteCount);
+		}
+		bitIndex = endBitIndex;
+		return true;
+	}
+	inline bool writeCachedUIntBit(char* buffer, const int bufferSize, int& bitIndex, const uint value)
+	{
+		if (mUIntWriteCache[0] == 0)
+		{
+			initUIntWriteCache();
+		}
+		return writeEncodedUIntCache32Bit(buffer, bufferSize, bitIndex, mUIntWriteCache[value]);
+	}
+	inline bool writeCachedUShortBit(char* buffer, const int bufferSize, int& bitIndex, const ushort value)
+	{
+		if (mUShortWriteCache[0] == 0)
+		{
+			initUShortWriteCache();
+		}
+		return writeEncodedUIntCache32Bit(buffer, bufferSize, bitIndex, mUShortWriteCache[value]);
+	}
+	// 从当前bitIndex读取一个64位窗口,不移动bitIndex。32位及以下整数的完整编码最多37bit,一次窗口读取即可完成解析
+	inline ullong readIntegerBitWindow(const char* buffer, const int bufferSize, const int bitIndex)
+	{
+		const int byteIndex = bitIndex >> 3;
+		const int remainByteCount = bufferSize - byteIndex;
+		ullong source = 0;
+		if (remainByteCount >= 8)
+		{
+			source = *((const ullong*)(buffer + byteIndex));
+		}
+		else if (remainByteCount > 0)
+		{
+			source = readIntegerTail(buffer + byteIndex, remainByteCount);
+		}
+		return source >> (bitIndex & 7);
+	}
+	// 从任意bitIndex读取最多64个连续有效位。仅供列表连续读取缓存使用,必要时会补读第9个字节
+	inline ullong readIntegerBitWindow64(const char* buffer, const int bufferSize, const int bitIndex)
+	{
+		const int byteIndex = bitIndex >> 3;
+		const int remainByteCount = bufferSize - byteIndex;
+		if (remainByteCount <= 0)
+		{
+			return 0;
+		}
+		ullong source = remainByteCount >= 8 ? *((const ullong*)(buffer + byteIndex)) : readIntegerTail(buffer + byteIndex, remainByteCount);
+		const byte bitOffset = (byte)(bitIndex & 7);
+		ullong value = source >> bitOffset;
+		if (bitOffset != 0 && remainByteCount > 8)
+		{
+			value |= (ullong)(byte)buffer[byteIndex + 8] << (64 - bitOffset);
+		}
+		return value;
+	}
+	struct IntegerBitReadCache
+	{
+		ullong mWindow = 0;
+		int mRemainBitCount = 0;
+		int mBitIndex = 0;
+	};
+	inline bool refillIntegerBitReadCache(const char* buffer, const int bufferSize, IntegerBitReadCache& cache)
+	{
+		const int remainBitCount = bufferSize * 8 - cache.mBitIndex;
+		if (remainBitCount <= 0)
+		{
+			cache.mWindow = 0;
+			cache.mRemainBitCount = 0;
+			return false;
+		}
+		cache.mWindow = readIntegerBitWindow64(buffer, bufferSize, cache.mBitIndex);
+		cache.mRemainBitCount = remainBitCount > 64 ? 64 : remainBitCount;
+		return true;
+	}
+	inline void consumeIntegerBitReadCache(IntegerBitReadCache& cache, const byte bitCount)
+	{
+		cache.mWindow = bitCount < 64 ? cache.mWindow >> bitCount : 0;
+		cache.mRemainBitCount -= bitCount;
+		cache.mBitIndex += bitCount;
+	}
+	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
+	inline bool readUnsignedIntegerCacheBit(const char* buffer, const int bufferSize, IntegerBitReadCache& cache, T& value)
+	{
+		static_assert(sizeof(T) <= 4, "readUnsignedIntegerCacheBit only supports <=32bit integer");
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		constexpr byte REMOVE_HIGH_BIT_LIMIT = (1 << sizeof(T)) - 1;
+		if (cache.mRemainBitCount < TYPE_LENGTH_MAX_BIT && !refillIntegerBitReadCache(buffer, bufferSize, cache))
+		{
+			return false;
+		}
+		ullong window = cache.mWindow;
+		byte bitCount = (byte)(window & LENGTH_MAX_VALUE);
+		if constexpr (sizeof(T) == 4)
+		{
+			// uint常见极小值0/1没有数据位,2/3只有1个数据位,直接解码可跳过通用mask/high-bit计算
+			if (bitCount <= 1)
+			{
+				value = (T)bitCount;
+				consumeIntegerBitReadCache(cache, TYPE_LENGTH_MAX_BIT);
+				return true;
+			}
+			if (bitCount == 2)
+			{
+				constexpr byte SHORT_TOTAL_BIT_COUNT = TYPE_LENGTH_MAX_BIT + 1;
+				if (cache.mRemainBitCount < SHORT_TOTAL_BIT_COUNT)
+				{
+					if (!refillIntegerBitReadCache(buffer, bufferSize, cache) || cache.mRemainBitCount < SHORT_TOTAL_BIT_COUNT)
+					{
+						return false;
+					}
+					window = cache.mWindow;
+				}
+				value = (T)(2u | (uint)((window >> TYPE_LENGTH_MAX_BIT) & 1ULL));
+				consumeIntegerBitReadCache(cache, SHORT_TOTAL_BIT_COUNT);
+				return true;
+			}
+		}
+		if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++bitCount;
+		}
+		const bool removeHighBit = bitCount != 0 && bitCount < REMOVE_HIGH_BIT_LIMIT;
+		const byte dataBitCount = bitCount == 0 ? 0 : removeHighBit ? bitCount - 1 : bitCount;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+		if (cache.mRemainBitCount < totalBitCount)
+		{
+			if (!refillIntegerBitReadCache(buffer, bufferSize, cache) || cache.mRemainBitCount < totalBitCount)
+			{
+				return false;
+			}
+			window = cache.mWindow;
+		}
+		ullong unsignedValue = dataBitCount > 0 ? (window >> TYPE_LENGTH_MAX_BIT) & ((1ULL << dataBitCount) - 1ULL) : 0;
+		if (removeHighBit)
+		{
+			unsignedValue |= 1ULL << dataBitCount;
+		}
+		value = (T)unsignedValue;
+		consumeIntegerBitReadCache(cache, totalBitCount);
+		return true;
+	}
+	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
+	inline bool readSignedIntegerCacheBit(const char* buffer, const int bufferSize, IntegerBitReadCache& cache, T& value, const bool needReadSign)
+	{
+		static_assert(sizeof(T) <= 4, "readSignedIntegerCacheBit only supports <=32bit integer");
+		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		if (cache.mRemainBitCount < TYPE_LENGTH_MAX_BIT && !refillIntegerBitReadCache(buffer, bufferSize, cache))
+		{
+			return false;
+		}
+		ullong window = cache.mWindow;
+		const byte bitCount = (byte)(window & ((1ULL << TYPE_LENGTH_MAX_BIT) - 1ULL));
+		const byte dataBitCount = bitCount > 0 ? bitCount - 1 : 0;
+		const byte signBitCount = bitCount > 0 && needReadSign ? 1 : 0;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + signBitCount + dataBitCount;
+		if (cache.mRemainBitCount < totalBitCount)
+		{
+			if (!refillIntegerBitReadCache(buffer, bufferSize, cache) || cache.mRemainBitCount < totalBitCount)
+			{
+				return false;
+			}
+			window = cache.mWindow;
+		}
+		if (bitCount == 0)
+		{
+			value = 0;
+			consumeIntegerBitReadCache(cache, totalBitCount);
+			return true;
+		}
+		const bool isNegative = needReadSign && ((window >> TYPE_LENGTH_MAX_BIT) & 1ULL) != 0;
+		const byte dataStart = TYPE_LENGTH_MAX_BIT + signBitCount;
+		ullong unsignedValue = dataBitCount > 0 ? (window >> dataStart) & ((1ULL << dataBitCount) - 1ULL) : 0;
+		unsignedValue |= 1ULL << dataBitCount;
+		using UnsignedType = typename ToUnsignedInteger<T>::Type;
+		const UnsignedType typedValue = (UnsignedType)unsignedValue;
+		value = isNegative ? (T)((UnsignedType)0 - typedValue) : (T)typedValue;
+		consumeIntegerBitReadCache(cache, totalBitCount);
+		return true;
+	}
+	// 一次读取整数列表头部的模式位和统一长度位,避免先读1bit模式再单独读取长度位
+	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
+	inline bool readSignedIntegerListHeaderBit(const char* buffer, const int bufferSize, int& bitIndex, bool& useUnityBitCount, byte& bitCount)
+	{
+		if (bitCountToByteCount(bitIndex + 1) > bufferSize)
+		{
+			return false;
+		}
+		const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+		useUnityBitCount = (window & 1ULL) != 0;
+		if (!useUnityBitCount)
+		{
+			++bitIndex;
+			bitCount = 0;
+			return true;
+		}
+		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		if (bitCountToByteCount(bitIndex + 1 + TYPE_LENGTH_MAX_BIT) > bufferSize)
+		{
+			return false;
+		}
+		bitCount = (byte)((window >> 1) & ((1ULL << TYPE_LENGTH_MAX_BIT) - 1ULL));
+		bitIndex += 1 + TYPE_LENGTH_MAX_BIT;
+		return true;
+	}
+	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
+	inline bool readUnsignedIntegerListHeaderBit(const char* buffer, const int bufferSize, int& bitIndex, bool& useUnityBitCount, byte& bitCount)
+	{
+		if (bitCountToByteCount(bitIndex + 1) > bufferSize)
+		{
+			return false;
+		}
+		const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+		useUnityBitCount = (window & 1ULL) != 0;
+		if (!useUnityBitCount)
+		{
+			++bitIndex;
+			bitCount = 0;
+			return true;
+		}
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		if (bitCountToByteCount(bitIndex + 1 + TYPE_LENGTH_MAX_BIT) > bufferSize)
+		{
+			return false;
+		}
+		bitCount = (byte)((window >> 1) & LENGTH_MAX_VALUE);
+		if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++bitCount;
+		}
+		bitIndex += 1 + TYPE_LENGTH_MAX_BIT;
+		return true;
+	}
+	// 一次写入整数列表的统一长度头部:最低位为1表示统一长度,后面紧跟长度位
+	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
+	inline bool writeSignedIntegerListHeaderBit(char* buffer, const int bufferSize, int& bitIndex, const byte bitCount)
+	{
+		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte HEADER_BIT_COUNT = 1 + TYPE_LENGTH_MAX_BIT;
+		if (bitCountToByteCount(bitIndex + HEADER_BIT_COUNT) > bufferSize)
+		{
+			return false;
+		}
+		writeIntegerBits(buffer, bufferSize, bitIndex, 1ULL | ((ullong)bitCount << 1), HEADER_BIT_COUNT);
+		return true;
+	}
+	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
+	inline bool writeUnsignedIntegerListHeaderBit(char* buffer, const int bufferSize, int& bitIndex, byte& bitCount)
+	{
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte HEADER_BIT_COUNT = 1 + TYPE_LENGTH_MAX_BIT;
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		if (bitCountToByteCount(bitIndex + HEADER_BIT_COUNT) > bufferSize)
+		{
+			return false;
+		}
+		byte writeBitCount = bitCount;
+		if (bitCount == 1 << TYPE_LENGTH_MAX_BIT)
+		{
+			writeBitCount = bitCount - 1;
+		}
+		else if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++bitCount;
+		}
+		writeIntegerBits(buffer, bufferSize, bitIndex, 1ULL | ((ullong)writeBitCount << 1), HEADER_BIT_COUNT);
+		return true;
+	}
 	// 写入无符号整数长度位
 	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
 	bool writeUnsignedLengthBit(char* buffer, const int bufferSize, int& bitIndex, byte& bitCount)
@@ -359,12 +809,12 @@ namespace BinaryUtility
 		writeByteBits(buffer, bitIndex, bitCount, TYPE_LENGTH_MAX_BIT);
 		return true;
 	}
-	ushort MICRO_LEGEND_FRAME_API crc16(ushort crc, const char* buffer, int len, int bufferOffset = 0);
+	MICRO_LEGEND_FRAME_API ushort crc16(ushort crc, const char* buffer, int len, int bufferOffset = 0);
 	inline ushort crc16Byte(const ushort crc, const byte data) { return (ushort)((crc >> 8) ^ crc16_table[(crc ^ data) & 0xFF]); }
 	template<typename T>
 	void zeroArray(T* ptr, const int size) { memset(ptr, 0, sizeof(T) * size); }
-	bool MICRO_LEGEND_FRAME_API readBuffer(const char* buffer, int bufferSize, int& index, char* dest, int destSize, int readSize);
-	bool MICRO_LEGEND_FRAME_API writeBuffer(char* buffer, int bufferSize, int& destOffset, const char* source, int writeSize);
+	MICRO_LEGEND_FRAME_API bool readBuffer(const char* buffer, int bufferSize, int& index, char* dest, int destSize, int readSize);
+	MICRO_LEGEND_FRAME_API bool writeBuffer(char* buffer, int bufferSize, int& destOffset, const char* source, int writeSize);
 	template<typename T, typename TypeCheck = enable_if_t<IsPodType<T>::mValue>>
 	constexpr bool read(const char* buffer, const int bufferSize, int& index, T& value)
 	{
@@ -473,56 +923,86 @@ namespace BinaryUtility
 		value = getBufferBit(buffer, bitIndex++);
 		return true;
 	}
-	bool MICRO_LEGEND_FRAME_API readBufferBit(const char* buffer, int bufferSize, int& bitIndex, char* dest, int destSize, int readSize);
+	MICRO_LEGEND_FRAME_API bool readBufferBit(const char* buffer, int bufferSize, int& bitIndex, char* dest, int destSize, int readSize);
 	// 可以按位读取带符号的整数
 	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
 	bool readSignedIntegerBit(const char* buffer, const int bufferSize, int& bitIndex, T& value, bool needReadSign)
 	{
 		value = 0;
-		// 读取长度位
-		byte bitCount = 0;
-		if (!readSignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
+		// 32位及以下整数的完整编码最多37bit,一次读取64位窗口即可完成长度位、符号位和数据位解析
+		if constexpr (sizeof(T) <= 4)
 		{
-			return false;
-		}
-		if (bitCount == 0)
-		{
+			constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+			if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+			{
+				return false;
+			}
+			const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+			const byte bitCount = (byte)(window & ((1ULL << TYPE_LENGTH_MAX_BIT) - 1ULL));
+			if (bitCount == 0)
+			{
+				bitIndex += TYPE_LENGTH_MAX_BIT;
+				return true;
+			}
+			const byte dataBitCount = bitCount - 1;
+			const byte signBitCount = needReadSign ? 1 : 0;
+			const byte totalBitCount = TYPE_LENGTH_MAX_BIT + signBitCount + dataBitCount;
+			if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
+			{
+				return false;
+			}
+			const bool isNegative = needReadSign && ((window >> TYPE_LENGTH_MAX_BIT) & 1ULL) != 0;
+			const byte dataStart = TYPE_LENGTH_MAX_BIT + signBitCount;
+			ullong unsignedValue = dataBitCount > 0 ? (window >> dataStart) & ((1ULL << dataBitCount) - 1ULL) : 0;
+			unsignedValue |= 1ULL << dataBitCount;
+			using UnsignedType = typename ToUnsignedInteger<T>::Type;
+			const UnsignedType typedValue = (UnsignedType)unsignedValue;
+			value = isNegative ? (T)((UnsignedType)0 - typedValue) : (T)typedValue;
+			bitIndex += totalBitCount;
 			return true;
 		}
-		--bitCount;
-		if (bitCountToByteCount(bitIndex + bitCount + (needReadSign ? 1 : 0)) > bufferSize)
+		// 64位整数也先读取一次窗口。常见小值的长度位、符号位、数据位可在一个64位窗口内直接完成解析
+		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
 		{
 			return false;
 		}
-
-		// 读符号位
-		bool isNegative = false;
-		if (needReadSign)
+		const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+		const byte bitCount = (byte)(window & ((1ULL << TYPE_LENGTH_MAX_BIT) - 1ULL));
+		if (bitCount == 0)
 		{
-			isNegative = getBufferBit(buffer, bitIndex++);
+			bitIndex += TYPE_LENGTH_MAX_BIT;
+			return true;
 		}
-
-		// 读取值
-		if (bitCount > 0)
+		const byte dataBitCount = bitCount - 1;
+		const byte signBitCount = needReadSign ? 1 : 0;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + signBitCount + dataBitCount;
+		if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
 		{
-			const int byteCount = bitCountToByteCount(bitCount);
-			FOR(byteCount - 1)
+			return false;
+		}
+		const bool isNegative = needReadSign && ((window >> TYPE_LENGTH_MAX_BIT) & 1ULL) != 0;
+		ullong unsignedValue = 0;
+		if (totalBitCount <= 64)
+		{
+			if (dataBitCount > 0)
 			{
-				readByteBits(buffer, bitIndex, ((byte*)&value)[i], 8);
+				unsignedValue = (window >> (TYPE_LENGTH_MAX_BIT + signBitCount)) & ((1ULL << dataBitCount) - 1ULL);
 			}
-			readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
-			// 注意,负数由于存储是使用补码存储的,所以不能直接按位或
-			// 读取完所有位再将最高位的1加上
-			setBitOne(value, bitCount);
-			if (isNegative)
-			{
-				value = -value;
-			}
+			bitIndex += totalBitCount;
 		}
 		else
 		{
-			value = isNegative ? -1 : 1;
+			bitIndex += TYPE_LENGTH_MAX_BIT + signBitCount;
+			if (dataBitCount > 0)
+			{
+				unsignedValue = readIntegerBits(buffer, bufferSize, bitIndex, dataBitCount);
+			}
 		}
+		unsignedValue |= 1ULL << dataBitCount;
+		using UnsignedType = typename ToUnsignedInteger<T>::Type;
+		const UnsignedType typedValue = (UnsignedType)unsignedValue;
+		value = isNegative ? (T)((UnsignedType)0 - typedValue) : (T)typedValue;
 		return true;
 	}
 	// 可以按位读取无符号的整数
@@ -530,62 +1010,120 @@ namespace BinaryUtility
 	bool readUnsignedIntegerBit(const char* buffer, const int bufferSize, int& bitIndex, T& value)
 	{
 		value = 0;
-		// 读取长度位
-		byte bitCount = 0;
-		if (!readUnsignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
+		if constexpr (sizeof(T) <= 4)
 		{
-			return false;
-		}
-		if (bitCount == 0)
-		{
-			return true;
-		}
-		// 因为写入的时候,最高位的1是不需要写入的,所以实际读取的位数会少一位
-		if (bitCount < (1 << sizeof(value)) - 1)
-		{
-			--bitCount;
-		}
-		if (bitCountToByteCount(bitIndex + bitCount) > bufferSize)
-		{
-			return false;
-		}
-
-		// 读取值
-		if (bitCount > 0)
-		{
-			const int byteCount = bitCountToByteCount(bitCount);
-			FOR(byteCount - 1)
-			{
-				readByteBits(buffer, bitIndex, ((byte*)&value)[i], 8);
-			}
-			readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
-			// 读取完所有位再将最高位的1加上
-			// 但是如果写入位的数量到达最大位数时,就不能再加上最高位了,否则会混淆
-			if (bitCount < (1 << sizeof(value)) - 1)
-			{
-				setBitOne(value, bitCount);
-			}
-		}
-		else
-		{
-			value = 1;
-		}
-		return true;
-	}
-	bool MICRO_LEGEND_FRAME_API readFloatBit(const char* buffer, int bufferSize, int& bitIndex, float& value, bool needReadSign, const int precision = 3);
-	bool MICRO_LEGEND_FRAME_API readDoubleBit(const char* buffer, int bufferSize, int& bitIndex, double& value, bool needReadSign, const int precision = 4);
-	template<typename T, int Count, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
-	bool readSignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, T*>& list, const bool needReadSign)
-	{
-		// 使用统一的长度位
-		if (getBufferBit(buffer, bitIndex++))
-		{
-			// 读取长度位
-			byte bitCount = 0;
-			if (!readSignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
+			constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+			constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+			constexpr byte REMOVE_HIGH_BIT_LIMIT = (1 << sizeof(T)) - 1;
+			if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
 			{
 				return false;
 			}
+			const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+			byte bitCount = (byte)(window & LENGTH_MAX_VALUE);
+			if (bitCount == LENGTH_MAX_VALUE)
+			{
+				++bitCount;
+			}
+			if (bitCount == 0)
+			{
+				bitIndex += TYPE_LENGTH_MAX_BIT;
+				return true;
+			}
+			const bool removeHighBit = bitCount < REMOVE_HIGH_BIT_LIMIT;
+			const byte dataBitCount = removeHighBit ? bitCount - 1 : bitCount;
+			const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+			if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
+			{
+				return false;
+			}
+			ullong unsignedValue = dataBitCount > 0 ? (window >> TYPE_LENGTH_MAX_BIT) & ((1ULL << dataBitCount) - 1ULL) : 0;
+			if (removeHighBit)
+			{
+				unsignedValue |= 1ULL << dataBitCount;
+			}
+			value = (T)unsignedValue;
+			bitIndex += totalBitCount;
+			return true;
+		}
+		// 64位无符号整数先一次读取长度窗口。编码总长度不超过64bit时直接从同一窗口完成解析
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+		{
+			return false;
+		}
+		const ullong window = readIntegerBitWindow(buffer, bufferSize, bitIndex);
+		byte bitCount = (byte)(window & LENGTH_MAX_VALUE);
+		if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++bitCount;
+		}
+		if (bitCount == 0)
+		{
+			bitIndex += TYPE_LENGTH_MAX_BIT;
+			return true;
+		}
+		constexpr byte FULL_BIT_COUNT = sizeof(T) * 8;
+		const bool removeHighBit = bitCount < FULL_BIT_COUNT;
+		const byte dataBitCount = removeHighBit ? bitCount - 1 : bitCount;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+		if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
+		{
+			return false;
+		}
+		ullong unsignedValue = 0;
+		if (totalBitCount <= 64)
+		{
+			if (dataBitCount > 0)
+			{
+				unsignedValue = (window >> TYPE_LENGTH_MAX_BIT) & ((1ULL << dataBitCount) - 1ULL);
+			}
+			bitIndex += totalBitCount;
+		}
+		else
+		{
+			bitIndex += TYPE_LENGTH_MAX_BIT;
+			if (dataBitCount > 0)
+			{
+				unsignedValue = readIntegerBits(buffer, bufferSize, bitIndex, dataBitCount);
+			}
+		}
+		if (removeHighBit)
+		{
+			unsignedValue |= 1ULL << dataBitCount;
+		}
+		value = (T)unsignedValue;
+		return true;
+	}
+	MICRO_LEGEND_FRAME_API bool readFloatBit(const char* buffer, int bufferSize, int& bitIndex, float& value, bool needReadSign, const int precision = 3);
+	MICRO_LEGEND_FRAME_API bool readDoubleBit(const char* buffer, int bufferSize, int& bitIndex, double& value, bool needReadSign, const int precision = 4);
+	// int固定参数列表使用独立的out-of-line核心,避免大型模板在每个调用点重复展开导致MSVC代码布局变差
+	MICRO_LEGEND_FRAME_API bool readSignedIntPointerListBit(const char* buffer, int bufferSize, int& bitIndex, int** list, int count, bool needReadSign);
+	template<int Count>
+	bool readSignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, int*>& list, const bool needReadSign)
+	{
+		return readSignedIntPointerListBit(buffer, bufferSize, bitIndex, list.data(), Count, needReadSign);
+	}
+	// llong固定参数列表同样使用out-of-line核心,重点优化GUID/唯一ID等常见的64位参数组
+	MICRO_LEGEND_FRAME_API bool readSignedLLongPointerListBit(const char* buffer, int bufferSize, int& bitIndex, llong** list, int count, bool needReadSign);
+	template<int Count>
+	bool readSignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, llong*>& list, const bool needReadSign)
+	{
+		return readSignedLLongPointerListBit(buffer, bufferSize, bitIndex, list.data(), Count, needReadSign);
+	}
+	template<typename T, int Count, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
+	bool readSignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, T*>& list, const bool needReadSign)
+	{
+		bool useUnityBitCount = false;
+		byte bitCount = 0;
+		if (!readSignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, useUnityBitCount, bitCount))
+		{
+			return false;
+		}
+		// 使用统一的长度位
+		if (useUnityBitCount)
+		{
 			if (bitCount == 0)
 			{
 				return true;
@@ -594,36 +1132,55 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			// 读取所有元素位
-			const int byteCount = bitCountToByteCount(bitCount);
+			// 统一长度模式下每个元素一次整块读取,避免按8bit循环读取
+			using UnsignedType = typename ToUnsignedInteger<T>::Type;
+			const byte signBitCount = needReadSign ? 1 : 0;
+			const byte elementBitCount = bitCount + signBitCount;
 			FOR(Count)
 			{
-				T& value = *list[i];
-				value = 0;
-				// 读符号位
 				bool isNegative = false;
-				if (needReadSign)
+				ullong unsignedValue;
+				if (elementBitCount <= 64)
+				{
+					const ullong packedValue = readIntegerBits(buffer, bufferSize, bitIndex, elementBitCount);
+					isNegative = needReadSign && (packedValue & 1ULL) != 0;
+					unsignedValue = packedValue >> signBitCount;
+				}
+				else
 				{
 					isNegative = getBufferBit(buffer, bitIndex++);
+					unsignedValue = readIntegerBits(buffer, bufferSize, bitIndex, bitCount);
 				}
-				// 读取值
-				FOR_J(byteCount - 1)
-				{
-					readByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
-				}
-				readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
-				if (isNegative)
-				{
-					value = -value;
-				}
+				const UnsignedType typedValue = (UnsignedType)unsignedValue;
+				*list[i] = isNegative ? (T)((UnsignedType)0 - typedValue) : (T)typedValue;
 			}
 		}
 		// 每个元素使用独立的长度位
 		else
 		{
-			FOR(Count)
+			if constexpr (sizeof(T) <= 4)
 			{
-				readSignedIntegerBit(buffer, bufferSize, bitIndex, *list[i], needReadSign);
+				IntegerBitReadCache cache;
+				cache.mBitIndex = bitIndex;
+				FOR(Count)
+				{
+					if (!readSignedIntegerCacheBit(buffer, bufferSize, cache, *list[i], needReadSign))
+					{
+						bitIndex = cache.mBitIndex;
+						return false;
+					}
+				}
+				bitIndex = cache.mBitIndex;
+			}
+			else
+			{
+				FOR(Count)
+				{
+					if (!readSignedIntegerBit(buffer, bufferSize, bitIndex, *list[i], needReadSign))
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
@@ -645,15 +1202,15 @@ namespace BinaryUtility
 		list.clear();
 		list.resize(count);
 
-		// 使用统一的长度位
-		if (getBufferBit(buffer, bitIndex++))
+		bool useUnityBitCount = false;
+		byte bitCount = 0;
+		if (!readSignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, useUnityBitCount, bitCount))
 		{
-			// 读取长度位
-			byte bitCount = 0;
-			if (!readSignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
-			{
-				return false;
-			}
+			return false;
+		}
+		// 使用统一的长度位
+		if (useUnityBitCount)
+		{
 			if (bitCount == 0)
 			{
 				return true;
@@ -662,52 +1219,78 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			// 读取所有元素位
-			const int byteCount = bitCountToByteCount(bitCount);
+			// 统一长度模式下每个元素一次整块读取,避免按8bit循环读取
+			using UnsignedType = typename ToUnsignedInteger<T>::Type;
+			const byte signBitCount = needReadSign ? 1 : 0;
+			const byte elementBitCount = bitCount + signBitCount;
 			FOR(count)
 			{
-				T& value = list[i];
-				value = 0;
-				// 读符号位
 				bool isNegative = false;
-				if (needReadSign)
+				ullong unsignedValue;
+				if (elementBitCount <= 64)
+				{
+					const ullong packedValue = readIntegerBits(buffer, bufferSize, bitIndex, elementBitCount);
+					isNegative = needReadSign && (packedValue & 1ULL) != 0;
+					unsignedValue = packedValue >> signBitCount;
+				}
+				else
 				{
 					isNegative = getBufferBit(buffer, bitIndex++);
+					unsignedValue = readIntegerBits(buffer, bufferSize, bitIndex, bitCount);
 				}
-				// 读取值
-				FOR_J(byteCount - 1)
-				{
-					readByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
-				}
-				readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
-				if (isNegative)
-				{
-					value = -value;
-				}
+				const UnsignedType typedValue = (UnsignedType)unsignedValue;
+				list[i] = isNegative ? (T)((UnsignedType)0 - typedValue) : (T)typedValue;
 			}
 		}
 		// 每个元素使用独立的长度位
 		else
 		{
-			FOR(count)
+			if constexpr (sizeof(T) <= 4)
 			{
-				readSignedIntegerBit(buffer, bufferSize, bitIndex, list[i], needReadSign);
+				IntegerBitReadCache cache;
+				cache.mBitIndex = bitIndex;
+				FOR(count)
+				{
+					if (!readSignedIntegerCacheBit(buffer, bufferSize, cache, list[i], needReadSign))
+					{
+						bitIndex = cache.mBitIndex;
+						return false;
+					}
+				}
+				bitIndex = cache.mBitIndex;
+			}
+			else
+			{
+				FOR(count)
+				{
+					if (!readSignedIntegerBit(buffer, bufferSize, bitIndex, list[i], needReadSign))
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
 	}
+	// uint固定参数列表使用独立的out-of-line核心,复用已验证的ShortCode FastPath并避免大型模板重复展开
+	MICRO_LEGEND_FRAME_API bool readUnsignedIntPointerListBit(const char* buffer, int bufferSize, int& bitIndex, uint** list, int count);
+	template<int Count>
+	bool readUnsignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, uint*>& list)
+	{
+		return readUnsignedIntPointerListBit(buffer, bufferSize, bitIndex, list.data(), Count);
+	}
 	template<typename T, int Count, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
 	bool readUnsignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, T*>& list)
 	{
-		// 使用统一的长度位
-		if (getBufferBit(buffer, bitIndex++))
+		bool useUnityBitCount = false;
+		byte bitCount = 0;
+		if (!readUnsignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, useUnityBitCount, bitCount))
 		{
-			// 读取长度位
-			byte bitCount = 0;
-			if (!readUnsignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
-			{
-				return false;
-			}
+			return false;
+		}
+		// 使用统一的长度位
+		if (useUnityBitCount)
+		{
 			if (bitCount == 0)
 			{
 				return true;
@@ -716,29 +1299,47 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			// 读取所有元素位
-			const int byteCount = bitCountToByteCount(bitCount);
+			// 统一长度模式下每个元素一次整块读取,避免按8bit循环读取
 			FOR(Count)
 			{
-				T& value = *list[i];
-				value = 0;
-				// 读取值
-				FOR_J(byteCount - 1)
-				{
-					readByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
-				}
-				readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
+				*list[i] = (T)readIntegerBits(buffer, bufferSize, bitIndex, bitCount);
 			}
 		}
 		// 每个元素使用独立的长度位
 		else
 		{
-			FOR(Count)
+			if constexpr (sizeof(T) <= 4)
 			{
-				readUnsignedIntegerBit(buffer, bufferSize, bitIndex, *list[i]);
+				IntegerBitReadCache cache;
+				cache.mBitIndex = bitIndex;
+				FOR(Count)
+				{
+					if (!readUnsignedIntegerCacheBit(buffer, bufferSize, cache, *list[i]))
+					{
+						bitIndex = cache.mBitIndex;
+						return false;
+					}
+				}
+				bitIndex = cache.mBitIndex;
+			}
+			else
+			{
+				FOR(Count)
+				{
+					if (!readUnsignedIntegerBit(buffer, bufferSize, bitIndex, *list[i]))
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
+	}
+	// uint动态列表同样使用out-of-line核心,避免Vector<uint>大型模板在每个调用点重复展开
+	MICRO_LEGEND_FRAME_API bool readUnsignedIntVectorBit(const char* buffer, int bufferSize, int& bitIndex, Vector<uint>& list);
+	inline bool readUnsignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Vector<uint>& list)
+	{
+		return readUnsignedIntVectorBit(buffer, bufferSize, bitIndex, list);
 	}
 	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
 	bool readUnsignedIntegerListBit(const char* buffer, const int bufferSize, int& bitIndex, Vector<T>& list)
@@ -757,15 +1358,15 @@ namespace BinaryUtility
 		list.clear();
 		list.resize(count);
 
-		// 使用统一的长度位
-		if (getBufferBit(buffer, bitIndex++))
+		bool useUnityBitCount = false;
+		byte bitCount = 0;
+		if (!readUnsignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, useUnityBitCount, bitCount))
 		{
-			// 读取长度位
-			byte bitCount = 0;
-			if (!readUnsignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
-			{
-				return false;
-			}
+			return false;
+		}
+		// 使用统一的长度位
+		if (useUnityBitCount)
+		{
 			if (bitCount == 0)
 			{
 				return true;
@@ -774,39 +1375,51 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			// 读取所有元素位
-			const int byteCount = bitCountToByteCount(bitCount);
+			// 统一长度模式下每个元素一次整块读取,避免按8bit循环读取
 			FOR(count)
 			{
-				T& value = list[i];
-				value = 0;
-				// 读取值
-				FOR_J(byteCount - 1)
-				{
-					readByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
-				}
-				readByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
+				list[i] = (T)readIntegerBits(buffer, bufferSize, bitIndex, bitCount);
 			}
 		}
 		// 每个元素使用独立的长度位
 		else
 		{
-			FOR(count)
+			if constexpr (sizeof(T) <= 4)
 			{
-				readUnsignedIntegerBit(buffer, bufferSize, bitIndex, list[i]);
+				IntegerBitReadCache cache;
+				cache.mBitIndex = bitIndex;
+				FOR(count)
+				{
+					if (!readUnsignedIntegerCacheBit(buffer, bufferSize, cache, list[i]))
+					{
+						bitIndex = cache.mBitIndex;
+						return false;
+					}
+				}
+				bitIndex = cache.mBitIndex;
+			}
+			else
+			{
+				FOR(count)
+				{
+					if (!readUnsignedIntegerBit(buffer, bufferSize, bitIndex, list[i]))
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
 	}
-	bool MICRO_LEGEND_FRAME_API readFloatListBit(const char* buffer, int bufferSize, int& bitIndex, Vector<float>& list, bool needReadSign, int precision = 3);
-	bool MICRO_LEGEND_FRAME_API readFloatListBit(const char* buffer, int bufferSize, int& bitIndex, float** list, int count, bool needReadSign, int precision = 3);
+	MICRO_LEGEND_FRAME_API bool readFloatListBit(const char* buffer, int bufferSize, int& bitIndex, Vector<float>& list, bool needReadSign, int precision = 3);
+	MICRO_LEGEND_FRAME_API bool readFloatListBit(const char* buffer, int bufferSize, int& bitIndex, float** list, int count, bool needReadSign, int precision = 3);
 	template<int Count>
 	bool readFloatListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, float*>& list, const bool needReadSign, const int precision = 3)
 	{
 		return readFloatListBit(buffer, bufferSize, bitIndex, list.data(), Count, needReadSign, precision);
 	}
-	bool MICRO_LEGEND_FRAME_API readDoubleListBit(const char* buffer, int bufferSize, int& bitIndex, Vector<double>& list, bool needReadSign, int precision = 4);
-	bool MICRO_LEGEND_FRAME_API readDoubleListBit(const char* buffer, int bufferSize, int& bitIndex, double** list, int count, bool needReadSign, int precision = 4);
+	MICRO_LEGEND_FRAME_API bool readDoubleListBit(const char* buffer, int bufferSize, int& bitIndex, Vector<double>& list, bool needReadSign, int precision = 4);
+	MICRO_LEGEND_FRAME_API bool readDoubleListBit(const char* buffer, int bufferSize, int& bitIndex, double** list, int count, bool needReadSign, int precision = 4);
 	template<int Count>
 	bool readDoubleListBit(const char* buffer, const int bufferSize, int& bitIndex, Array<Count, double*>& list, const bool needReadSign, const int precision = 4)
 	{
@@ -826,57 +1439,91 @@ namespace BinaryUtility
 		++bitIndex;
 		return true;
 	}
-	void MICRO_LEGEND_FRAME_API fillZeroToByteEnd(char* buffer, int& bitIndex);
-	bool MICRO_LEGEND_FRAME_API writeBufferBit(char* buffer, int bufferSize, int& bitIndex, const char* source, int writeSize);
+	MICRO_LEGEND_FRAME_API void fillZeroToByteEnd(char* buffer, int& bitIndex);
+	MICRO_LEGEND_FRAME_API void writeFloatIntegerBits32(char* buffer, const int bufferSize, int& bitIndex, uint value, byte writeBitCount);
+	MICRO_LEGEND_FRAME_API bool writeFloatCachedSignedIntBit(char* buffer, const int bufferSize, int& bitIndex, int value, byte bitCount, bool use32BitWrite);
+	MICRO_LEGEND_FRAME_API bool writeBufferBit(char* buffer, int bufferSize, int& bitIndex, const char* source, int writeSize);
 	// 可以按位写入带符号的整数
 	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
 	bool writeSignedIntegerBit(char* buffer, const int bufferSize, int& bitIndex, T value, const bool needWriteSign)
 	{
+		using UnsignedType = typename ToUnsignedInteger<T>::Type;
 		const bool isNegative = value < 0;
-		if (isNegative)
-		{
-			value = -value;
-		}
-		// 需要多少位来存储这个值
-		byte bitCount = generateBitCount((typename ToUnsignedInteger<T>::Type)value);
-		if ((value != 0 && bitCount == 0) || bitCount > sizeof(value) * 8)
-		{
-			return false;
-		}
-		if (!writeSignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
+		const UnsignedType rawValue = (UnsignedType)value;
+		const UnsignedType unsignedValue = isNegative ? (UnsignedType)0 - rawValue : rawValue;
+		const byte bitCount = generateBitCount(unsignedValue);
+		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte MAX_SUPPORTED_BIT_COUNT = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		// signed协议的长度字段没有unsigned的“最大长度特殊值”编码,因此各有符号类型的最小值无法无歧义表示
+		if ((unsignedValue != 0 && bitCount == 0) || bitCount > MAX_SUPPORTED_BIT_COUNT)
 		{
 			return false;
 		}
-		if (value == 0)
+		// 32位及以下整数将长度位、符号位、数据位一次打包后写入,避免多次位操作
+		if constexpr (sizeof(T) <= 4)
 		{
+			if (bitCount == 0)
+			{
+				if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+				{
+					return false;
+				}
+				writeIntegerBits(buffer, bufferSize, bitIndex, 0, TYPE_LENGTH_MAX_BIT);
+				return true;
+			}
+			const byte dataBitCount = bitCount - 1;
+			const byte signBitCount = needWriteSign ? 1 : 0;
+			const byte totalBitCount = TYPE_LENGTH_MAX_BIT + signBitCount + dataBitCount;
+			const byte checkBitCount = TYPE_LENGTH_MAX_BIT + 1 + dataBitCount;
+			if (bitCountToByteCount(bitIndex + checkBitCount) > bufferSize)
+			{
+				return false;
+			}
+			ullong packedValue = bitCount;
+			if (needWriteSign && isNegative)
+			{
+				packedValue |= 1ULL << TYPE_LENGTH_MAX_BIT;
+			}
+			const ullong dataValue = dataBitCount > 0 ? (ullong)unsignedValue & ((1ULL << dataBitCount) - 1ULL) : 0;
+			packedValue |= dataValue << (TYPE_LENGTH_MAX_BIT + signBitCount);
+			writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, totalBitCount);
 			return true;
 		}
-		if (bitCountToByteCount(bitIndex + 1 + bitCount - 1) > bufferSize)
+		// 64位整数的常见小值也将长度、符号、数据打包到一次64位写入中;较大值则只把长度和符号头部合并
+		if (bitCount == 0)
+		{
+			if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+			{
+				return false;
+			}
+			writeIntegerBits(buffer, bufferSize, bitIndex, 0, TYPE_LENGTH_MAX_BIT);
+			return true;
+		}
+		const byte dataBitCount = bitCount - 1;
+		const byte signBitCount = needWriteSign ? 1 : 0;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + signBitCount + dataBitCount;
+		if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
 		{
 			return false;
 		}
-
-		// 写入符号位
-		if (needWriteSign)
+		const ullong dataValue = dataBitCount > 0 ? (ullong)unsignedValue & ((1ULL << dataBitCount) - 1ULL) : 0;
+		ullong headerValue = bitCount;
+		if (needWriteSign && isNegative)
 		{
-			if (isNegative)
-			{
-				setBufferBitOne(buffer, bitIndex);
-			}
-			++bitIndex;
+			headerValue |= 1ULL << TYPE_LENGTH_MAX_BIT;
 		}
-		// 将最高位的1去掉,不需要写入
-		setBitZero(value, --bitCount);
-		if (bitCount > 0)
+		if (totalBitCount <= 64)
 		{
-			// 再写入值的所有位
-			// 计算出要写多少个字节,按每个字节去写入
-			const byte byteCount = bitCountToByteCount(bitCount);
-			FOR(byteCount - 1)
+			const ullong packedValue = headerValue | (dataValue << (TYPE_LENGTH_MAX_BIT + signBitCount));
+			writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, totalBitCount);
+		}
+		else
+		{
+			writeIntegerBits(buffer, bufferSize, bitIndex, headerValue, TYPE_LENGTH_MAX_BIT + signBitCount);
+			if (dataBitCount > 0)
 			{
-				writeByteBits(buffer, bitIndex, ((byte*)&value)[i], 8);
+				writeIntegerBits(buffer, bufferSize, bitIndex, dataValue, dataBitCount);
 			}
-			writeByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
 		}
 		return true;
 	}
@@ -884,43 +1531,109 @@ namespace BinaryUtility
 	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
 	bool writeUnsignedIntegerBit(char* buffer, const int bufferSize, int& bitIndex, T value)
 	{
-		byte bitCount = generateBitCount(value);
+		if constexpr (sizeof(T) == 2)
+		{
+			return writeCachedUShortBit(buffer, bufferSize, bitIndex, (ushort)value);
+		}
+		if constexpr (sizeof(T) == 4)
+		{
+			if ((uint)value < UINT_WRITE_CACHE_PRODUCTION_COUNT)
+			{
+				return writeCachedUIntBit(buffer, bufferSize, bitIndex, (uint)value);
+			}
+		}
+		const byte bitCount = generateBitCount(value);
 		if ((value != 0 && bitCount == 0) || bitCount > sizeof(value) * 8)
 		{
 			return false;
 		}
-		if (!writeUnsignedLengthBit<T>(buffer, bufferSize, bitIndex, bitCount))
+		if constexpr (sizeof(T) <= 4)
 		{
-			return false;
+			constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+			constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+			constexpr byte REMOVE_HIGH_BIT_LIMIT = (1 << sizeof(T)) - 1;
+			byte writeLength = bitCount;
+			byte dataLength = bitCount;
+			if (bitCount == 1 << TYPE_LENGTH_MAX_BIT)
+			{
+				writeLength = bitCount - 1;
+			}
+			else if (bitCount == LENGTH_MAX_VALUE)
+			{
+				++dataLength;
+			}
+			if (value == 0)
+			{
+				if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+				{
+					return false;
+				}
+				writeIntegerBits(buffer, bufferSize, bitIndex, writeLength, TYPE_LENGTH_MAX_BIT);
+				return true;
+			}
+			const bool removeHighBit = dataLength < REMOVE_HIGH_BIT_LIMIT;
+			const byte dataBitCount = removeHighBit ? dataLength - 1 : dataLength;
+			const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+			if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
+			{
+				return false;
+			}
+			const ullong dataValue = dataBitCount > 0 ? (ullong)value & ((1ULL << dataBitCount) - 1ULL) : 0;
+			const ullong packedValue = (ullong)writeLength | (dataValue << TYPE_LENGTH_MAX_BIT);
+			writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, totalBitCount);
+			return true;
+		}
+		// 64位无符号整数同样优先把长度和数据打包到一个64位写入窗口
+		constexpr byte TYPE_LENGTH_MAX_BIT = UNSIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte LENGTH_MAX_VALUE = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		byte writeLength = bitCount;
+		byte dataLength = bitCount;
+		if (bitCount == 1 << TYPE_LENGTH_MAX_BIT)
+		{
+			writeLength = bitCount - 1;
+		}
+		else if (bitCount == LENGTH_MAX_VALUE)
+		{
+			++dataLength;
 		}
 		if (value == 0)
 		{
+			if (bitCountToByteCount(bitIndex + TYPE_LENGTH_MAX_BIT) > bufferSize)
+			{
+				return false;
+			}
+			writeIntegerBits(buffer, bufferSize, bitIndex, writeLength, TYPE_LENGTH_MAX_BIT);
 			return true;
 		}
-		if (bitCountToByteCount(bitIndex + bitCount - 1) > bufferSize)
+		constexpr byte FULL_BIT_COUNT = sizeof(T) * 8;
+		const bool removeHighBit = dataLength < FULL_BIT_COUNT;
+		const byte dataBitCount = removeHighBit ? dataLength - 1 : dataLength;
+		const byte totalBitCount = TYPE_LENGTH_MAX_BIT + dataBitCount;
+		if (bitCountToByteCount(bitIndex + totalBitCount) > bufferSize)
 		{
 			return false;
 		}
-		// 将最高位的1去掉,不需要写入
-		// 但是如果写入位的数量到达最大位数时,就不能再去掉最高位了,否则会混淆
-		if (bitCount < (1 << sizeof(value)) - 1)
+		ullong dataValue = (ullong)value;
+		if (removeHighBit && dataBitCount > 0)
 		{
-			setBitZero(value, --bitCount);
+			dataValue &= (1ULL << dataBitCount) - 1ULL;
 		}
-		if (bitCount > 0)
+		if (totalBitCount <= 64)
 		{
-			// 再写入值的所有位
-			// 计算出要写多少个字节,按每个字节去写入
-			const byte byteCount = bitCountToByteCount(bitCount);
-			FOR(byteCount - 1)
+			const ullong packedValue = (ullong)writeLength | (dataValue << TYPE_LENGTH_MAX_BIT);
+			writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, totalBitCount);
+		}
+		else
+		{
+			writeIntegerBits(buffer, bufferSize, bitIndex, writeLength, TYPE_LENGTH_MAX_BIT);
+			if (dataBitCount > 0)
 			{
-				writeByteBits(buffer, bitIndex, ((byte*)&value)[i], 8);
+				writeIntegerBits(buffer, bufferSize, bitIndex, dataValue, dataBitCount);
 			}
-			writeByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], bitCount - ((byteCount - 1) << 3));
 		}
 		return true;
 	}
-	bool MICRO_LEGEND_FRAME_API writeFloatListBit(char* buffer, int bufferSize, int& bitIndex, const float* list, int count, bool needWriteCount, bool needWriteSign, int precision = 3);
+	MICRO_LEGEND_FRAME_API bool writeFloatListBit(char* buffer, int bufferSize, int& bitIndex, const float* list, int count, bool needWriteCount, bool needWriteSign, int precision = 3);
 	template<int Count>
 	bool writeFloatListBit(char* buffer, const int bufferSize, int& bitIndex, const Array<Count, float>& list, const bool needWriteSign, const int precision = 3)
 	{
@@ -930,7 +1643,7 @@ namespace BinaryUtility
 	{
 		return writeFloatListBit(buffer, bufferSize, bitIndex, list.data(), list.size(), true, needWriteSign, precision);
 	}
-	bool MICRO_LEGEND_FRAME_API writeDoubleListBit(char* buffer, int bufferSize, int& bitIndex, const double* list, const int count, bool needWriteCount, bool needWriteSign, int precision = 4);
+	MICRO_LEGEND_FRAME_API bool writeDoubleListBit(char* buffer, int bufferSize, int& bitIndex, const double* list, const int count, bool needWriteCount, bool needWriteSign, int precision = 4);
 	template<int Count>
 	bool writeDoubleListBit(char* buffer, const int bufferSize, int& bitIndex, const Array<Count, double>& list, const bool needWriteSign, const int precision = 4)
 	{
@@ -944,6 +1657,11 @@ namespace BinaryUtility
 	template<typename T, typename TypeCheck = typename IsPodSignedIntegerType<T>::mType>
 	bool writeSignedIntegerListBit(char* buffer, const int bufferSize, int& bitIndex, const T* list, const int count, const bool needWriteCount, const bool needWriteSign)
 	{
+		// 动态列表的数量使用ushort存储,超过上限时必须在写入任何数据前直接失败,不能静默截断。
+		if (count < 0 || (needWriteCount && count > USHRT_MAX))
+		{
+			return false;
+		}
 		// 写入长度
 		if (needWriteCount && !writeUnsignedIntegerBit(buffer, bufferSize, bitIndex, (ushort)count))
 		{
@@ -954,9 +1672,25 @@ namespace BinaryUtility
 			return true;
 		}
 
-		// 计算出最大值的位数量,所有的值都使用这个位数量来存储
-		const byte maxBitCount = generateBitCount((typename ToUnsignedInteger<T>::Type)getListMaxAbs(list, count));
+		// 计算最大绝对值时使用无符号运算,避免对INT_MIN/LLONG_MIN取负产生溢出
+		using UnsignedType = typename ToUnsignedInteger<T>::Type;
+		UnsignedType maxAbsValue = 0;
+		FOR(count)
+		{
+			const UnsignedType rawValue = (UnsignedType)list[i];
+			const UnsignedType absValue = list[i] < 0 ? (UnsignedType)0 - rawValue : rawValue;
+			if (maxAbsValue < absValue)
+			{
+				maxAbsValue = absValue;
+			}
+		}
+		const byte maxBitCount = generateBitCount(maxAbsValue);
 		constexpr byte TYPE_LENGTH_MAX_BIT = SIGNED_LENGTH_MAX_BIT[sizeof(T)];
+		constexpr byte MAX_SUPPORTED_BIT_COUNT = (1 << TYPE_LENGTH_MAX_BIT) - 1;
+		if (maxBitCount > MAX_SUPPORTED_BIT_COUNT)
+		{
+			return false;
+		}
 		// 如果使用一个统一的位数来表示写入位个数所占用的总位数
 		int bitCountUnity;
 		if (maxBitCount > 0)
@@ -1004,10 +1738,8 @@ namespace BinaryUtility
 		// 使用统一的长度位占空间更小
 		if (bitCountSingle >= bitCountUnity)
 		{
-			// 写入1表示使用统一的长度位
-			setBufferBitOne(buffer, bitIndex++);
-			// 先写入长度位
-			if (!writeSignedLengthBit<T>(buffer, bufferSize, bitIndex, maxBitCount))
+			// 模式位1和统一长度位一次写入
+			if (!writeSignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, maxBitCount))
 			{
 				return false;
 			}
@@ -1029,31 +1761,56 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			const byte byteCount = bitCountToByteCount(maxBitCount);
-			// 再写入所有值的每一位
-			FOR(count)
+			// 统一长度模式下将多个元素打包到64bit后一次写入,减少writeIntegerBits调用次数
+			using UnsignedType = typename ToUnsignedInteger<T>::Type;
+			const byte signBitCount = needWriteSign ? 1 : 0;
+			const byte elementBitCount = maxBitCount + signBitCount;
+			if (elementBitCount <= 64)
 			{
-				T value = list[i];
-				const bool isNegative = value < 0;
-				if (isNegative)
+				ullong packedValue = 0;
+				byte packedBitCount = 0;
+				FOR(count)
 				{
-					value = -value;
+					const T value = list[i];
+					const bool isNegative = value < 0;
+					const UnsignedType rawValue = (UnsignedType)value;
+					const UnsignedType unsignedValue = isNegative ? (UnsignedType)0 - rawValue : rawValue;
+					const ullong elementValue = ((ullong)unsignedValue << signBitCount) | (needWriteSign && isNegative ? 1ULL : 0ULL);
+					if ((int)packedBitCount + elementBitCount > 64)
+					{
+						writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, packedBitCount);
+						packedValue = 0;
+						packedBitCount = 0;
+					}
+					packedValue |= elementValue << packedBitCount;
+					packedBitCount = (byte)(packedBitCount + elementBitCount);
+					if (packedBitCount == 64)
+					{
+						writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, 64);
+						packedValue = 0;
+						packedBitCount = 0;
+					}
 				}
-				// 写入符号位
-				if (needWriteSign)
+				if (packedBitCount > 0)
 				{
+					writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, packedBitCount);
+				}
+			}
+			else
+			{
+				FOR(count)
+				{
+					const T value = list[i];
+					const bool isNegative = value < 0;
+					const UnsignedType rawValue = (UnsignedType)value;
+					const UnsignedType unsignedValue = isNegative ? (UnsignedType)0 - rawValue : rawValue;
 					if (isNegative)
 					{
 						setBufferBitOne(buffer, bitIndex);
 					}
-					++bitIndex;	
+					++bitIndex;
+					writeIntegerBits(buffer, bufferSize, bitIndex, (ullong)unsignedValue, maxBitCount);
 				}
-				// 再写入值的所有位
-				FOR_J(byteCount - 1)
-				{
-					writeByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
-				}
-				writeByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], maxBitCount - ((byteCount - 1) << 3));
 			}
 		}
 		// 使用每个元素独立的长度位占用空间更小
@@ -1084,6 +1841,11 @@ namespace BinaryUtility
 	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
 	bool writeUnsignedIntegerListBit(char* buffer, const int bufferSize, int& bitIndex, const T* list, const int count, const bool needWriteCount)
 	{
+		// 动态列表的数量使用ushort存储,超过上限时必须在写入任何数据前直接失败,不能静默截断。
+		if (count < 0 || (needWriteCount && count > USHRT_MAX))
+		{
+			return false;
+		}
 		// 写入长度
 		if (needWriteCount && !writeUnsignedIntegerBit(buffer, bufferSize, bitIndex, (ushort)count))
 		{
@@ -1137,10 +1899,8 @@ namespace BinaryUtility
 		// 使用统一的长度位占空间更小
 		if (bitCountSingle >= bitCountUnity)
 		{
-			// 写入1表示使用统一的长度位
-			setBufferBitOne(buffer, bitIndex++);
-			// 先写入长度位
-			if (!writeUnsignedLengthBit<T>(buffer, bufferSize, bitIndex, maxBitCount))
+			// 模式位1和统一长度位一次写入,并保持原有无符号长度位的特殊值规则
+			if (!writeUnsignedIntegerListHeaderBit<T>(buffer, bufferSize, bitIndex, maxBitCount))
 			{
 				return false;
 			}
@@ -1153,16 +1913,29 @@ namespace BinaryUtility
 			{
 				return false;
 			}
-			const byte byteCount = bitCountToByteCount(maxBitCount);
+			// 统一长度模式下将多个元素打包到64bit后一次写入,减少writeIntegerBits调用次数
+			ullong packedValue = 0;
+			byte packedBitCount = 0;
 			FOR(count)
 			{
-				const T& value = list[i];
-				// 写入值的所有位
-				FOR_J(byteCount - 1)
+				if ((int)packedBitCount + maxBitCount > 64)
 				{
-					writeByteBits(buffer, bitIndex, ((byte*)&value)[j], 8);
+					writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, packedBitCount);
+					packedValue = 0;
+					packedBitCount = 0;
 				}
-				writeByteBits(buffer, bitIndex, ((byte*)&value)[byteCount - 1], maxBitCount - ((byteCount - 1) << 3));
+				packedValue |= (ullong)list[i] << packedBitCount;
+				packedBitCount = (byte)(packedBitCount + maxBitCount);
+				if (packedBitCount == 64)
+				{
+					writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, 64);
+					packedValue = 0;
+					packedBitCount = 0;
+				}
+			}
+			if (packedBitCount > 0)
+			{
+				writeIntegerBits(buffer, bufferSize, bitIndex, packedValue, packedBitCount);
 			}
 		}
 		// 使用每个元素独立的长度位占用空间更小

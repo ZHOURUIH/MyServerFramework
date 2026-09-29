@@ -1,9 +1,11 @@
 ﻿#pragma once
+#include "FrameBase.h"
 #include "FrameComponent.h"
 #include "Utility.h"
 
 class MICRO_LEGEND_FRAME_API IsPODTypeTraitsTest
 {
+#ifdef WINDOWS
 public:
 	static void test();
 private:
@@ -26,4 +28,11 @@ private:
 	static void testIsSubClassOf();
 	static void testCompileTimeEnableIf();
 	static void testMixedTypeChecks();
+	template<typename T, typename = typename IsPodIntegerType<T>::mType>
+	static bool isPodIntFn(T);
+	template<typename T, typename = typename IsPodSignedIntegerType<T>::mType>
+	static bool isPodSignedFn(T);
+	template<typename T, typename = typename IsPodUnsignedIntegerType<T>::mType>
+	static bool isPodUnsignedFn(T);
+#endif
 };

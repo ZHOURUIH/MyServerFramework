@@ -31,7 +31,7 @@ namespace SQLUtility
 			queryStr.add("\"", addComma ? "\"," : "\"");
 		}
 	}
-	void sqlAddString(string& queryStr, const string& str, const bool addComma)
+	inline void sqlAddString(string& queryStr, const string& str, const bool addComma)
 	{
 		if (checkSQLString(str))
 		{
@@ -67,8 +67,8 @@ namespace SQLUtility
 			queryStr.add("\"", addComma ? "\"," : "\"");
 		}
 	}
-	void sqlAddInt(char* queryStr, int size, int value, bool addComma = true);
-	void sqlAddInt(string& queryStr, const int value, const bool addComma = true)
+	MICRO_LEGEND_FRAME_API void sqlAddInt(char* queryStr, int size, int value, bool addComma = true);
+	inline void sqlAddInt(string& queryStr, const int value, const bool addComma = true)
 	{
 		INT_STR(temp, value);
 		queryStr += temp.str();
@@ -90,7 +90,7 @@ namespace SQLUtility
 			queryStr.add(temp.str());
 		}
 	}
-	void sqlAddUInt(char* queryStr, int size, int value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddUInt(char* queryStr, int size, int value, bool addComma = true);
 	template<int Length>
 	void sqlAddUInt(MyString<Length>& queryStr, const int value, const bool addComma = true)
 	{
@@ -104,8 +104,8 @@ namespace SQLUtility
 			queryStr.add(temp.str());
 		}
 	}
-	void sqlAddFloat(char* queryStr, int size, float value, bool addComma = true);
-	void sqlAddFloat(string& queryStr, const float value, const bool addComma = true)
+	MICRO_LEGEND_FRAME_API void sqlAddFloat(char* queryStr, int size, float value, bool addComma = true);
+	inline void sqlAddFloat(string& queryStr, const float value, const bool addComma = true)
 	{
 		FLOAT_STR(temp, value);
 		queryStr += temp.str();
@@ -127,7 +127,7 @@ namespace SQLUtility
 			queryStr.add(temp.str());
 		}
 	}
-	void sqlAddULLong(char* queryStr, int size, ullong value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddULLong(char* queryStr, int size, ullong value, bool addComma = true);
 	template<int Length>
 	void sqlAddULLong(MyString<Length>& queryStr, const ullong value, const bool addComma = true)
 	{
@@ -141,7 +141,7 @@ namespace SQLUtility
 			queryStr.add(temp.str());
 		}
 	}
-	void sqlAddLLong(char* queryStr, int size, llong value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddLLong(char* queryStr, int size, llong value, bool addComma = true);
 	template<int Length>
 	void sqlAddLLong(MyString<Length>& queryStr, const llong value, const bool addComma = true)
 	{
@@ -155,7 +155,7 @@ namespace SQLUtility
 			queryStr.add(temp.str());
 		}
 	}
-	void sqlAddLLong(string& queryStr, const llong value, const bool addComma = true)
+	inline void sqlAddLLong(string& queryStr, const llong value, const bool addComma = true)
 	{
 		LLONG_STR(temp, value);
 		queryStr += temp.str();
@@ -172,7 +172,7 @@ namespace SQLUtility
 		bytesToString(charArray.mArray, arrayLen, byteArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddBytes(string& queryStr, const Vector<byte>& byteArray, const bool addComma = true)
+	inline void sqlAddBytes(string& queryStr, const Vector<byte>& byteArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(byteArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -187,7 +187,7 @@ namespace SQLUtility
 		USsToS(charArray.mArray, arrayLen, ushortArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddUShorts(string& queryStr, const Vector<ushort>& ushortArray, const bool addComma = true)
+	inline void sqlAddUShorts(string& queryStr, const Vector<ushort>& ushortArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(ushortArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -202,7 +202,7 @@ namespace SQLUtility
 		IsToS(charArray.mArray, arrayLen, intArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddInts(string& queryStr, const Vector<int>& intArray, const bool addComma = true)
+	inline void sqlAddInts(string& queryStr, const Vector<int>& intArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(intArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -217,7 +217,7 @@ namespace SQLUtility
 		UIsToS(charArray.mArray, arrayLen, intArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddUInts(string& queryStr, const Vector<uint>& intArray, bool addComma = true)
+	inline void sqlAddUInts(string& queryStr, const Vector<uint>& intArray, bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(intArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -232,7 +232,7 @@ namespace SQLUtility
 		FsToS(charArray.mArray, arrayLen, floatArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddFloats(string& queryStr, const Vector<float>& floatArray, const bool addComma = true)
+	inline void sqlAddFloats(string& queryStr, const Vector<float>& floatArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(floatArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -247,7 +247,7 @@ namespace SQLUtility
 		ULLsToS(charArray.mArray, arrayLen, longArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddULLongs(string& queryStr, const Vector<ullong>& longArray, const bool addComma = true)
+	inline void sqlAddULLongs(string& queryStr, const Vector<ullong>& longArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(longArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -262,14 +262,14 @@ namespace SQLUtility
 		LLsToS(charArray.mArray, arrayLen, longArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddLLongs(string& queryStr, const Vector<llong>& longArray, const bool addComma = true)
+	inline void sqlAddLLongs(string& queryStr, const Vector<llong>& longArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(longArray.size());
 		CharArrayScopeThread charArray(arrayLen);
 		LLsToS(charArray.mArray, arrayLen, longArray);
 		sqlAddString(queryStr, charArray.mArray, addComma);
 	}
-	void sqlAddVector2Int(char* queryStr, int size, Vector2Int value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddVector2Int(char* queryStr, int size, Vector2Int value, bool addComma = true);
 	template<int Length>
 	void sqlAddVector2Int(MyString<Length>& queryStr, Vector2Int value, const bool addComma = true)
 	{
@@ -277,13 +277,13 @@ namespace SQLUtility
 		V2IToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2Int(string& queryStr, Vector2Int value, const bool addComma = true)
+	inline void sqlAddVector2Int(string& queryStr, Vector2Int value, const bool addComma = true)
 	{
 		MyString<32> temp;
 		V2IToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2UInt(char* queryStr, int size, Vector2UInt value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddVector2UInt(char* queryStr, int size, Vector2UInt value, bool addComma = true);
 	template<int Length>
 	void sqlAddVector2UInt(MyString<Length>& queryStr, Vector2UInt value, const bool addComma = true)
 	{
@@ -291,13 +291,13 @@ namespace SQLUtility
 		V2UIToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2UInt(string& queryStr, Vector2UInt value, const bool addComma = true)
+	inline void sqlAddVector2UInt(string& queryStr, Vector2UInt value, const bool addComma = true)
 	{
 		MyString<16> temp;
 		V2UIToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2Short(char* queryStr, int size, Vector2Short value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddVector2Short(char* queryStr, int size, Vector2Short value, bool addComma = true);
 	template<int Length>
 	void sqlAddVector2Short(MyString<Length>& queryStr, Vector2Short value, const bool addComma = true)
 	{
@@ -305,13 +305,13 @@ namespace SQLUtility
 		V2SToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2Short(string& queryStr, Vector2Short value, const bool addComma = true)
+	inline void sqlAddVector2Short(string& queryStr, Vector2Short value, const bool addComma = true)
 	{
 		MyString<16> temp;
 		V2SToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2UShort(char* queryStr, int size, Vector2UShort value, bool addComma = true);
+	MICRO_LEGEND_FRAME_API void sqlAddVector2UShort(char* queryStr, int size, Vector2UShort value, bool addComma = true);
 	template<int Length>
 	void sqlAddVector2UShort(MyString<Length>& queryStr, Vector2UShort value, const bool addComma = true)
 	{
@@ -319,14 +319,14 @@ namespace SQLUtility
 		V2USToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
-	void sqlAddVector2UShort(string& queryStr, Vector2UShort value, const bool addComma = true)
+	inline void sqlAddVector2UShort(string& queryStr, Vector2UShort value, const bool addComma = true)
 	{
 		MyString<16> temp;
 		V2USToS(temp, value);
 		sqlAddString(queryStr, temp.str(), addComma);
 	}
 	// where条件相关
-	void sqlConditionString(string& condition, const string& col, const char* str)
+	inline void sqlConditionString(string& condition, const string& col, const char* str)
 	{
 		condition.reserve(condition.size() + col.length() + strlength(str) + 4);
 		condition += col;
@@ -337,7 +337,7 @@ namespace SQLUtility
 		}
 		condition += "\"";
 	}
-	void sqlConditionString(string& condition, const string& col, const string& str)
+	inline void sqlConditionString(string& condition, const string& col, const string& str)
 	{
 		condition.reserve(condition.size() + col.length() + str.length() + 4);
 		condition += col;
@@ -372,7 +372,7 @@ namespace SQLUtility
 			condition.add(col.c_str(), relationalOperator, "\"\"", logicalOperator);
 		}
 	}
-	void sqlConditionString(string& condition, const string& col, const char* str, const char* relationalOperator, const char* logicalOperator)
+	inline void sqlConditionString(string& condition, const string& col, const char* str, const char* relationalOperator, const char* logicalOperator)
 	{
 		condition.reserve(condition.size() + col.length() + strlength(str) + 16);
 		condition += col;
@@ -385,7 +385,7 @@ namespace SQLUtility
 		condition += "\"";
 		condition += logicalOperator;
 	}
-	void sqlConditionString(string& condition, const string& col, const string& str, const char* relationalOperator, const char* logicalOperator)
+	inline void sqlConditionString(string& condition, const string& col, const string& str, const char* relationalOperator, const char* logicalOperator)
 	{
 		condition.reserve(condition.size() + col.length() + str.size() + 16);
 		condition += col;
@@ -435,7 +435,7 @@ namespace SQLUtility
 			condition.add(col.c_str(), " = \"\"", logicalOperator);
 		}
 	}
-	void sqlConditionStringLike(string& condition, const string& col, const char* str)
+	inline void sqlConditionStringLike(string& condition, const string& col, const char* str)
 	{
 		if (checkSQLString(str))
 		{
@@ -451,7 +451,7 @@ namespace SQLUtility
 			condition += " = \"\"";
 		}
 	}
-	void sqlConditionStringLike(string& condition, const string& col, const char* str, const char* logicalOperator)
+	inline void sqlConditionStringLike(string& condition, const string& col, const char* str, const char* logicalOperator)
 	{
 		if (checkSQLString(str))
 		{
@@ -468,7 +468,7 @@ namespace SQLUtility
 			condition += logicalOperator;
 		}
 	}
-	void sqlConditionStringLike(string& condition, const string& col, const char* str, const char* logicalOperator, const char* prev, const char* end)
+	inline void sqlConditionStringLike(string& condition, const string& col, const char* str, const char* logicalOperator, const char* prev, const char* end)
 	{
 		if (checkSQLString(str))
 		{
@@ -505,21 +505,21 @@ namespace SQLUtility
 		INT_STR(temp, value);
 		condition.add(col.c_str(), relationalOperator, temp.str(), logicalOperator);
 	}
-	void sqlConditionInt(string& condition, const string& col, const int value)
+	inline void sqlConditionInt(string& condition, const string& col, const int value)
 	{
 		INT_STR(temp, value);
 		condition += col;
 		condition += "=";
 		condition += temp.str();
 	}
-	void sqlConditionInt(string& condition, const string& col, const int value, const char* relationalOperator)
+	inline void sqlConditionInt(string& condition, const string& col, const int value, const char* relationalOperator)
 	{
 		INT_STR(temp, value);
 		condition += col;
 		condition += relationalOperator;
 		condition += temp.str();
 	}
-	void sqlConditionInt(string& condition, const string& col, const int value, const char* relationalOperator, const char* logicalOperator)
+	inline void sqlConditionInt(string& condition, const string& col, const int value, const char* relationalOperator, const char* logicalOperator)
 	{
 		INT_STR(temp, value);
 		condition += col;
@@ -545,21 +545,21 @@ namespace SQLUtility
 		FLOAT_STR(temp, value);
 		condition.add(col.c_str(), relationalOperator, temp.str(), logicalOperator);
 	}
-	void sqlConditionFloat(string& condition, const string& col, const float value)
+	inline void sqlConditionFloat(string& condition, const string& col, const float value)
 	{
 		FLOAT_STR(temp, value);
 		condition += col;
 		condition += "=";
 		condition += temp.str();
 	}
-	void sqlConditionFloat(string& condition, const string& col, const float value, const char* relationalOperator)
+	inline void sqlConditionFloat(string& condition, const string& col, const float value, const char* relationalOperator)
 	{
 		FLOAT_STR(temp, value);
 		condition += col;
 		condition += relationalOperator;
 		condition += temp.str();
 	}
-	void sqlConditionFloat(string& condition, const string& col, const float value, const char* relationalOperator, const char* logicalOperator)
+	inline void sqlConditionFloat(string& condition, const string& col, const float value, const char* relationalOperator, const char* logicalOperator)
 	{
 		FLOAT_STR(temp, value);
 		condition += col;
@@ -585,7 +585,7 @@ namespace SQLUtility
 		LLONG_STR(temp, value);
 		condition.add(col.c_str(), relationalOperator, temp.str(), logicalOperator);
 	}
-	void sqlConditionLLong(string& condition, const string& col, const llong value)
+	inline void sqlConditionLLong(string& condition, const string& col, const llong value)
 	{
 		condition.reserve(condition.size() + col.length() + 10);
 		LLONG_STR(temp, value);
@@ -593,7 +593,7 @@ namespace SQLUtility
 		condition += "=";
 		condition += temp.str();
 	}
-	void sqlConditionLLong(string& condition, const string& col, const llong value, const char* relationalOperator)
+	inline void sqlConditionLLong(string& condition, const string& col, const llong value, const char* relationalOperator)
 	{
 		condition.reserve(condition.size() + col.length() + 16);
 		LLONG_STR(temp, value);
@@ -601,7 +601,7 @@ namespace SQLUtility
 		condition += relationalOperator;
 		condition += temp.str();
 	}
-	void sqlConditionLLong(string& condition, const string& col, const llong value, const char* relationalOperator, const char* logicalOperator)
+	inline void sqlConditionLLong(string& condition, const string& col, const llong value, const char* relationalOperator, const char* logicalOperator)
 	{
 		condition.reserve(condition.size() + col.length() + 16);
 		LLONG_STR(temp, value);
@@ -629,7 +629,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = \"", addComma ? "\"," : "\"");
 		}
 	}
-	void sqlUpdateString(string& updateInfo, const string& col, const char* str, const bool addComma = true)
+	inline void sqlUpdateString(string& updateInfo, const string& col, const char* str, const bool addComma = true)
 	{
 		if (checkSQLString(str))
 		{
@@ -673,7 +673,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = \"", addComma ? "\"," : "\"");
 		}
 	}
-	void sqlUpdateString(string& updateInfo, const string& col, const string& str, const bool addComma = true)
+	inline void sqlUpdateString(string& updateInfo, const string& col, const string& str, const bool addComma = true)
 	{
 		if (checkSQLString(str))
 		{
@@ -706,7 +706,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = ", temp.str());
 		}
 	}
-	void sqlUpdateBool(string& updateInfo, const string& col, const bool value, const bool addComma = true)
+	inline void sqlUpdateBool(string& updateInfo, const string& col, const bool value, const bool addComma = true)
 	{
 		updateInfo.reserve(updateInfo.size() + col.length() + 8);
 		// bool当成int来存储
@@ -733,7 +733,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = ", temp.str());
 		}
 	}
-	void sqlUpdateInt(string& updateInfo, const string& col, const int value, const bool addComma = true)
+	inline void sqlUpdateInt(string& updateInfo, const string& col, const int value, const bool addComma = true)
 	{
 		updateInfo.reserve(updateInfo.size() + col.length() + 8);
 		INT_STR(temp, value);
@@ -758,7 +758,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = ", temp.str());
 		}
 	}
-	void sqlUpdateFloat(string& updateInfo, const string& col, const float value, const bool addComma = true)
+	inline void sqlUpdateFloat(string& updateInfo, const string& col, const float value, const bool addComma = true)
 	{
 		updateInfo.reserve(updateInfo.size() + col.length() + 8);
 		FLOAT_STR(temp, value);
@@ -783,7 +783,7 @@ namespace SQLUtility
 			updateInfo.add(col.c_str(), " = ", temp.str());
 		}
 	}
-	void sqlUpdateLLong(string& updateInfo, const string& col, const llong value, const bool addComma = true)
+	inline void sqlUpdateLLong(string& updateInfo, const string& col, const llong value, const bool addComma = true)
 	{
 		updateInfo.reserve(updateInfo.size() + col.length() + 16);
 		LLONG_STR(temp, value);
@@ -803,7 +803,7 @@ namespace SQLUtility
 		bytesToString(charArray.mArray, arrayLen, byteArray);
 		sqlUpdateString(updateInfo, col, charArray.mArray, addComma);
 	}
-	void sqlUpdateBytes(string& updateInfo, const string& col, const Vector<byte>& byteArray, const bool addComma = true)
+	inline void sqlUpdateBytes(string& updateInfo, const string& col, const Vector<byte>& byteArray, const bool addComma = true)
 	{
 		const int arrayLen = 4 * greaterPower2(byteArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -818,7 +818,7 @@ namespace SQLUtility
 		IsToS(charArray.mArray, arrayLen, intArray);
 		sqlUpdateString(updateInfo, col, charArray.mArray, addComma);
 	}
-	void sqlUpdateInts(string& updateInfo, const string& col, const Vector<int>& intArray, bool addComma = true)
+	inline void sqlUpdateInts(string& updateInfo, const string& col, const Vector<int>& intArray, bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(intArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -833,7 +833,7 @@ namespace SQLUtility
 		FsToS(charArray.mArray, arrayLen, floatArray);
 		sqlUpdateString(updateInfo, col, charArray.mArray, addComma);
 	}
-	void sqlUpdateFloats(string& updateInfo, const string& col, const Vector<float>& floatArray, const bool addComma = true)
+	inline void sqlUpdateFloats(string& updateInfo, const string& col, const Vector<float>& floatArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(floatArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -848,7 +848,7 @@ namespace SQLUtility
 		LLsToS(charArray.mArray, arrayLen, longArray);
 		sqlUpdateString(updateInfo, col, charArray.mArray, addComma);
 	}
-	void sqlUpdateLLongs(string& updateInfo, const string& col, const Vector<llong>& longArray, const bool addComma = true)
+	inline void sqlUpdateLLongs(string& updateInfo, const string& col, const Vector<llong>& longArray, const bool addComma = true)
 	{
 		const int arrayLen = 16 * greaterPower2(longArray.size());
 		CharArrayScopeThread charArray(arrayLen);
@@ -862,7 +862,7 @@ namespace SQLUtility
 		V2IToS(temp, value);
 		sqlUpdateString(updateInfo, col, temp.str(), addComma);
 	}
-	void sqlUpdateVector2Int(string& updateInfo, const string& col, Vector2Int value, const bool addComma = true)
+	inline void sqlUpdateVector2Int(string& updateInfo, const string& col, Vector2Int value, const bool addComma = true)
 	{
 		MyString<32> temp;
 		V2IToS(temp, value);
@@ -875,7 +875,7 @@ namespace SQLUtility
 		V2UIToS(temp, value);
 		sqlUpdateString(updateInfo, col, temp.str(), addComma);
 	}
-	void sqlUpdateVector2UInt(string& updateInfo, const string& col, Vector2UInt value, const bool addComma = true)
+	inline void sqlUpdateVector2UInt(string& updateInfo, const string& col, Vector2UInt value, const bool addComma = true)
 	{
 		MyString<32> temp;
 		V2UIToS(temp, value);
@@ -888,7 +888,7 @@ namespace SQLUtility
 		V2USToS(temp, value);
 		sqlUpdateString(updateInfo, col, temp.str(), addComma);
 	}
-	void sqlUpdateVector2UShort(string& updateInfo, const string& col, Vector2UShort value, const bool addComma = true)
+	inline void sqlUpdateVector2UShort(string& updateInfo, const string& col, Vector2UShort value, const bool addComma = true)
 	{
 		MyString<16> temp;
 		V2USToS(temp, value);

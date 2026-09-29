@@ -1,10 +1,5 @@
 ﻿#include "FrameHeader.h"
 
-SerializerBitRead::SerializerBitRead(const char* buffer, const int bufferSize) :
-	mBuffer(buffer),
-	mBufferSize(bufferSize)
-{}
-
 bool SerializerBitRead::readBufferNoCopy(const char*& destBuffer, const int readLength)
 {
 	if (destBuffer != nullptr)

@@ -4,21 +4,22 @@
 void HttpServerSystem::init()
 {
 #ifndef WINDOWS
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) 
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	{
 		return;
 	}
 #endif
 	mPort = mFrameConfigSystem->getHttpPort();
-	if (mPort == 0) 
+	if (mPort == 0)
 	{
 		return;
 	}
-	// 初始化 OpenSSL 库
-	SSL_library_init();
-	OpenSSL_add_all_algorithms();
-	SSL_load_error_strings();
-	// 启用 OpenSSL 线程安全
+
+	// 证书文件为空时使用普通HTTP,否则使用HTTPS
+	const string& certificationFile = mFrameConfigSystem->getSSLCertificationFile();
+	const bool useSSL = !certificationFile.empty();
+
+	// libevent线程支持
 #if WINDOWS
 	if (evthread_use_windows_threads() == -1)
 	{
@@ -35,80 +36,100 @@ void HttpServerSystem::init()
 	event_config* cfg = event_config_new();
 	mEventBase = event_base_new_with_config(cfg);
 	event_config_free(cfg);
-	if (mEventBase == nullptr) 
+	if (mEventBase == nullptr)
 	{
 		ERROR("event_base_new_with_config failed");
 		return;
 	}
 	mHttpServer = evhttp_new(mEventBase);
-	if (mHttpServer == nullptr) 
+	if (mHttpServer == nullptr)
 	{
 		ERROR("evhttp_new failed");
 		return;
 	}
-	// 创建 SSL 上下文并配置
-	mSSLContext = SSL_CTX_new(TLS_server_method());
-	if (mSSLContext == nullptr) 
+
+	// 只有配置了证书时才启用SSL
+	if (useSSL)
 	{
-		ERROR("SSL_CTX_new failed");
-		return;
+		// 初始化OpenSSL
+		SSL_library_init();
+		OpenSSL_add_all_algorithms();
+		SSL_load_error_strings();
+
+		// 创建SSL上下文
+		mSSLContext = SSL_CTX_new(TLS_server_method());
+		if (mSSLContext == nullptr)
+		{
+			ERROR("SSL_CTX_new failed");
+			return;
+		}
+		// 设置TLS协议版本和加密套件
+		SSL_CTX_set_min_proto_version(mSSLContext, TLS1_2_VERSION);
+		SSL_CTX_set_options(mSSLContext,
+			SSL_OP_NO_SSLv3 |
+			SSL_OP_NO_TLSv1 |
+			SSL_OP_NO_TLSv1_1 |
+			SSL_OP_NO_COMPRESSION |
+			SSL_OP_CIPHER_SERVER_PREFERENCE |
+			SSL_OP_NO_RENEGOTIATION
+		);
+
+		SSL_CTX_set_cipher_list(
+			mSSLContext,
+			"HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4");
+
+		// 加载证书
+		if (SSL_CTX_use_certificate_file(mSSLContext, certificationFile.c_str(), SSL_FILETYPE_PEM) != 1)
+		{
+			ERROR("证书加载失败");
+			SSL_CTX_free(mSSLContext);
+			mSSLContext = nullptr;
+			return;
+		}
+
+		// 加载私钥
+		const string privateKeyFile = mFrameConfigSystem->getSSLPrivateKeyFile();
+		if (SSL_CTX_use_PrivateKey_file(mSSLContext, privateKeyFile.c_str(), SSL_FILETYPE_PEM) != 1)
+		{
+			ERROR("私钥加载失败");
+			SSL_CTX_free(mSSLContext);
+			mSSLContext = nullptr;
+			return;
+		}
+		if (SSL_CTX_check_private_key(mSSLContext) != 1)
+		{
+			ERROR("证书与私钥不匹配");
+			SSL_CTX_free(mSSLContext);
+			mSSLContext = nullptr;
+			return;
+		}
+
+		// HTTPS连接使用SSL bufferevent
+		evhttp_set_bevcb(mHttpServer, [](struct event_base* base, void* arg) -> struct bufferevent*
+		{
+			SSL_CTX* sslContext = (SSL_CTX*)arg;
+			SSL* ssl = SSL_new(sslContext);
+			if (ssl == nullptr)
+			{
+				return nullptr;
+			}
+			return bufferevent_openssl_socket_new(base, -1, ssl, BUFFEREVENT_SSL_ACCEPTING, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_THREADSAFE);
+		}, mSSLContext);
 	}
-	// 设置 TLS 协议版本和加密套件
-	SSL_CTX_set_min_proto_version(mSSLContext, TLS1_2_VERSION);
-	SSL_CTX_set_options(mSSLContext,
-		SSL_OP_NO_SSLv3 |
-		SSL_OP_NO_TLSv1 |
-		SSL_OP_NO_TLSv1_1 |
-		SSL_OP_NO_COMPRESSION |
-		SSL_OP_CIPHER_SERVER_PREFERENCE |
-		SSL_OP_NO_RENEGOTIATION
-	);
-	SSL_CTX_set_cipher_list(mSSLContext, "HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4");
-	// 加载证书和私钥
-	if (SSL_CTX_use_certificate_file(mSSLContext, mFrameConfigSystem->getSSLCertificationFile().c_str(), SSL_FILETYPE_PEM) != 1)
-	{
-		ERROR("证书加载失败");
-		SSL_CTX_free(mSSLContext);
-		mSSLContext = nullptr;
-		return;
-	}
-	if (SSL_CTX_use_PrivateKey_file(mSSLContext, mFrameConfigSystem->getSSLPrivateKeyFile().c_str(), SSL_FILETYPE_PEM) != 1)
-	{
-		ERROR("私钥加载失败");
-		SSL_CTX_free(mSSLContext);
-		mSSLContext = nullptr;
-		return;
-	}
-	if (SSL_CTX_check_private_key(mSSLContext) != 1) 
-	{
-		ERROR("证书与私钥不匹配");
-		SSL_CTX_free(mSSLContext);
-		mSSLContext = nullptr;
-		return;
-	}
+
 	evhttp_set_gencb(mHttpServer, httpResponse, this);
 	// 绑定端口
 	evhttp_bound_socket* handle = evhttp_bind_socket_with_handle(mHttpServer, "0.0.0.0", mPort);
-	if (handle == nullptr) 
+	if (handle == nullptr)
 	{
 		ERROR("无法绑定端口: " + IToS(mPort));
 		return;
 	}
-	// 启用 SSL/TLS
-	evhttp_set_bevcb(mHttpServer, [](struct event_base* base, void* arg) -> struct bufferevent*
-	{
-		return bufferevent_openssl_socket_new(
-			base,
-			-1,
-			SSL_new((SSL_CTX*)arg),
-			BUFFEREVENT_SSL_ACCEPTING,
-			BEV_OPT_CLOSE_ON_FREE | BEV_OPT_THREADSAFE);
-	}, mSSLContext);
-	// 获取监听地址信息（用于日志）
+	// 获取监听地址信息
 	sockaddr_storage ss;
 	ev_socklen_t socklen = sizeof(ss);
 	evutil_socket_t fd = evhttp_bound_socket_get_fd(handle);
-	if (getsockname(fd, (struct sockaddr*)&ss, &socklen) != 0) 
+	if (getsockname(fd, (struct sockaddr*)&ss, &socklen) != 0)
 	{
 		ERROR("getsockname failed");
 		return;
@@ -116,26 +137,26 @@ void HttpServerSystem::init()
 
 	char addrbuf[128];
 	const char* addr = "未知地址";
-	int got_port = -1;
-	if (ss.ss_family == AF_INET) 
+	int gotPort = -1;
+	if (ss.ss_family == AF_INET)
 	{
 		auto sin = reinterpret_cast<sockaddr_in*>(&ss);
-		got_port = ntohs(sin->sin_port);
+		gotPort = ntohs(sin->sin_port);
 		addr = evutil_inet_ntop(AF_INET, &sin->sin_addr, addrbuf, sizeof(addrbuf));
 	}
-	else if (ss.ss_family == AF_INET6) 
+	else if (ss.ss_family == AF_INET6)
 	{
 		auto sin6 = reinterpret_cast<sockaddr_in6*>(&ss);
-		got_port = ntohs(sin6->sin6_port);
+		gotPort = ntohs(sin6->sin6_port);
 		addr = evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, addrbuf, sizeof(addrbuf));
 	}
-	if (addr == nullptr) 
+	if (addr == nullptr)
 	{
 		ERROR("无法解析地址");
 	}
-	else 
+	else
 	{
-		LOG("成功监听 HTTPS 端口: " + string(addr) + ":" + IToS(got_port));
+		LOG(string("成功监听 ") + (useSSL ? "HTTPS" : "HTTP") + " 端口: " + addr + ":" + IToS(gotPort));
 	}
 }
 
@@ -282,16 +303,30 @@ void HttpServerSystem::httpResponse(evhttp_request* req, void* arg)
 		return;
 	}
 
-	string uri = evhttp_request_get_uri(req);
-	string uriKey = uri.substr(0, uri.find_first_of('?'));
-	if (HttpListenInfo* listenInfo = ((HttpServerSystem*)arg)->mCallbackList.get(uriKey))
+	const char* uri = evhttp_request_get_uri(req);
+	evbuffer* retbuff = evbuffer_new();
+	if (retbuff == nullptr)
 	{
-		listenInfo->mCallback(req, uri, listenInfo->mUserData);
+		ERROR("retbuff is null");
+		return;
 	}
-	else
+
+	string response;
+	HttpListenInfo* listenInfo = ((HttpServerSystem*)arg)->mCallbackList.get(uri, nullptr);
+	if (listenInfo != nullptr)
 	{
-		((HttpServerSystem*)arg)->doResponse(req, FrameDefine::EMPTY);
+		listenInfo->mCallback(uri, response, listenInfo->mUserData);
+		evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type", listenInfo->mContentType.c_str());
 	}
+	evbuffer_add_printf(retbuff, "%s", response.c_str());
+
+	// CORS 关键头
+	evhttp_add_header(evhttp_request_get_output_headers(req), "Access-Control-Allow-Origin", "*");
+	evhttp_add_header(evhttp_request_get_output_headers(req), "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+	evhttp_add_header(evhttp_request_get_output_headers(req), "Access-Control-Allow-Headers", "Content-Type");
+
+	evhttp_send_reply(req, HTTP_OK, "Client", retbuff);
+	evbuffer_free(retbuff);
 }
 
 #endif

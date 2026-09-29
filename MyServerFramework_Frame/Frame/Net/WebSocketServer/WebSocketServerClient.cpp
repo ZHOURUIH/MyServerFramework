@@ -4,6 +4,8 @@ string WebSocketServerClient::MAGIC_KEY = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 WebSocketServerClient::WebSocketServerClient(const int clientGUID, const MY_SOCKET s, const string& ip) :
 	mIP(ip),
+	mRawSendBuffer(new StreamBuffer(4 * 1024)),
+	mSocketRecvBuffer(new StreamBuffer(FrameDefine::CLIENT_RECV_BUFFER)),
 	mRecvBuffer(new StreamBuffer(FrameDefine::CLIENT_RECV_BUFFER)),
 	mMessageBuffer(new StreamBuffer(32 * 1024)),
 	mPayloadBuffer(new StreamBuffer(16 * 1024)),
@@ -28,6 +30,12 @@ void WebSocketServerClient::init()
 
 WebSocketServerClient::~WebSocketServerClient()
 {
+	// 客户端销毁时,直接销毁所有已经创建但还没有执行的消息对象
+	destroyAllPacket();
+	// 释放还没有发送完成的数据
+	clearSendBuffer();
+	DELETE(mRawSendBuffer);
+	DELETE(mSocketRecvBuffer);
 	DELETE(mRecvBuffer);
 	DELETE(mMessageBuffer);
 	DELETE(mPayloadBuffer);
@@ -104,6 +112,8 @@ void WebSocketServerClient::sendPacket(PacketWebSocket* packet)
 		if (!success)
 		{
 			ERROR("写入错误");
+			setDeadClient("客户端发送缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+			return;
 		}
 	}
 
@@ -142,10 +152,16 @@ void WebSocketServerClient::sendPacket(const ushort packetType)
 
 	{
 		THREAD_LOCK(mPacketTempBufferLock);
-		mPacketTempBuffer0->write(packetType);
-		mPacketTempBuffer0->write(false);
-		mPacketTempBuffer0->write(FrameDefine::FULL_FIELD_FLAG);
-		mPacketTempBuffer0->write(0);
+		bool success = mPacketTempBuffer0->write(packetType);
+		success = success && mPacketTempBuffer0->write(false);
+		success = success && mPacketTempBuffer0->write(FrameDefine::FULL_FIELD_FLAG);
+		success = success && mPacketTempBuffer0->write(0);
+		if (!success)
+		{
+			ERROR("写入错误");
+			setDeadClient("客户端发送缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+			return;
+		}
 	}
 }
 
@@ -190,18 +206,42 @@ int WebSocketServerClient::generateSend(const char* message, int length, char* d
 // 此函数在sendThread调用
 void WebSocketServerClient::writeToSendBuffer()
 {
-	// 将数据从mPacketTempBuffer0中转到mPacketTempBuffer1
-	if (mPacketTempBuffer0->getDataSize() > 0)
+	bool moveSuccess = true;
+	// 将接收线程产生的原始发送数据和主线程产生的消息数据转移到发送线程
+	if (mRawSendBuffer->getDataLength() > 0 || mPacketTempBuffer0->getDataSize() > 0)
 	{
 		THREAD_LOCK(mPacketTempBufferLock);
-		mPacketTempBuffer1->writeBuffer(mPacketTempBuffer0->getBuffer(), mPacketTempBuffer0->getDataSize());
-		mPacketTempBuffer0->clear();
+		// HTTP握手响应等原始数据不需要WebSocket封装,直接加入最终发送列表
+		if (mRawSendBuffer->getDataLength() > 0)
+		{
+			mRawSendBuffer->linearize();
+			const int rawDataSize = mRawSendBuffer->getDataLength();
+			const int rawBufferSize = getGreaterPower2(rawDataSize);
+			char* rawBuffer = mArrayPoolThread->newCharArray(rawBufferSize);
+			MEMCPY(rawBuffer, rawBufferSize, mRawSendBuffer->getData(), rawDataSize);
+			mSendBuffer.add(make_pair(rawBuffer, Vector2Int(rawDataSize, rawBufferSize)));
+			mRawSendBuffer->clear();
+		}
+		// 将数据从mPacketTempBuffer0中转到mPacketTempBuffer1
+		if (mPacketTempBuffer0->getDataSize() > 0)
+		{
+			moveSuccess = mPacketTempBuffer1->writeBuffer(mPacketTempBuffer0->getBuffer(), mPacketTempBuffer0->getDataSize());
+			if (moveSuccess)
+			{
+				mPacketTempBuffer0->clear();
+			}
+		}
+	}
+	if (!moveSuccess)
+	{
+		setDeadClient("客户端发送缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+		return;
 	}
 	if (mPacketTempBuffer1->getDataSize() == 0)
 	{
 		return;
 	}
-	
+
 	SerializerRead reader(mPacketTempBuffer1->getBuffer(), mPacketTempBuffer1->getDataSize());
 	while (true)
 	{
@@ -261,6 +301,44 @@ void WebSocketServerClient::writeToSendBuffer()
 	mPacketTempBuffer1->clear();
 }
 
+void WebSocketServerClient::consumeSendData(const int sendCount)
+{
+	if (mSendBuffer.isEmpty())
+	{
+		mSendOffset = 0;
+		return;
+	}
+
+	auto& item = mSendBuffer[0];
+	const int dataLength = item.second.x;
+	const int remainLength = dataLength - mSendOffset;
+	if (remainLength <= 0)
+	{
+		mArrayPoolThread->deleteCharArray(item.first, item.second.y);
+		mSendBuffer.removeAt(0);
+		mSendOffset = 0;
+		return;
+	}
+	if (sendCount <= 0)
+	{
+		return;
+	}
+	if (sendCount > remainLength)
+	{
+		ERROR("WebSocket发送长度错误,sendCount:" + IToS(sendCount) + ",remainLength:" + IToS(remainLength));
+		return;
+	}
+
+	mSendOffset += sendCount;
+	// 当前数据已经全部发送完成
+	if (mSendOffset == dataLength)
+	{
+		mArrayPoolThread->deleteCharArray(item.first, item.second.y);
+		mSendBuffer.removeAt(0);
+		mSendOffset = 0;
+	}
+}
+
 void WebSocketServerClient::clearSendBuffer()
 {
 	for (auto& item : mSendBuffer)
@@ -268,6 +346,22 @@ void WebSocketServerClient::clearSendBuffer()
 		mArrayPoolThread->deleteCharArray(item.first, item.second.y);
 	}
 	mSendBuffer.clear();
+	mSendOffset = 0;
+}
+
+bool WebSocketServerClient::queueRawSendData(const char* data, const int dataCount)
+{
+	if (data == nullptr || dataCount <= 0)
+	{
+		return true;
+	}
+	THREAD_LOCK(mPacketTempBufferLock);
+	if (!mRawSendBuffer->addDataToBack(data, dataCount))
+	{
+		setDeadClient("客户端原始发送缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+		return false;
+	}
+	return true;
 }
 
 HashMap<string, string> WebSocketServerClient::parseRequestHeader(const string& request)
@@ -345,101 +439,224 @@ string WebSocketServerClient::handle_websocket_handshake(const string& request)
 
 void WebSocketServerClient::recvData(const char* data, const int dataCount)
 {
-	// 连接后的第一次消息接收,进行握手
-	if (!mHttpResponsed)
+	if (data == nullptr || dataCount <= 0 || mIsDeadClient)
 	{
-		const string response = handle_websocket_handshake(string(data, dataCount));
-		if (send(mSocket, response.c_str(), (int)response.length(), 0) != (int)response.length())
-		{
-			LOG("握手失败");
-		}
-		mHttpResponsed = true;
+		return;
+	}
+	// WebSocket底层仍然是TCP,一次recv不保证对应一个完整的HTTP请求或者WebSocket帧
+	if (!mSocketRecvBuffer->addDataToBack(data, dataCount))
+	{
+		LOG("WebSocket原始接收缓冲区已满,IP:" + mIP + ",角色ID:" + LLToS(mPlayerGUID) + ",接收字节数:" + IToS(dataCount));
+		setDeadClient("WebSocket原始接收缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
 		return;
 	}
 
-	// 正常的消息处理,解析websocket固定的消息头
-	size_t offset = 0;
-	while ((int)offset < dataCount)
+	for (;;)
 	{
-		const uint8_t fin = (data[offset] & 0x80) >> 7;
-		const uint8_t opcode = data[offset++] & 0x0F;
-		const uint8_t mask = (data[offset] & 0x80) >> 7;
-		int payloadLength = data[offset++] & 0x7F;
+		if (mIsDeadClient || mSocketRecvBuffer->getDataLength() == 0)
+		{
+			return;
+		}
+		mSocketRecvBuffer->linearize();
+		char* socketData = mSocketRecvBuffer->getData();
+		const int socketDataCount = mSocketRecvBuffer->getDataLength();
 
-		// 8表示断开连接
-		if (opcode == 8)
+		// 连接后的第一次消息是HTTP握手请求,HTTP请求本身也可能被TCP拆成多次recv
+		if (!mHttpResponsed)
+		{
+			int requestSize = 0;
+			for (int i = 0; i + 3 < socketDataCount; ++i)
+			{
+				if (socketData[i] == '\r' && 
+					socketData[i + 1] == '\n' &&
+					socketData[i + 2] == '\r' && 
+					socketData[i + 3] == '\n')
+				{
+					requestSize = i + 4;
+					break;
+				}
+			}
+			// HTTP请求头还没有接收完整
+			if (requestSize == 0)
+			{
+				return;
+			}
+
+			const string response = handle_websocket_handshake(string(socketData, requestSize));
+			// Linux客户端Socket为non-blocking,握手响应统一放到发送线程处理
+			// 避免直接send出现部分发送或者EAGAIN时丢失握手数据
+			if (!queueRawSendData(response.c_str(), (int)response.length()))
+			{
+				return;
+			}
+			mSocketRecvBuffer->removeDataFromFront(requestSize);
+			mHttpResponsed = true;
+			// 同一次recv中HTTP请求后面可能已经带有WebSocket帧,继续解析剩余数据
+			continue;
+		}
+
+		// WebSocket固定头至少2字节
+		if (socketDataCount < 2)
 		{
 			return;
 		}
 
-		// 解析扩展的 Payload 长度
+		const byte firstByte = (byte)socketData[0];
+		const byte secondByte = (byte)socketData[1];
+		const byte fin = (firstByte & 0x80) >> 7;
+		const byte opcode = firstByte & 0x0F;
+		const byte mask = (secondByte & 0x80) >> 7;
+		ullong payloadLength = secondByte & 0x7F;
+		int offset = 2;
+
+		// 解析扩展Payload长度
 		if (payloadLength == 126)
 		{
-			payloadLength = (data[offset] << 8) | data[offset + 1];
+			if (socketDataCount < offset + 2)
+			{
+				return;
+			}
+			payloadLength = ((ullong)(byte)socketData[offset] << 8) |
+				(ullong)(byte)socketData[offset + 1];
 			offset += 2;
 		}
 		else if (payloadLength == 127)
 		{
+			if (socketDataCount < offset + 8)
+			{
+				return;
+			}
 			payloadLength = 0;
 			FOR(8)
 			{
-				payloadLength = (payloadLength << 8) | data[offset + i];
+				payloadLength = (payloadLength << 8) | (ullong)(byte)socketData[offset + i];
 			}
 			offset += 8;
 		}
 
-		// 解析掩码
-		uint8_t masking_key[4] = { 0 };
+		// 当前实现的单帧Payload临时缓冲区有固定上限,超过上限直接断开
+		if (payloadLength > (ullong)mPayloadBuffer->getBufferSize())
+		{
+			setDeadClient("WebSocket单帧数据过大", DEAD_TYPE::SERVER_KICK_OUT);
+			return;
+		}
+
+		byte maskingKey[4]{ 0 };
 		if (mask != 0)
 		{
-			memcpy(masking_key, data + offset, 4);
+			if (socketDataCount < offset + 4)
+			{
+				return;
+			}
+			memcpy(maskingKey, socketData + offset, sizeof(maskingKey));
 			offset += 4;
 		}
 
-		// 解码 Payload 数据
-		mPayloadBuffer->clear();
-		mPayloadBuffer->addEmptyToBack(payloadLength);
-		mPayloadBuffer->linearize();
-		FOR(payloadLength)
+		const int payloadSize = (int)payloadLength;
+		const int frameSize = offset + payloadSize;
+		// 当前WebSocket帧还没有接收完整
+		if (socketDataCount < frameSize)
 		{
-			mPayloadBuffer->getData()[i] = data[offset + i] ^ (mask ? masking_key[i % 4] : 0);
+			return;
 		}
-		offset += payloadLength;
-		// 根据 FIN 和 Opcode 判断分片状态
+
+		// Close控制帧
+		if (opcode == 0x08)
+		{
+			mSocketRecvBuffer->removeDataFromFront(frameSize);
+			setDeadClient("WebSocket客户端主动关闭连接", DEAD_TYPE::MANUAL_QUIT);
+			return;
+		}
+
+		// 解码Payload
+		mPayloadBuffer->clear();
+		if (payloadSize > 0)
+		{
+			if (!mPayloadBuffer->addEmptyToBack(payloadSize))
+			{
+				setDeadClient("WebSocket Payload缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+				return;
+			}
+			mPayloadBuffer->linearize();
+			FOR(payloadSize)
+			{
+				mPayloadBuffer->getData()[i] = socketData[offset + i] ^ (mask ? maskingKey[i % 4] : 0);
+			}
+		}
+
+		// 当前帧已经完整解析,先从原始TCP缓冲区移除
+		mSocketRecvBuffer->removeDataFromFront(frameSize);
+
+		// Ping控制帧,服务器需要回复Pong,控制帧Payload最大125字节
+		if (opcode == 0x09)
+		{
+			if (fin == 0 || payloadSize > 125)
+			{
+				setDeadClient("WebSocket Ping帧格式错误", DEAD_TYPE::SERVER_KICK_OUT);
+				return;
+			}
+			char pongBuffer[127];
+			pongBuffer[0] = (char)0x8A;
+			pongBuffer[1] = (char)payloadSize;
+			if (payloadSize > 0)
+			{
+				MEMCPY(pongBuffer + 2, sizeof(pongBuffer) - 2, mPayloadBuffer->getData(), payloadSize);
+			}
+			if (!queueRawSendData(pongBuffer, payloadSize + 2))
+			{
+				return;
+			}
+			continue;
+		}
+		// Pong控制帧不需要业务处理
+		if (opcode == 0x0A)
+		{
+			continue;
+		}
+
+		// 根据FIN和Opcode处理WebSocket消息分片
 		if (opcode != 0 && fin == 0)
 		{
 			// 起始分片
 			mIsFragmented = true;
-			mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength());
+			mMessageBuffer->clear();
+			if (!mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength()))
+			{
+				setDeadClient("WebSocket分片缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+				return;
+			}
 		}
 		else if (opcode == 0 && fin == 0)
 		{
 			// 中间分片
-			if (mIsFragmented)
+			if (!mIsFragmented)
 			{
-				mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength());
+				setDeadClient("WebSocket收到无效的中间分片", DEAD_TYPE::SERVER_KICK_OUT);
+				return;
 			}
-			else
+			if (!mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength()))
 			{
-				LOG("Received unexpected intermediate fragment!");
+				setDeadClient("WebSocket分片缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
 				return;
 			}
 		}
 		else if (opcode == 0 && fin == 1)
 		{
 			// 结束分片
-			if (mIsFragmented)
+			if (!mIsFragmented)
 			{
-				mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength());
-				handle_complete_message(mMessageBuffer->getData(), mMessageBuffer->getDataLength());  // 处理完整消息
-				mMessageBuffer->clear();
-				mIsFragmented = false;
-			}
-			else
-			{
-				LOG("Received unexpected final fragment!");
+				setDeadClient("WebSocket收到无效的结束分片", DEAD_TYPE::SERVER_KICK_OUT);
 				return;
 			}
+			if (!mMessageBuffer->addDataToBack(mPayloadBuffer->getData(), mPayloadBuffer->getDataLength()))
+			{
+				setDeadClient("WebSocket分片缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+				return;
+			}
+			mMessageBuffer->linearize();
+			handle_complete_message(mMessageBuffer->getData(), mMessageBuffer->getDataLength());
+			mMessageBuffer->clear();
+			mIsFragmented = false;
 		}
 		else if (opcode != 0 && fin == 1)
 		{
@@ -448,16 +665,18 @@ void WebSocketServerClient::recvData(const char* data, const int dataCount)
 		}
 		else
 		{
-			LOG("Invalid WebSocket frame!");
+			setDeadClient("WebSocket帧格式错误", DEAD_TYPE::SERVER_KICK_OUT);
+			return;
 		}
 	}
 }
-
 void WebSocketServerClient::handle_complete_message(char* data, const int dataCount)
 {
 	if (!mRecvBuffer->addDataToBack(data, dataCount))
 	{
 		LOG("客户端缓冲区已满,接收数据失败");
+		setDeadClient("客户端接收缓冲区已满", DEAD_TYPE::SERVER_KICK_OUT);
+		return;
 	}
 	if (mRecvBuffer->getDataLength() == 0)
 	{
@@ -719,6 +938,19 @@ void WebSocketServerClient::executeAllPacket()
 				",数量:" + IToS(maxExecuteCount) +
 				",IP:" + mIP +
 				",角色ID:" + LLToS(mPlayerGUID));
+		}
+	}
+}
+
+void WebSocketServerClient::destroyAllPacket()
+{
+	// DoubleBuffer有两个实际缓冲区,连续读取两次可以将两个缓冲区中的消息全部销毁
+	FOR(2)
+	{
+		DoubleBufferReadScope<PacketWebSocket*> readScope(mExecutePacketList);
+		if (readScope.mReadList != nullptr && !readScope.mReadList->isEmpty())
+		{
+			mPacketWebSocketThreadPool->destroyClassList(*readScope.mReadList);
 		}
 	}
 }

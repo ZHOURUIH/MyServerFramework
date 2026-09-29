@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ─── Assertion macros ───
 #define MOE_ASSERT(expr, msg) \
@@ -8,14 +9,14 @@
 // MovableObject — 位置测试
 // =====================================================================
 
-static void testMoePositionDefault()
+void MovableObjectTest::testMoePositionDefault()
 {
 	MovableObject mo;
 	const Vector3& pos = mo.getPosition();
 	MOE_ASSERT(pos.x == 0.0f && pos.y == 0.0f && pos.z == 0.0f, "position default zero");
 }
 
-static void testMoeSetPositionPositive()
+void MovableObjectTest::testMoeSetPositionPositive()
 {
 	MovableObject mo;
 	mo.setPosition(Vector3(10.0f, 20.0f, 30.0f));
@@ -23,7 +24,7 @@ static void testMoeSetPositionPositive()
 	MOE_ASSERT(pos.x == 10.0f && pos.y == 20.0f && pos.z == 30.0f, "position positive");
 }
 
-static void testMoeSetPositionNegative()
+void MovableObjectTest::testMoeSetPositionNegative()
 {
 	MovableObject mo;
 	mo.setPosition(Vector3(-5.0f, -10.0f, -15.0f));
@@ -31,7 +32,7 @@ static void testMoeSetPositionNegative()
 	MOE_ASSERT(pos.x == -5.0f && pos.y == -10.0f && pos.z == -15.0f, "position negative");
 }
 
-static void testMoeSetPositionZero()
+void MovableObjectTest::testMoeSetPositionZero()
 {
 	MovableObject mo;
 	mo.setPosition(Vector3(1.0f, 2.0f, 3.0f));
@@ -40,7 +41,7 @@ static void testMoeSetPositionZero()
 	MOE_ASSERT(pos.x == 0.0f && pos.y == 0.0f && pos.z == 0.0f, "position reset zero");
 }
 
-static void testMoeSetPositionMultiple()
+void MovableObjectTest::testMoeSetPositionMultiple()
 {
 	MovableObject mo;
 	for (int i = 0; i < 10; ++i)
@@ -51,7 +52,7 @@ static void testMoeSetPositionMultiple()
 	}
 }
 
-static void testMoeSetPositionLargeValues()
+void MovableObjectTest::testMoeSetPositionLargeValues()
 {
 	MovableObject mo;
 	mo.setPosition(Vector3(1e6f, -1e6f, 1e-6f));
@@ -63,20 +64,20 @@ static void testMoeSetPositionLargeValues()
 // MovableObject — LastPosition 测试
 // =====================================================================
 
-static void testMoeHasLastPositionDefault()
+void MovableObjectTest::testMoeHasLastPositionDefault()
 {
 	MovableObject mo;
 	MOE_ASSERT(!mo.hasLastPosition(), "hasLastPosition default false");
 }
 
-static void testMoeLastPositionDefault()
+void MovableObjectTest::testMoeLastPositionDefault()
 {
 	MovableObject mo;
 	const Vector3& last = mo.getLastPosition();
 	MOE_ASSERT(last.x == 0.0f && last.y == 0.0f && last.z == 0.0f, "lastPosition default zero");
 }
 
-static void testMoeIsMovedDefault()
+void MovableObjectTest::testMoeIsMovedDefault()
 {
 	MovableObject mo;
 	MOE_ASSERT(!mo.isMoved(), "isMoved default false");
@@ -87,13 +88,13 @@ static void testMoeIsMovedDefault()
 // =====================================================================
 
 static int moeCallbackCounter = 0;
-static void moeTestCallback(MovableObject* obj, void* userData)
+void MovableObjectTest::moeTestCallback(MovableObject* obj, void* userData)
 {
 	++moeCallbackCounter;
 	*static_cast<int*>(userData) += 1;
 }
 
-static void testMoeCallbackAddOnce()
+void MovableObjectTest::testMoeCallbackAddOnce()
 {
 	MovableObject mo;
 	int flag = 0;
@@ -102,7 +103,7 @@ static void testMoeCallbackAddOnce()
 	MOE_ASSERT(flag == 1, "callback add once triggered");
 }
 
-static void testMoeCallbackAddMultiple()
+void MovableObjectTest::testMoeCallbackAddMultiple()
 {
 	MovableObject mo;
 	int flag1 = 0, flag2 = 0, flag3 = 0;
@@ -113,7 +114,7 @@ static void testMoeCallbackAddMultiple()
 	MOE_ASSERT(flag1 == 1 && flag2 == 1 && flag3 == 1, "callback add multiple all triggered");
 }
 
-static void testMoeCallbackAddAndRemove()
+void MovableObjectTest::testMoeCallbackAddAndRemove()
 {
 	MovableObject mo;
 	int flag = 0;
@@ -123,7 +124,7 @@ static void testMoeCallbackAddAndRemove()
 	MOE_ASSERT(flag == 0, "callback add+remove not triggered");
 }
 
-static void testMoeCallbackAddRemoveDifferentOrder()
+void MovableObjectTest::testMoeCallbackAddRemoveDifferentOrder()
 {
 	MovableObject mo;
 	int flags[4] = {};
@@ -141,7 +142,7 @@ static void testMoeCallbackAddRemoveDifferentOrder()
 	MOE_ASSERT(flags[3] == 1, "callback add remove mid[3] triggered");
 }
 
-static void testMoeCallbackRemoveAll()
+void MovableObjectTest::testMoeCallbackRemoveAll()
 {
 	MovableObject mo;
 	int flags[3] = {};
@@ -157,7 +158,7 @@ static void testMoeCallbackRemoveAll()
 	}
 }
 
-static void testMoeCallbackAddSameTwice()
+void MovableObjectTest::testMoeCallbackAddSameTwice()
 {
 	MovableObject mo;
 	int flag = 0;
@@ -167,7 +168,7 @@ static void testMoeCallbackAddSameTwice()
 	MOE_ASSERT(flag == 2, "callback added twice triggered twice");
 }
 
-static void testMoeCallbackDestroyTwice()
+void MovableObjectTest::testMoeCallbackDestroyTwice()
 {
 	MovableObject mo;
 	int flag = 0;
@@ -179,7 +180,7 @@ static void testMoeCallbackDestroyTwice()
 	MOE_ASSERT(flag == 0, "second destroy no trigger");
 }
 
-static void testMoeCallbackResetProperty()
+void MovableObjectTest::testMoeCallbackResetProperty()
 {
 	MovableObject mo;
 	int flag = 0;
@@ -190,7 +191,7 @@ static void testMoeCallbackResetProperty()
 	MOE_ASSERT(flag == 0, "callback after resetProperty not triggered");
 }
 
-static void testMoeCallbackLargeCount()
+void MovableObjectTest::testMoeCallbackLargeCount()
 {
 	constexpr int COUNT = 50;
 	MovableObject mo;
@@ -210,7 +211,7 @@ static void testMoeCallbackLargeCount()
 // MovableObject — ResetProperty 测试
 // =====================================================================
 
-static void testMoeResetPropertyPosition()
+void MovableObjectTest::testMoeResetPropertyPosition()
 {
 	MovableObject mo;
 	mo.setPosition(Vector3(100.0f, 200.0f, 300.0f));
@@ -219,7 +220,7 @@ static void testMoeResetPropertyPosition()
 	MOE_ASSERT(pos.x == 0.0f && pos.y == 0.0f && pos.z == 0.0f, "resetProperty position zero");
 }
 
-static void testMoeResetPropertyStateFlags()
+void MovableObjectTest::testMoeResetPropertyStateFlags()
 {
 	MovableObject mo;
 	mo.resetProperty();
@@ -227,7 +228,7 @@ static void testMoeResetPropertyStateFlags()
 	MOE_ASSERT(!mo.isMoved(), "resetProperty isMoved false");
 }
 
-static void testMoeResetPropertyMultiple()
+void MovableObjectTest::testMoeResetPropertyMultiple()
 {
 	MovableObject mo;
 	for (int cycle = 0; cycle < 5; ++cycle)
@@ -243,7 +244,7 @@ static void testMoeResetPropertyMultiple()
 // MovableObject — 综合场景
 // =====================================================================
 
-static void testMoePositionUpdateSequence()
+void MovableObjectTest::testMoePositionUpdateSequence()
 {
 	MovableObject mo;
 	// 模拟位置更新序列
@@ -263,7 +264,7 @@ static void testMoePositionUpdateSequence()
 	}
 }
 
-static void testMoeCallbackAddRemoveInterleaved()
+void MovableObjectTest::testMoeCallbackAddRemoveInterleaved()
 {
 	MovableObject mo;
 	int flags[5] = {};
@@ -285,7 +286,7 @@ static void testMoeCallbackAddRemoveInterleaved()
 	}
 }
 
-static void testMoeMixedOperations()
+void MovableObjectTest::testMoeMixedOperations()
 {
 	MovableObject mo;
 	// 混合操作不崩溃
@@ -334,3 +335,4 @@ void MovableObjectTest::test()
 	testMoeCallbackAddRemoveInterleaved();
 	testMoeMixedOperations();
 }
+#endif

@@ -5,17 +5,33 @@ ushort* COMCharacterStateMachine::mAllowKeepTypeCountList;
 HashMap<uint, bool> COMCharacterStateMachine::mAllowAddTypeList;
 HashMap<uint, bool> COMCharacterStateMachine::mAllowKeepTypeList;
 
+COMCharacterStateMachine::~COMCharacterStateMachine()
+{
+	DELETE(mStateTickList);
+}
+
 void COMCharacterStateMachine::destroy()
 {
 	base::destroy();
-
-	// 先退出所有状态
-	for (auto& iter : mStateTypeList)
+	for (auto& iter : mSingleStateTypeList)
+	{
+		CharacterState* state = iter.second;
+		if (state == nullptr)
+		{
+			continue;
+		}
+		if (state->isDestroy())
+		{
+			ERROR_PROFILE(("0Debug:销毁角色时发现存储了已经被销毁的状态:" + string(typeid(*state).name()) + ", 销毁时的行:" + IToS(state->mLine)).c_str());
+			continue;
+		}
+		leaveStateInternal(state, true, true, false);
+	}
+	for (auto& iter : mCoexistStateTypeList)
 	{
 		SAFE_VECTOR_SCOPE(iter.second, readList);
 		for (CharacterState* state : readList)
 		{
-			// 暂时不知道这里为什么会有被销毁的状态
 			if (state->isDestroy())
 			{
 				ERROR_PROFILE(("0Debug:销毁角色时发现存储了已经被销毁的状态:" + string(typeid(*state).name()) + ", 销毁时的行:" + IToS(state->mLine)).c_str());
@@ -24,14 +40,25 @@ void COMCharacterStateMachine::destroy()
 			leaveStateInternal(state, true, true, false);
 		}
 	}
-
-	// 再销毁所有状态
-	for (auto& iter : mStateTypeList)
+	for (auto& iter : mSingleStateTypeList)
+	{
+		CharacterState* state = iter.second;
+		if (state == nullptr)
+		{
+			continue;
+		}
+		if (state->isDestroy())
+		{
+			ERROR_PROFILE(("1Debug:销毁角色时发现存储了已经被销毁的状态:" + string(typeid(*state).name()) + ", 销毁时的行:" + IToS(state->mLine)).c_str());
+			continue;
+		}
+		destroyState(state, __LINE__);
+	}
+	for (auto& iter : mCoexistStateTypeList)
 	{
 		SAFE_VECTOR_SCOPE(iter.second, readList);
 		for (CharacterState* state : readList)
 		{
-			// 暂时不知道这里为什么会有被销毁的状态
 			if (state->isDestroy())
 			{
 				ERROR_PROFILE(("1Debug:销毁角色时发现存储了已经被销毁的状态:" + string(typeid(*state).name()) + ", 销毁时的行:" + IToS(state->mLine)).c_str());
@@ -40,11 +67,14 @@ void COMCharacterStateMachine::destroy()
 			destroyState(state, __LINE__);
 		}
 	}
-	mStateTypeList.clear();
-	mStateTickList.clear();
+	mSingleStateTypeList.clear();
+	mCoexistStateTypeList.clear();
+	if (mStateTickList != nullptr)
+	{
+		mStateTickList->clear();
+	}
 	mGroupStateCountList.clear();
 }
-
 void COMCharacterStateMachine::destroyState(CharacterState* state, const int line)
 {
 	state->mLine = line;
@@ -62,11 +92,11 @@ void COMCharacterStateMachine::destroyStateList(Vector<CharacterState*>& stateLi
 
 void COMCharacterStateMachine::onFrameTick(const float elapsedTime)
 {
-	if (mStateTickCount == 0)
+	if (mStateTickCount == 0 || mStateTickList == nullptr)
 	{
 		return;
 	}
-	SAFE_VECTOR_SCOPE(mStateTickList, stateList);
+	SAFE_VECTOR_SCOPE(*mStateTickList, stateList);
 	for (CharacterState* state : stateList)
 	{
 		if (state == nullptr)
@@ -130,7 +160,18 @@ Ref<CharacterState> COMCharacterStateMachine::addState(const ushort type, StateP
 	if (mAllowKeepTypeCountList[state->getType()] > 0)
 	{
 		// 移除状态组互斥的状态,此处会涉及到列表的删除,所以不能直接使用主列表进行遍历
-		for (auto& iterState : mStateTypeList)
+		for (auto& iterState : mSingleStateTypeList)
+		{
+			if (iterState.second == nullptr || iterState.first == state->getType())
+			{
+				continue;
+			}
+			if (!allowKeepStateByGroup(state->getType(), iterState.first))
+			{
+				removeStateType(iterState.first, true, removeByDie);
+			}
+		}
+		for (auto& iterState : mCoexistStateTypeList)
 		{
 			if (iterState.second.isEmpty() || iterState.first == state->getType())
 			{
@@ -142,8 +183,6 @@ Ref<CharacterState> COMCharacterStateMachine::addState(const ushort type, StateP
 			}
 		}
 	}
-
-	// 暂时不知道这里为什么会已经被销毁了
 	if (state->isDestroy())
 	{
 		ERROR_PROFILE("4Debug:状态在添加之前销毁了自己");
@@ -184,13 +223,25 @@ Ref<CharacterState> COMCharacterStateMachine::addState(const ushort type, StateP
 		destroyState(state, __LINE__);
 		return Ref<CharacterState>::null;
 	}
-
-	// 添加到状态列表
-	mStateTypeList.addOrGet(state->getType()).add(state);
+	if (state->getStateMutex() == STATE_MUTEX::COEXIST)
+	{
+		mCoexistStateTypeList.addOrGet(state->getType()).add(state);
+	}
+	else
+	{
+		mSingleStateTypeList.addOrSet(state->getType(), state);
+	}
 	if (state->isNeedTick())
 	{
-		mStateTickList.add(state);
-		++mStateTickCount;
+		if (mStateTickList == nullptr)
+		{
+			mStateTickList = new SafeVector<CharacterState*>();
+		}
+		mStateTickList->add(state);
+		if (++mStateTickCount == 1 && isActive())
+		{
+			registeTick();
+		}
 	}
 	const auto& groupList = mFrameStateManager->getGroupList(type);
 	if (!groupList.isEmpty())
@@ -211,7 +262,7 @@ bool COMCharacterStateMachine::removeStateInternal(CharacterState* state, const 
 	}
 	if (state->isDestroy())
 	{
-		ERROR_PROFILE((string("6状态已经被销毁:") + typeid(*state).name()).c_str());
+		ERROR_PROFILE((string("6状态已经被销毁:") + typeid(*state).name() + ", Line:" + IToS(state->mLine)).c_str());
 		return false;
 	}
 	if (!state->isActive())
@@ -225,15 +276,31 @@ bool COMCharacterStateMachine::removeStateInternal(CharacterState* state, const 
 	// 但是仍然需要正常执行leave,所以不考虑移除失败的情况
 	if (state->isNeedTick())
 	{
-		mStateTickList.remove(state);
-		--mStateTickCount;
+		if (mStateTickList != nullptr)
+		{
+			mStateTickList->remove(state);
+		}
+		if (--mStateTickCount <= 0)
+		{
+			unregisteTick();
+		}
 	}
-
-	if (auto* stateList = mStateTypeList.getPtr(state->getType()))
+	bool removedFromTypeList = false;
+	if (CharacterState** statePtr = mSingleStateTypeList.getPtr(state->getType()))
 	{
-		stateList->remove(state);
+		if (*statePtr == state)
+		{
+			*statePtr = nullptr;
+			removedFromTypeList = true;
+		}
 	}
-
+	if (!removedFromTypeList)
+	{
+		if (SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtr(state->getType()))
+		{
+			stateList->remove(state);
+		}
+	}
 	auto& groupList = mFrameStateManager->getGroupList(state->getType());
 	if (!groupList.isEmpty())
 	{
@@ -265,41 +332,77 @@ void COMCharacterStateMachine::leaveStateInternal(CharacterState* state, const b
 
 void COMCharacterStateMachine::removeStateType(const ushort type, const bool isBreak, const bool removeByDie)
 {
-	auto* stateList = mStateTypeList.getPtr(type);
-	if (stateList == nullptr)
-	{
-		return;
-	}
-	// 复制一份列表出来,实际上只需要移动即可,同时也会清空原列表
-	Vector<CharacterState*> tempList;
-	stateList->moveMainListTo(tempList);
-	stateList->clear();
 	int removeCount = 0;
-	for (CharacterState* state : tempList)
+	if (CharacterState** statePtr = mSingleStateTypeList.getPtr(type))
 	{
-		if (state == nullptr)
+		CharacterState* state = *statePtr;
+		if (state != nullptr)
 		{
-			continue;
+			*statePtr = nullptr;
+			if (state->isDestroy())
+			{
+				ERROR_PROFILE((string("7状态已经被销毁:") + typeid(*state).name()).c_str());
+			}
+			else if (state->isActive())
+			{
+				if (state->isNeedTick())
+				{
+					if (mStateTickList != nullptr)
+					{
+						mStateTickList->remove(state);
+					}
+					if (--mStateTickCount <= 0)
+					{
+						unregisteTick();
+					}
+				}
+				leaveStateInternal(state, isBreak, false, removeByDie);
+				++removeCount;
+			}
+			destroyState(state, __LINE__);
 		}
-		if (state->isDestroy())
+	}
+	if (SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtr(type))
+	{
+		Vector<CharacterState*> tempList;
+		stateList->moveMainListTo(tempList);
+		stateList->clear();
+		for (CharacterState* state : tempList)
 		{
-			ERROR_PROFILE((string("7状态已经被销毁:") + typeid(*state).name()).c_str());
-			continue;
-		}
-		if (!state->isActive())
-		{
-			continue;
-		}
+			if (state == nullptr)
+			{
+				continue;
+			}
+			if (state->isDestroy())
+			{
+				ERROR_PROFILE((string("7状态已经被销毁:") + typeid(*state).name()).c_str());
+				continue;
+			}
+			if (!state->isActive())
+			{
+				continue;
+			}
 		// 从列表中移除,这里需要保证状态如果是需要执行更新的,就一定在列表中
 		// 但是仍然需要正常执行leave,所以不考虑移除失败的情况
-		if (state->isNeedTick())
-		{
-			mStateTickList.remove(state);
-			--mStateTickCount;
+			if (state->isNeedTick())
+			{
+				if (mStateTickList != nullptr)
+				{
+					mStateTickList->remove(state);
+				}
+				if (--mStateTickCount <= 0)
+				{
+					unregisteTick();
+				}
+			}
+			leaveStateInternal(state, isBreak, false, removeByDie);
+			++removeCount;
 		}
-
-		leaveStateInternal(state, isBreak, false, removeByDie);
-		++removeCount;
+		destroyStateList(tempList, __LINE__);
+	}
+	if (removeCount == 0)
+	{
+		return;
 	}
 	auto& groupList = mFrameStateManager->getGroupList(type);
 	if (!groupList.isEmpty())
@@ -312,7 +415,6 @@ void COMCharacterStateMachine::removeStateType(const ushort type, const bool isB
 			}
 		}
 	}
-	destroyStateList(tempList, __LINE__);
 }
 
 void COMCharacterStateMachine::removeStateInGroup(const int group, const bool isBreak, const bool removeByDie)
@@ -322,8 +424,25 @@ void COMCharacterStateMachine::removeStateInGroup(const int group, const bool is
 		return;
 	}
 	auto& stateGroupList = mFrameStateManager->getStateGroupList();
-	for (auto& iter : mStateTypeList)
+	for (auto& iter : mSingleStateTypeList)
 	{
+		if (iter.second == nullptr)
+		{
+			continue;
+		}
+		auto* ptr = stateGroupList.getPtrConst(iter.first);
+		if (ptr == nullptr || !ptr->contains(group))
+		{
+			continue;
+		}
+		removeStateType(iter.first, isBreak, removeByDie);
+	}
+	for (auto& iter : mCoexistStateTypeList)
+	{
+		if (iter.second.isEmpty())
+		{
+			continue;
+		}
 		auto* ptr = stateGroupList.getPtrConst(iter.first);
 		if (ptr == nullptr || !ptr->contains(group))
 		{
@@ -340,22 +459,62 @@ bool COMCharacterStateMachine::removeFirstState(int buffID, bool isBreak, bool r
 	{
 		return false;
 	}
-	removeStateInternal(state, false, false); 
-	return true;
+	return removeStateInternal(state, false, false);
 }
 
+StateTypeStateListView* COMCharacterStateMachine::getState(const ushort type)
+{
+	if (CharacterState** statePtr = mSingleStateTypeList.getPtr(type))
+	{
+		if (*statePtr != nullptr)
+		{
+			mGetStateView.setSingle(*statePtr);
+			return &mGetStateView;
+		}
+	}
+	if (SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtr(type))
+	{
+		if (!stateList->isEmpty())
+		{
+			mGetStateView.setCoexist(stateList);
+			return &mGetStateView;
+		}
+	}
+	return nullptr;
+}
+const StateTypeStateListView* COMCharacterStateMachine::getState(const ushort type) const
+{
+	if (CharacterState* const* statePtr = mSingleStateTypeList.getPtrConst(type))
+	{
+		if (*statePtr != nullptr)
+		{
+			mGetStateView.setSingle(*statePtr);
+			return &mGetStateView;
+		}
+	}
+	if (const SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtrConst(type))
+	{
+		if (!stateList->isEmpty())
+		{
+			mGetStateView.setCoexist(stateList);
+			return &mGetStateView;
+		}
+	}
+	return nullptr;
+}
 CharacterState* COMCharacterStateMachine::getFirstState(const ushort type) const
 {
-	if (mStateTypeList.isEmpty())
+	CharacterState* const* singleStatePtr = mSingleStateTypeList.getPtrConst(type);
+	if (singleStatePtr != nullptr && *singleStatePtr != nullptr)
+	{
+		return *singleStatePtr;
+	}
+	const SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtrConst(type);
+	if (stateList == nullptr)
 	{
 		return nullptr;
 	}
-	const auto* iter = mStateTypeList.getPtrConst(type);
-	if (iter == nullptr)
-	{
-		return nullptr;
-	}
-	auto& itemList = iter->getMainList();
+	const auto& itemList = stateList->getMainList();
 	return !itemList.isEmpty() ? itemList[0] : nullptr;
 }
 
@@ -367,15 +526,19 @@ bool COMCharacterStateMachine::hasStateGroup(const int group) const
 
 bool COMCharacterStateMachine::hasState(const ushort type) const
 {
-	const auto* iter = mStateTypeList.getPtrConst(type);
-	return iter != nullptr && !iter->isEmpty();
+	CharacterState* const* singleStatePtr = mSingleStateTypeList.getPtrConst(type);
+	if (singleStatePtr != nullptr && *singleStatePtr != nullptr)
+	{
+		return true;
+	}
+	const SafeVector<CharacterState*>* stateList = mCoexistStateTypeList.getPtrConst(type);
+	return stateList != nullptr && !stateList->isEmpty();
 }
 
 bool COMCharacterStateMachine::canAddState(CharacterState* state, StateParam* param, CharacterState** needRemoveState) const
 {
 	// 检查自身限制条件
-	if (!state->canEnter(param) ||
-		!mutexWithExistState(state, needRemoveState))
+	if (!state->canEnter(param) || !mutexWithExistState(state, needRemoveState))
 	{
 		return false;
 	}
@@ -390,7 +553,18 @@ bool COMCharacterStateMachine::canAddState(CharacterState* state, StateParam* pa
 	{
 		// 检查是否有跟要添加的状态互斥且不能移除的状态
 		// 因为此处在遍历过程中不会对列表进行任何的修改,所以可以直接访问主列表
-		for (const auto& iterState : mStateTypeList)
+		for (const auto& iterState : mSingleStateTypeList)
+		{
+			if (iterState.second == nullptr || iterState.first == state->getType())
+			{
+				continue;
+			}
+			if (!allowAddStateByGroup(state->getType(), iterState.first))
+			{
+				return false;
+			}
+		}
+		for (const auto& iterState : mCoexistStateTypeList)
 		{
 			if (iterState.second.isEmpty() || iterState.first == state->getType())
 			{
@@ -630,8 +804,12 @@ bool COMCharacterStateMachine::allowAddStateByGroupInternal(const ushort newStat
 void COMCharacterStateMachine::resetProperty()
 {
 	base::resetProperty();
-	mStateTypeList.clear();
-	mStateTickList.clear();
+	mSingleStateTypeList.clear();
+	mCoexistStateTypeList.clear();
+	if (mStateTickList != nullptr)
+	{
+		mStateTickList->clear();
+	}
 	mGroupStateCountList.clear();
 	mStateTickCount = 0;
 }

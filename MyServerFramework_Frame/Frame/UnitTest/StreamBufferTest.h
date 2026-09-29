@@ -1,9 +1,112 @@
-#pragma once
+﻿#pragma once
 
 #include "FrameBase.h"
 
 class MICRO_LEGEND_FRAME_API StreamBufferTest
 {
+#ifdef WINDOWS
 public:
 	static void test();
+private:
+	static void assertStreamBuffer(bool condition, const char* message);
+	static void testBasicAddRemove();
+	static void testEmptyAndClear();
+	static void testResizePath();
+	static void testFullClearFallback();
+	static void testExtended();
+	static void testStreamBufferConstruct();
+	static void testStreamBufferAddBasic();
+	static void testStreamBufferAddMultiple();
+	static void testStreamBufferRemoveFront();
+	static void testStreamBufferRemoveMultiple();
+	static void testStreamBufferClear();
+	static void testStreamBufferClearAndReuse();
+	static void testStreamBufferIsAvailable();
+	static void testStreamBufferAddEmpty();
+	static void testStreamBufferAddDataFail();
+	static void testStreamBufferAddDataClearIfFull();
+	static void testStreamBufferProducerConsumer();
+	static void testStreamBufferBinaryData();
+	static void testStreamBufferFillAndClear();
+	static void testStreamBufferRemoveOverflow();
+	static void testStreamBufferLargeBuffer();
+	static void testStreamBufferTCPSimulation();
+	static void testStreamBufferOffsetTracking();
+	static void testStreamBufferSingleByte();
+	static void testStreamBufferAddZeroBytes();
+	static void testStreamBufferRepeatAdd();
+	static void testStreamBufferExactFit();
+	static void testStreamBufferMultiRound();
+	static void testStreamBufferIsAvailableZero();
+	static void testStreamBufferReserveThenFill();
+	static void testStreamBufferFrameStream();
+	static void testStreamBufferVariousSizes();
+	static void testStreamBufferAddEmptyClearIfFull();
+	static void testStreamBufferMixedAddOps();
+	static void testStreamBufferRingWraparound();
+	static void testStreamBufferRingMultiWrap();
+	static void testStreamBufferPeekDataEdge();
+	static void testStreamBufferContiguousLength();
+	static void testStreamBufferCommitTail();
+	static void testStreamBufferMergeFrom();
+	static void testStreamBufferMoveTo();
+	static void testStreamBufferLinearize();
+	static void testSwapLinearize();
+	static void testLinearize_AlreadyContiguous();
+	static void testLinearize_Empty();
+	static void testLinearize_SingleWrap();
+	static void testLinearize_MultiWrapThenLinearize();
+	static void testLinearize_FullWrap();
+	static void testLinearize_OneByteAtBoundary();
+	static void testGetContiguousFreeLength();
+	static void testEdge();
+	static void testSBE_defaultState();
+	static void testSBE_emptyPeekData();
+	static void testSBE_emptyAddData();
+	static void testSBE_addAndPeek();
+	static void testSBE_addAndRemove();
+	static void testSBE_addRemoveAll();
+	static void testSBE_addTwice();
+	static void testSBE_removePartial();
+	static void testSBE_multiCycle();
+	static void testSBE_addRemoveAddRemove();
+	static void testSBE_addLargeThenRemove();
+	static void testSBE_addRemoveAllRepeated();
+	static void testSBE_wrapAround();
+	static void testSBE_multipleWrapAround();
+	static void testSBE_exactBufferFit();
+	static void testSBE_mergeFromBasic();
+	static void testSBE_mergeFromEmpty();
+	static void testSBE_mergeFromEmptyBoth();
+	static void testSBE_mergeFromSelf();
+	static void testSBE_mergeFromAfterRemove();
+	static void testSBE_linearizeEmpty();
+	static void testSBE_linearizeSimple();
+	static void testSBE_linearizeAfterPartialRead();
+	static void testSBE_linearizeThenAdd();
+	static void testSBE_linearizeAfterMerge();
+	static void testSBE_contiguousLength();
+	static void testSBE_contiguousAfterRemove();
+	static void testSBE_bulkAddAndRead();
+	static void testSBE_bulkRemove();
+	static void testSBE_bulkAddAfterRemove();
+	static void testSBE_singleByteAddRemove();
+	static void testSBE_zeroLengthAdd();
+	static void testSBE_maxSizeAdd();
+	static void testSBE_dataEquality();
+	static void testSBE_addPeekRemovePeek();
+	static void testSBE_addAddRemoveAdd();
+	static void testSBE_addAddRemoveRemove();
+	static void testSBE_stressSequence();
+	static void testSBE_clearThenAdd();
+	static void testSBE_clearThenAddLarge();
+	static void testSBE_independentBuffers();
+	static void testSBE_clearAndReuse();
+	static void testSBE_partialPeek();
+	static void testSBE_repeatedAddRemove();
+	static void testSBE_sequentialAddAndPeek();
+	static void testStreamBuffer_Basic();
+	static void testStreamBuffer_AddEmpty();
+	static void testContainerExtended();
+#endif
 };

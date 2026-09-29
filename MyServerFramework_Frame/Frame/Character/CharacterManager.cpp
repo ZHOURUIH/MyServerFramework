@@ -31,7 +31,7 @@ void CharacterManager::quit()
 	mCharacterTypeList.clear();
 }
 
-Character* CharacterManager::createCharacter(const string& name, const byte type, const llong guid, const bool managed)
+Character* CharacterManager::createCharacter(const string& name, const byte type, const llong guid, const bool managed, const bool addToTypeList)
 {
 	// 创建一个新角色
 	Character* newChar = mCharacterPool->newClass(type);
@@ -52,7 +52,10 @@ Character* CharacterManager::createCharacter(const string& name, const byte type
 		mCharacterUpdateList.add(guid, newChar);
 	}
 	// 加入到角色分类列表
-	mCharacterTypeList.addOrGet(type).add(guid, newChar);
+	if (addToTypeList)
+	{
+		mCharacterTypeList.addOrGet(type).add(guid, newChar);
+	}
 	return newChar;
 }
 

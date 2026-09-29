@@ -1,5 +1,7 @@
 ﻿// auto generate start
 #include "EDTest.h"
+#include "ExcelTable.h"
+#include "SerializerRead.h"
 
 EDTest* EDTest::TEST_0 = nullptr;
 EDTest* EDTest::TEST_1 = nullptr;

@@ -1,10 +1,12 @@
 ﻿#include "FrameHeader.h"
 
 TCPClient::TCPClient():
+	mInternalPacketTCPCSThreadPool(new PacketTCPCSThreadPool()),
 	mSendBuffer(new StreamBuffer(FrameDefine::CLIENT_SEND_BUFFER)),
 	mWillSendBuffer0(new StreamBuffer(FrameDefine::CLIENT_SEND_BUFFER)),
 	mWillSendBuffer1(new StreamBuffer(FrameDefine::CLIENT_SEND_BUFFER)),
 	mRecvBuffer(new StreamBuffer(FrameDefine::CLIENT_RECV_BUFFER)),
+	mRecvReader(nullptr, 0),
 	mSendWriter(new SerializerBitWrite()),
 	mPacketDataBuffer(new SerializerBitWrite())
 {}
@@ -12,6 +14,8 @@ TCPClient::TCPClient():
 TCPClient::~TCPClient() 
 {
 	disconnect();
+	mInternalPacketTCPCSThreadPool->quit();
+	DELETE(mInternalPacketTCPCSThreadPool);
 	DELETE(mSendBuffer);
 	DELETE(mWillSendBuffer0);
 	DELETE(mWillSendBuffer1);
@@ -41,26 +45,37 @@ void TCPClient::disconnect()
 	mLastReceiveSequenceNumber = 0;
 	mExecutePacketList.clear();
 	mWillSendBuffer1Lock.unlock();
-	mPacketTCPCSThreadPool->notifyNewClassThreadDestroy();
+	mInternalPacketTCPCSThreadPool->notifyNewClassThreadDestroy();
+	mParsedCount = 0;
+	mSendBuffer->clear();
+	mWillSendBuffer0->clear();
+	mWillSendBuffer1->clear();
+	mRecvBuffer->clear();
+	mTempPacketList.clear();
 }
 
 void TCPClient::init(const string& ip, const ushort port)
 {
-	if (mWinsockInitialized)
+	// 判断TCP连接状态
+	if (isAvailable())
 	{
 		return;
 	}
+	mInternalPacketTCPCSThreadPool->init();
 	mServerIP = ip;
 	mServerPort = port;
 	// 初始化Socket环境
 #ifdef WINDOWS
-	WSADATA wsd;
-	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
+	if (!mWinsockInitialized)
 	{
-		ERROR("WSAStartup failed!");
-		return;
+		WSADATA wsd;
+		if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
+		{
+			ERROR("WSAStartup failed!");
+			return;
+		}
+		mWinsockInitialized = true;
 	}
-	mWinsockInitialized = true;
 #endif
 	// 创建监听的Socket
 	mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -82,11 +97,16 @@ void TCPClient::init(const string& ip, const ushort port)
 	// 连接服务器
 	if (connect(mSocket, (const struct sockaddr*)&addrServ, sizeof(SOCKADDR_IN)) != 0)
 	{
+#ifdef WINDOWS
+		const int errorCode = WSAGetLastError();
+#else
+		const int errorCode = errno;
+#endif
+		LOG(mServerName + "连接失败,IP:" + mServerIP + ",Port:" + IToS(mServerPort) + ",error:" + IToS(errorCode));
 		CLOSE_SOCKET(mSocket);
-		LOG("connect failed!");
 		return;
 	}
-	mWinsockInitialized = true;
+	LOG(mServerName + "连接成功,IP:" + mServerIP + ",Port:" + IToS(mServerPort));
 	mCurServerHeartBeatTime = mHeartBeatTimeOut;
 #ifndef STRESS_TEST
 	mSendThread = mThreadManager->createThread("TCPClient_SendSocket", [this] { sendThread(); });
@@ -132,84 +152,146 @@ void TCPClient::recvThread()
 
 bool TCPClient::processSend(bool needSelect)
 {
+	// 将待发送数据转移到真正的发送缓冲区
 	writeToSendBuffer();
 	if (mSendBuffer->getDataLength() == 0)
 	{
 		return true;
 	}
-	// select查看后立即返回
+
+	// select查看Socket是否可写
 	thread_local static timeval tv{ 0, 0 };
 	thread_local static fd_set fdwrite;
 	if (needSelect)
 	{
 		FD_ZERO(&fdwrite);
 		FD_SET(mSocket, &fdwrite);
-		// select第一个参数在windows中可以为0,但是在其他系统中需要设置
-		// 如果有客户端可写
-		if (select((int)mSocket + 1, nullptr, &fdwrite, nullptr, &tv) <= 0)
+		// Windows第一个参数会被忽略
+		// Linux下必须是最大fd + 1
+		const int selectResult = select((int)mSocket + 1, nullptr, &fdwrite, nullptr, &tv);
+		// 没有可写事件
+		if (selectResult == 0)
 		{
 			return true;
 		}
+		// select自身发生错误
+		if (selectResult < 0)
+		{
+#ifdef WINDOWS
+			const int errorCode = WSAGetLastError();
+			// 被信号中断,下次继续
+			if (errorCode == WSAEINTR)
+			{
+				return true;
+			}
+#else
+			const int errorCode = errno;
+			// 被信号中断,下次继续
+			if (errorCode == EINTR)
+			{
+				return true;
+			}
+#endif
+			LOG(mServerName + "发送select失败,error:" + IToS(errorCode));
+			delayCall([this]() { disconnect(); });
+			return false;
+		}
+		// 理论上select > 0时应该已经在集合中
 		if (!FD_ISSET(mSocket, &fdwrite))
 		{
 			return true;
 		}
 	}
-	// 因为send可能无法一次将所有数据都发送出去,所以需要一直检测是否发送完
+
+	// send不一定一次发送完,持续发送直到缓冲区为空
 	while (mSendBuffer->getDataLength() > 0)
 	{
-		const int thisSendCount = send(mSocket, mSendBuffer->getData(), mSendBuffer->getContiguousDataLength(), 0);
-		// 检查是否send有错误
+#ifdef LINUX
+		// 防止向已断开的Socket发送数据时触发SIGPIPE
+		const int flag = MSG_NOSIGNAL;
+#else
+		const int flag = 0;
+#endif
+		const int thisSendCount = send(mSocket, mSendBuffer->getData(), mSendBuffer->getContiguousDataLength(), flag);
 		if (thisSendCount > 0)
 		{
 #ifdef STRESS_TEST
 			mTCPServerSystem->mClientSendBytes += thisSendCount;
 #endif
 			mSendBuffer->removeDataFromFront(thisSendCount);
+			continue;
 		}
-		else
-		{
-			checkSendRecvError(thisSendCount);
-			return false;
-		}
+		// checkSendRecvError返回true表示连接真的断了,否则就是EAGAIN/EINTR等临时错误
+		// 未断开就暂时不能继续发送
+		// 剩余数据仍然保留在mSendBuffer中
+		// 下一次线程Update继续发送
+		return !checkSendRecvError(thisSendCount);
 	}
 	return true;
 }
 
 bool TCPClient::processRecv(bool needSelect)
 {
-	// select查看后立即返回
+	// select查看Socket是否可读
 	if (needSelect)
 	{
 		thread_local static timeval tv{ 0, 0 };
 		thread_local static fd_set fdread;
 		FD_ZERO(&fdread);
 		FD_SET(mSocket, &fdread);
-		// select第一个参数在windows中可以为0,但是在其他系统中需要设置
-		if (select((int)mSocket + 1, &fdread, nullptr, nullptr, &tv) <= 0)
+		const int selectResult = select((int)mSocket + 1, &fdread, nullptr, nullptr, &tv);
+		// 没有数据
+		if (selectResult == 0)
 		{
 			return true;
+		}
+
+		// select自身错误
+		if (selectResult < 0)
+		{
+#ifdef WINDOWS
+			const int errorCode = WSAGetLastError();
+			if (errorCode == WSAEINTR)
+			{
+				return true;
+			}
+#else
+			const int errorCode = errno;
+			if (errorCode == EINTR)
+			{
+				return true;
+			}
+#endif
+
+			LOG(mServerName + "接收select失败,error:" + IToS(errorCode));
+			delayCall([this](){ disconnect(); });
+			return false;
 		}
 		if (!FD_ISSET(mSocket, &fdread))
 		{
 			return true;
 		}
 	}
-	// 使用thread_local确保每个线程都有自己的静态变量,否则可能会出现冲突
+
+	// 使用thread_local确保不同TCPClient线程之间不会共用临时接收Buffer
 	thread_local static char recvBuffer[FrameDefine::CLIENT_RECV_BUFFER];
 	const int nRecv = recv(mSocket, recvBuffer, FrameDefine::CLIENT_RECV_BUFFER, 0);
 	if (nRecv <= 0)
 	{
-		checkSendRecvError(nRecv);
-		return false;
+		// checkSendRecvError的返回值
+		// nRecv == 0时返回true,表示对端正常关闭连接
+		// nRecv < 0 + EAGAIN/EINTR时返回false,表示临时错误
+		// nRecv < 0 + ECONNRESET时返回true,表示真正断线
+		return !checkSendRecvError(nRecv);
 	}
+
 #ifdef STRESS_TEST
 	mTCPServerSystem->mClientRecvBytes += nRecv;
 #endif
+	// 添加到TCP接收缓存
 	mRecvBuffer->addDataToBack(recvBuffer, nRecv);
-
 	MyString<256> reason;
-	// 解析接收到的数据
+	// 本次recv解析出来的消息
 	mTempPacketList.clear();
 	for (;;)
 	{
@@ -220,52 +302,76 @@ bool TCPClient::processRecv(bool needSelect)
 		PacketTCP* packet = nullptr;
 		int bitIndex = 0;
 		const PARSE_RESULT parseResult = packetRead(bitIndex, packet, reason);
-		// 未接收完全或者解析失败,继续等待接收
-		if (parseResult != PARSE_RESULT::SUCCESS)
+		if (parseResult == PARSE_RESULT::SUCCESS)
 		{
-			break;
+			mTempPacketList.add(packet);
+			// 删除已经解析完成的数据
+			mRecvBuffer->removeDataFromFront(bitCountToByteCount(bitIndex));
+			++mParsedCount;
+			continue;
 		}
-		mTempPacketList.add(packet);
-		// 将已经解析的数据移除
-		mRecvBuffer->removeDataFromFront(bitCountToByteCount(bitIndex));
-		++mParsedCount;
+		// NOT_ENOUGH时表示TCP半包,保留现有数据等待下一次recv,其他错误也只是等待下一次接受数据
+		break;
 	}
-	// 将解析后的消息列表同步到列表中
-	mExecutePacketList.add(mTempPacketList);
+
+	// 同步到主线程执行队列
+	if (!mTempPacketList.isEmpty())
+	{
+		mExecutePacketList.add(mTempPacketList);
+	}
 	return true;
 }
 
-void TCPClient::checkSendRecvError(const int successLength)
+bool TCPClient::checkSendRecvError(const int successLength)
 {
-	// 客户端可能已经与服务器断开了连接,先立即标记该客户端已断开,然后再移除
+	// recv返回0明确表示对端正常关闭连接
+	// 此时errno / WSAGetLastError没有意义
 	if (successLength == 0)
 	{
 		LOG(mServerName + "服务器主动关闭连接");
+		delayCall([this]() {disconnect(); });
+		return true;
 	}
-	else
+
+	// successLength < 0时必须立即读取错误码
+#ifdef WINDOWS
+	const int errorCode = WSAGetLastError();
+	// 临时错误,连接并没有断
+	if (errorCode == WSAEINTR || errorCode == WSAEWOULDBLOCK)
 	{
-		LOG(mServerName + "服务器recv或send返回值小于0");
+		return false;
 	}
-	delayCall([this]() { disconnect(); });
-	
+#else
 	const int errorCode = errno;
-	if (errorCode == 0)
+	// 临时错误,连接并没有断
+	if (errorCode == EINTR || errorCode == EAGAIN || errorCode == EWOULDBLOCK)
 	{
-		return;
+		return false;
 	}
-	LOG("错误码:" + IToS(errorCode));
+#endif
+
+	LOG(mServerName + "服务器recv或send失败,错误码:" + IToS(errorCode));
+
+#ifdef LINUX
 	if (errorCode == EPIPE)
 	{
-		LOG("管道损坏错误信号，error : EPIPE");
+		LOG("管道损坏错误信号,error:EPIPE");
 	}
-	else if (errorCode == EAGAIN)
+	else if (errorCode == ECONNRESET)
 	{
-		LOG("重试错误信号，error : EAGAIN");
+		LOG("连接被对端重置,error:ECONNRESET");
 	}
-	else if (errorCode == EBADMSG)
+	else if (errorCode == ECONNABORTED)
 	{
-		LOG("对端关闭了socket");
+		LOG("连接异常终止,error:ECONNABORTED");
 	}
+	else if (errorCode == ENOTCONN)
+	{
+		LOG("Socket已断开,error:ENOTCONN");
+	}
+#endif
+	delayCall([this]() { disconnect(); });
+	return true;
 }
 
 PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<256>& reason)
@@ -281,8 +387,9 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 	bool useFlag = false;
 	ullong fieldFlag = FrameDefine::FULL_FIELD_FLAG;
 	mRecvBuffer->linearize();
-	SerializerBitRead reader(mRecvBuffer->getData(), mRecvBuffer->getDataLength());
-	reader.setBitIndex(bitIndex);
+	mRecvReader.reset(mRecvBuffer->getData(), mRecvBuffer->getDataLength());
+	mRecvReader.setBitIndex(bitIndex);
+	SerializerBitRead& reader = mRecvReader;
 	if (!reader.readUnsigned(bodySize))
 	{
 		return PARSE_RESULT::NOT_ENOUGH;
@@ -327,6 +434,7 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 	{
 		return PARSE_RESULT::NOT_ENOUGH;
 	}
+	const int packetEndBitIndex = reader.getBitIndex();
 
 	// 解密包体数据
 	// bodyBuffer指向的是mRecvBuffer中的buffer,此buffer允许修改,所以此处强转为char*
@@ -339,7 +447,7 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 		return PARSE_RESULT::INVALID_PACKET_TYPE;
 	}
 	// 创建消息对象,并解析包体数据
-	packet = mPacketTCPCSThreadPool->newClass(packetType);
+	packet = mInternalPacketTCPCSThreadPool->newClass(packetType);
 	if (packet == nullptr)
 	{
 		reason.set("消息解析错误! 消息类型ID:" + IToS((int)packetType));
@@ -348,12 +456,12 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 	packet->setFieldFlag(fieldFlag);
 	if (bodyBuffer != nullptr)
 	{
-		SerializerBitRead reader(bodyBuffer, bodySize);
+		reader.reset(bodyBuffer, bodySize);
 		if (!packet->readFromBuffer(&reader, hasSign))
 		{
 			// 解析错误
 			// 延迟到主线程销毁消息包
-			delayCall([packet]() { auto* temp = packet; mPacketTCPCSThreadPool->destroyClass(temp); });
+			delayCall([this, packet]() { auto* temp = packet; mInternalPacketTCPCSThreadPool->destroyClass(temp); });
 			packet = nullptr;
 			reason.set("消息解析错误! 消息类型ID:" + IToS((int)packetType));
 			return PARSE_RESULT::PACKET_PARSE_FAILED;
@@ -364,7 +472,7 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 	if (crcCode != readCrc)
 	{
 		// 延迟到主线程销毁消息包
-		delayCall([packet]() { auto* temp = packet; mPacketTCPCSThreadPool->destroyClass(temp); });
+		delayCall([this, packet]() { auto* temp = packet; mInternalPacketTCPCSThreadPool->destroyClass(temp); });
 		packet = nullptr;
 		reason.set("crc check error");
 		return PARSE_RESULT::CRC_ERROR;
@@ -378,14 +486,14 @@ PARSE_RESULT TCPClient::packetRead(int& bitIndex, PacketTCP*& packet, MyString<2
 							", 已接收包数量:" + UIToS(mParsedCount) + ", 当前包序列号:" + IToS(sequenceNumber);
 		LOG(info);
 		// 延迟到主线程销毁消息包
-		delayCall([packet]() { auto* temp = packet; mPacketTCPCSThreadPool->destroyClass(temp); });
+		delayCall([this, packet]() { auto* temp = packet; mInternalPacketTCPCSThreadPool->destroyClass(temp); });
 		packet = nullptr;
 		reason.set("sequence number check error! lastNumber:" + IToS(mLastReceiveSequenceNumber) +
 					", receiveNumber:" + IToS(sequenceNumber));
 		return PARSE_RESULT::SEQUENCE_NUMBER_ERROR;
 	}
 	mLastReceiveSequenceNumber = sequenceNumber;
-	bitIndex = reader.getBitIndex();
+	bitIndex = packetEndBitIndex;
 #ifdef STRESS_TEST
 	++mTCPServerSystem->mClientRecvPacket;
 #endif
@@ -415,13 +523,13 @@ void TCPClient::update(const float elapsedTime)
 				packetReply->execute();
 				if (!mWillDestroyPackets.add(packetReply))
 				{
-					mPacketTCPCSThreadPool->destroyClassList(mWillDestroyPackets);
+					mInternalPacketTCPCSThreadPool->destroyClassList(mWillDestroyPackets);
 					mWillDestroyPackets.add(packetReply);
 				}
 			}
 			if (!mWillDestroyPackets.isEmpty())
 			{
-				mPacketTCPCSThreadPool->destroyClassList(mWillDestroyPackets);
+				mInternalPacketTCPCSThreadPool->destroyClassList(mWillDestroyPackets);
 			}
 		}
 	}

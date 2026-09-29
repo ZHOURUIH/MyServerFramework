@@ -19,6 +19,7 @@ public:
 	typedef Value ValueType;
 public:
 	SafeHashMap(int capacity = 8) :
+		mUpdateList(capacity),
 		mMainList(capacity)
 	{}
 	virtual ~SafeHashMap() { clear(); }
@@ -121,6 +122,11 @@ public:
 			mUpdateList.remove(key);
 		}
 		return true;
+	}
+	void reserve(const int capacity)
+	{
+		mMainList.reserve(capacity);
+		mUpdateList.reserve(capacity);
 	}
 	// Safe类型的容器不能使用tryInsert等返回引用的函数,这样会导致遍历的列表和存储的列表不一致,因为没办法将两个列表的引用返回出去
 	// 清空所有数据,不能正在遍历时调用

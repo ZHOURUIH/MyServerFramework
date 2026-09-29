@@ -4,6 +4,8 @@
 
 class MICRO_LEGEND_FRAME_API UnitTest
 {
+#ifdef WINDOWS
 public:
 	static void test();
+#endif
 };

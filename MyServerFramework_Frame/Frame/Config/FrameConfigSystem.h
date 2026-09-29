@@ -9,7 +9,7 @@ class MICRO_LEGEND_FRAME_API FrameConfigSystem : public FrameComponent
 public:
 	~FrameConfigSystem() override { destory(); }
 	void init() override;
-	void destory() {}
+	void destory();
 	int getTCPPort() const							{ return mTCPPort; }
 	int getUDPPort() const							{ return mUDPPort; }
 	int getWebSocketPort() const					{ return mWebSocketPort; }
@@ -28,6 +28,12 @@ public:
 	const string& getMySQLDataBase() const			{ return mMySQLDataBase; }
 	const string& getSSLCertificationFile() const	{ return mSSLCertificationFile; }
 	const string& getSSLPrivateKeyFile() const		{ return mSSLPrivateKeyFile; }
+	const byte* getEncryptKey() const				{ return mEncryptKey; }
+	int getEncryptKeyLength() const					{ return mEncryptKeyLength; }
+	int getKey0() const								{ return mKey0; }
+	int getKey1() const								{ return mKey1; }
+	int getKey2() const								{ return mKey2; }
+	int getKey3() const								{ return mKey3; }
 	static Vector<pair<string, string>> parseConfig(const string& fileName);
 protected:
 	void readConfig(const Vector<pair<string, string>>& valueList);
@@ -42,6 +48,12 @@ protected:
 	int mShowCommandDebugLog = 0;		// 是否显示命令调试信息
 	int mOutputNetLog = 0;				// 是否显示网络日志信息
 	int mMySQLPortNumber = 0;			// 数据库端口号
+	int mKey0 = 0;						// 网络消息的辅助密钥0
+	int mKey1 = 0;						// 网络消息的辅助密钥1
+	int mKey2 = 0;						// 网络消息的辅助密钥2
+	int mKey3 = 0;						// 网络消息的辅助密钥3
+	byte* mEncryptKey = nullptr;		// 网络消息的密钥
+	int mEncryptKeyLength = 0;			// 网络消息的密钥mEncryptKey的长度
 	string mDomainName;					// 连接的服务器域名
 	string mServerName;					// 服务器名字
 	string mMySQLHost;					// 数据库域名或者IP

@@ -16,6 +16,14 @@ public:
 	void lateInit() override;
 	void finalInit() override;
 	void quit() override;
+	void setToolMode(bool toolMode) { mToolMode = toolMode; }
+	bool isToolMode() const { return mToolMode; }
+	bool selectDatabase(const string& database);
+	bool createDatabase(const string& database);
+	bool dropDatabase(const string& database);
+	bool executeToolSQL(const string& sql) const;
+	void clearAllTableCache();
+	void initializeCurrentDatabaseTables();
 	template<typename T, typename TypeCheck = typename IsSubClassOf<MySQLTable, T>::mType>
 	T* registeTable(const char* name)
 	{
@@ -30,6 +38,7 @@ public:
 	void startTransaction(bool check = true) const;
 	// 结束事务
 	void commit() const;
+	void rollback() const;
 	bool isInTransaction() const { return mInTransaction; }
 	bool connectDataBase();
 	void destroyMySQL();
@@ -45,6 +54,8 @@ public:
 	MYSQL* mMySQL = nullptr;
 	float mCurTimeCount = 0.0f;
 	atomic<bool> mInTransaction;
+	string mCurrentDatabase;
+	bool mToolMode = false;
 	static constexpr float mTimeOut = 60.0f;
 };
 

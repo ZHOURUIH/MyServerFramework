@@ -82,6 +82,9 @@
     <Filter Include="Frame\Dependency\curl">
       <UniqueIdentifier>{efbdea5b-d8db-4165-a482-99860ab34980}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Frame\Dependency\EasyECS">
+      <UniqueIdentifier>{75069f94-0953-43fb-801d-4805690a97e7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Frame\Dependency\json">
       <UniqueIdentifier>{e2d40187-3b39-43e9-afe0-fd53012a7b0b}</UniqueIdentifier>
     </Filter>
@@ -189,6 +192,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Frame\EasyECS.generated.h">
+      <Filter>Frame</Filter>
+    </ClInclude>
     <ClInclude Include="Frame\Character\Character.cpp">
       <Filter>Frame\Character</Filter>
     </ClInclude>
@@ -540,9 +546,6 @@
     <ClInclude Include="Frame\Common\CrashHandler.h">
       <Filter>Frame\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\Common\DoubleBuffer.cpp">
-      <Filter>Frame\Common</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\Common\DoubleBuffer.h">
       <Filter>Frame\Common</Filter>
     </ClInclude>
@@ -857,6 +860,12 @@
     </ClInclude>
     <ClInclude Include="Frame\Dependency\curl\urlapi.h">
       <Filter>Frame\Dependency\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\EasyECS\EasyECS.h">
+      <Filter>Frame\Dependency\EasyECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Dependency\EasyECS\EasyECSIndexMap.h">
+      <Filter>Frame\Dependency\EasyECS</Filter>
     </ClInclude>
     <ClInclude Include="Frame\Dependency\json\assertions.h">
       <Filter>Frame\Dependency\json</Filter>
@@ -1329,6 +1338,9 @@
     <ClInclude Include="Frame\Net\TCPClient\TCPClient.h">
       <Filter>Frame\Net\TCPClient</Filter>
     </ClInclude>
+    <ClInclude Include="Frame\Net\TCPServer\EncryptLookupTable.h">
+      <Filter>Frame\Net\TCPServer</Filter>
+    </ClInclude>
     <ClInclude Include="Frame\Net\TCPServer\TCPServerClient.cpp">
       <Filter>Frame\Net\TCPServer</Filter>
     </ClInclude>
@@ -1455,6 +1467,12 @@
     <ClInclude Include="Frame\STL\Queue.h">
       <Filter>Frame\STL</Filter>
     </ClInclude>
+    <ClInclude Include="Frame\STL\SafeFastDeepVector.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\STL\SafeFastDeepVectorScope.h">
+      <Filter>Frame\STL</Filter>
+    </ClInclude>
     <ClInclude Include="Frame\STL\SafeHashMap.h">
       <Filter>Frame\STL</Filter>
     </ClInclude>
@@ -1471,9 +1489,6 @@
       <Filter>Frame\STL</Filter>
     </ClInclude>
     <ClInclude Include="Frame\STL\SafeVector.h">
-      <Filter>Frame\STL</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\STL\SafeVector0.h">
       <Filter>Frame\STL</Filter>
     </ClInclude>
     <ClInclude Include="Frame\STL\SafeVectorScope.h">
@@ -1495,6 +1510,9 @@
       <Filter>Frame\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Frame\Thread\CustomThread.h">
+      <Filter>Frame\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\Thread\ThreadEvent.h">
       <Filter>Frame\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Frame\Thread\ThreadLock.cpp">
@@ -1596,16 +1614,10 @@
     <ClInclude Include="Frame\UnitTest\AnimationCurveTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayExtTest.cpp">
+    <ClInclude Include="Frame\UnitTest\ArrayListTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayListExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayListExtTest.h">
+    <ClInclude Include="Frame\UnitTest\ArrayListTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\ArrayPoolSingleTest.cpp">
@@ -1614,16 +1626,16 @@
     <ClInclude Include="Frame\UnitTest\ArrayPoolSingleTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayScopeDeepTest.cpp">
+    <ClInclude Include="Frame\UnitTest\ArrayScopeTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ArrayScopeDeepTest.h">
+    <ClInclude Include="Frame\UnitTest\ArrayScopeTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\BinaryUtilityDeepTest.cpp">
+    <ClInclude Include="Frame\UnitTest\ArrayTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\BinaryUtilityDeepTest.h">
+    <ClInclude Include="Frame\UnitTest\ArrayTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\BinaryUtilityTest.cpp">
@@ -1668,22 +1680,10 @@
     <ClInclude Include="Frame\UnitTest\ClassTypePoolTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ColorQuaternionTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ColorQuaternionTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\UnitTest\CommandReceiverTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\CommandReceiverTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ContainerTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\ContainerTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\CRC16Test.cpp">
@@ -1696,12 +1696,6 @@
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\DoubleBufferTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\EventSystemExtendedTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\EventSystemExtendedTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\EventSystemTest.cpp">
@@ -1722,12 +1716,6 @@
     <ClInclude Include="Frame\UnitTest\FileContentTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\FileUtilityDeepTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\FileUtilityDeepTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\UnitTest\FileUtilityTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
@@ -1746,16 +1734,10 @@
     <ClInclude Include="Frame\UnitTest\GeometryTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\HashMapBoundaryTest.cpp">
+    <ClInclude Include="Frame\UnitTest\HashMapTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\HashMapBoundaryTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\HashMapExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\HashMapExtTest.h">
+    <ClInclude Include="Frame\UnitTest\HashMapTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\IntPoolThreadTest.cpp">
@@ -1782,34 +1764,16 @@
     <ClInclude Include="Frame\UnitTest\LogInfoTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MapExtTest.cpp">
+    <ClInclude Include="Frame\UnitTest\MapTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MapExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathExtTest.h">
+    <ClInclude Include="Frame\UnitTest\MapTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\MathStructTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\MathStructTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathUtilityDeepTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MathUtilityDeepTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\MathUtilityTest.cpp">
@@ -1842,10 +1806,10 @@
     <ClInclude Include="Frame\UnitTest\MySQLCacheTableTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MyStringEdgeTest.cpp">
+    <ClInclude Include="Frame\UnitTest\MyStringTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\MyStringEdgeTest.h">
+    <ClInclude Include="Frame\UnitTest\MyStringTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\PacketTest.cpp">
@@ -1866,10 +1830,10 @@
     <ClInclude Include="Frame\UnitTest\ProfilerScopeTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\QueueAndModifyTest.cpp">
+    <ClInclude Include="Frame\UnitTest\QueueTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\QueueAndModifyTest.h">
+    <ClInclude Include="Frame\UnitTest\QueueTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\QuickSortTest.cpp">
@@ -1884,10 +1848,10 @@
     <ClInclude Include="Frame\UnitTest\RandomSystemTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SafeContainerTest.cpp">
+    <ClInclude Include="Frame\UnitTest\SafeFastDeepVectorTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SafeContainerTest.h">
+    <ClInclude Include="Frame\UnitTest\SafeFastDeepVectorTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SafeHashMapTest.cpp">
@@ -1908,22 +1872,16 @@
     <ClInclude Include="Frame\UnitTest\SafeScopeContainerTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SafeVector0Test.cpp">
+    <ClInclude Include="Frame\UnitTest\SafeSetTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SafeVector0Test.h">
+    <ClInclude Include="Frame\UnitTest\SafeSetTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SafeVectorTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SafeVectorTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SerializerBitRoundTripTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SerializerBitRoundTripTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SerializerTest.cpp">
@@ -1938,10 +1896,10 @@
     <ClInclude Include="Frame\UnitTest\SerializeTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SetExtTest.cpp">
+    <ClInclude Include="Frame\UnitTest\SetTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SetExtTest.h">
+    <ClInclude Include="Frame\UnitTest\SetTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SingletonTest.cpp">
@@ -1956,34 +1914,10 @@
     <ClInclude Include="Frame\UnitTest\SPSCQueueTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StackExtTest.cpp">
+    <ClInclude Include="Frame\UnitTest\StackTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StackExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\STLExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\STLExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferEdgeTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferEdgeTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferSwapLinearizeTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\StreamBufferSwapLinearizeTest.h">
+    <ClInclude Include="Frame\UnitTest\StackTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\StreamBufferTest.cpp">
@@ -1998,22 +1932,16 @@
     <ClInclude Include="Frame\UnitTest\StringUtilityTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SystemExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SystemExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SystemTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\SystemTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\UnitTest\SystemUtilityTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\SystemUtilityTest.h">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\TCPServerIOBenchmark.cpp">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\TCPServerIOBenchmark.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\ThreadLockTest.cpp">
@@ -2034,16 +1962,10 @@
     <ClInclude Include="Frame\UnitTest\TimePointTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\TimeValueExtTest.cpp">
+    <ClInclude Include="Frame\UnitTest\TimeValueTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\TimeValueExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\TypeUtilityExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\TypeUtilityExtTest.h">
+    <ClInclude Include="Frame\UnitTest\TimeValueTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\TypeUtilityTest.cpp">
@@ -2058,46 +1980,22 @@
     <ClInclude Include="Frame\UnitTest\UnitTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\UtilityTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\UtilityTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\UnitTest\ValueModifyTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\ValueModifyTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector2ExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector2ExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector3ExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector3ExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector4ExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\Vector4ExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\VectorExtTest.cpp">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="Frame\UnitTest\VectorExtTest.h">
-      <Filter>Frame\UnitTest</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\UnitTest\VectorPoolTest.cpp">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\UnitTest\VectorPoolTest.h">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\VectorTest.cpp">
+      <Filter>Frame\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\UnitTest\VectorTest.h">
       <Filter>Frame\UnitTest</Filter>
     </ClInclude>
     <ClInclude Include="Frame\Utility\BinaryUtility.cpp">
@@ -2201,7 +2099,70 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Frame\UnityBuildFrame.cpp">
+    <ClCompile Include="Frame\UnityBuildFrame_A_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_B_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_C_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_D_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_E_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_F_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_G_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_H_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_I_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_J_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_K_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_L_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_M_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_O_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_P_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_Q_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_R_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_S_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_T_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_U_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_V_0.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\UnityBuildFrame_W_0.cpp">
       <Filter>Frame</Filter>
     </ClCompile>
     <ClCompile Include="Frame\Dependency\lz4\lz4.c">

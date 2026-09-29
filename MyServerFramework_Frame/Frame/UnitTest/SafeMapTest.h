@@ -3,6 +3,7 @@
 
 class MICRO_LEGEND_FRAME_API SafeMapTest
 {
+#ifdef WINDOWS
 public:
 	static void test();
 private:
@@ -30,4 +31,13 @@ private:
 	static void testSafeMapForeachAllRead();
 	static void testSafeMapAddThenEraseInForeach();
 	static void testSafeMapChainInsertErase();
+	static void testSafeMapBasicInsert();
+	static void testSafeMapBasicErase();
+	static void testSafeMapContainerContains();
+	static void testSafeMapContainerTryGet();
+	static void testSafeMapContainerClear();
+	static void testSafeMapContainerInsertDuringForeach();
+	static void testSafeMapContainerEraseDuringForeach();
+	static void testSafeMapSizeAndEmpty();
+#endif
 };

@@ -33,6 +33,7 @@ public:
 			data->read(&reader);
 			mDataList.add(data->mID, data);
 		}
+		T::postLoadAll(this);
 	}
 	T* getData(const int id, const bool showError = true) const 
 	{

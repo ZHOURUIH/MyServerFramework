@@ -71,13 +71,16 @@ void UDPServerClient::sendPacket(PacketTCP* packet, const llong token, const soc
 void UDPServerClient::processSend(MY_SOCKET socket)
 {
 	static HashMap<llong, pair<sockaddr_in, Vector<pair<char*, int>>>> tempSendList;
+	// 这里只作为快速判断,即使并发误判也没有关系
 	if (mSendList.isEmpty())
 	{
 		return;
 	}
+
 	{
 		tempSendList.clear();
-		// 将待发送消息移动到临时列表,避免发送过程中一直锁住mSendList
+		// 将待发送消息移动到临时列表
+		// 避免发送过程中一直锁住mSendList
 		THREAD_LOCK(mSendListLock);
 		for (const auto& iter : mSendList)
 		{
@@ -95,13 +98,96 @@ void UDPServerClient::processSend(MY_SOCKET socket)
 			}
 		}
 	}
-	for (const auto& iter : tempSendList)
+	for (auto& iter : tempSendList)
 	{
+		const llong token = iter.first;
 		const sockaddr_in& addr = iter.second.first;
-		for (const auto& item : iter.second.second)
+		auto& sendList = iter.second.second;
+		const int count = sendList.size();
+		bool needRetryNextFrame = false;
+		for (int i = 0; i < count; ++i)
 		{
-			sendto(socket, item.first, item.second, 0, (sockaddr*)&addr, sizeof(addr));
-			delete[] item.first;
+			char* data = sendList[i].first;
+			const int dataSize = sendList[i].second;
+			for (;;)
+			{
+				const int sendCount = sendto(socket, data, dataSize, 0, (sockaddr*)&addr, sizeof(addr));
+				if (sendCount >= 0)
+				{
+					// UDP正常情况下要么整个数据报发送成功,
+					// 要么直接失败,不会出现TCP那种部分发送
+					delete[] data;
+					break;
+				}
+#ifdef WINDOWS
+				const int errorCode = WSAGetLastError();
+				if (errorCode == WSAEINTR)
+				{
+					// 被中断,重新发送当前UDP包
+					continue;
+				}
+				if (errorCode == WSAEWOULDBLOCK)
+				{
+					// 当前发送缓冲区暂时满
+					// 当前包以及后面的包重新放回发送队列
+					THREAD_LOCK(mSendListLock);
+					UDPClientInfo* info = mSendList.get(token);
+					if (info == nullptr)
+					{
+						info = new UDPClientInfo();
+						info->setToken(token);
+						mSendList.add(token, info);
+					}
+					info->setAddress(addr);
+					for (int j = i; j < count; ++j)
+					{
+						info->addSendData(sendList[j].first, sendList[j].second);
+					}
+					// 这些数据所有权已经重新交给mSendList
+					needRetryNextFrame = true;
+					break;
+				}
+#else
+				const int errorCode = errno;
+				if (errorCode == EINTR)
+				{
+					continue;
+				}
+				if (errorCode == EAGAIN || errorCode == EWOULDBLOCK)
+				{
+					// 当前发送缓冲区暂时满
+					// 当前包以及后面的包重新放回发送队列
+					THREAD_LOCK(mSendListLock);
+					UDPClientInfo* info = mSendList.get(token);
+					if (info == nullptr)
+					{
+						info = new UDPClientInfo();
+						info->setToken(token);
+						mSendList.add(token, info);
+					}
+					info->setAddress(addr);
+					for (int j = i; j < count; ++j)
+					{
+						info->addSendData(sendList[j].first, sendList[j].second);
+					}
+					// 这些数据所有权已经重新交给mSendList
+					needRetryNextFrame = true;
+					break;
+				}
+#endif
+				// UDP没有连接需要断开
+				// 其他错误记录日志并丢弃当前数据报
+				LOG("UDP sendto失败,error:" + IToS(errorCode));
+				delete[] data;
+				break;
+			}
+
+			// 当前包以及后续数据已经重新放回发送队列
+			// 当前客户端本轮不再继续发送
+			if (needRetryNextFrame)
+			{
+				break;
+			}
 		}
 	}
 }
@@ -198,6 +284,12 @@ PARSE_RESULT UDPServerClient::packetRead(const char* buffer, const int dataLengt
 	{
 		return PARSE_RESULT::NOT_ENOUGH;
 	}
+	// CRC校验
+	if (crcCode != readCrc)
+	{
+		return PARSE_RESULT::CRC_ERROR;
+	}
+	const int packetEndBitIndex = reader.getBitIndex();
 	// 解密包体数据
 	// bodyBuffer指向的是buffer,此buffer允许修改,所以此处强转为char*
 	TCPServerSystem::decrypt((char*)bodyBuffer, (int)bodySize, 0);
@@ -216,24 +308,19 @@ PARSE_RESULT UDPServerClient::packetRead(const char* buffer, const int dataLengt
 	packet->setFieldFlag(fieldFlag);
 	if (bodyBuffer != nullptr)
 	{
-		SerializerBitRead bodyReader(bodyBuffer, (int)bodySize);
-		if (!packet->readFromBuffer(&bodyReader, hasSign))
+		reader.reset(bodyBuffer, (int)bodySize);
+		if (!packet->readFromBuffer(&reader, hasSign))
 		{
 			// 延迟到主线程销毁
-			delayCall([packet]() { auto* temp = packet; mPacketUDPThreadPool->destroyClass(temp); });
+			delayCall([packet]()
+			{
+				PacketTCP* temp = packet; 
+				mPacketUDPThreadPool->destroyClass(temp); 
+			});
 			packet = nullptr;
 			return PARSE_RESULT::PACKET_PARSE_FAILED;
 		}
 	}
-
-	// CRC校验
-	if (crcCode != readCrc)
-	{
-		// 延迟到主线程销毁
-		delayCall([packet]() { auto* temp = packet; mPacketUDPThreadPool->destroyClass(temp); });
-		packet = nullptr;
-		return PARSE_RESULT::CRC_ERROR;
-	}
-	bitIndex = reader.getBitIndex();
+	bitIndex = packetEndBitIndex;
 	return PARSE_RESULT::SUCCESS;
 }

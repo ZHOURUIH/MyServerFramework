@@ -1,5 +1,7 @@
 ﻿// auto generate start
 #include "EDGlobal.h"
+#include "ExcelTable.h"
+#include "SerializerRead.h"
 
 Vector2Int EDGlobal::TEST_GLOBAL_3;
 Vector2 EDGlobal::TEST_GLOBAL_4;
@@ -12,8 +14,9 @@ string EDGlobal::TEST_GLOBAL_10;
 
 void EDGlobal::postLoadAll(ExcelTableBase* tableBase)
 {
+	auto* table = static_cast<ExcelTable<This>*>(tableBase);
 	Map<string, string> paramMap;
-	for (const auto& item : mExcelGlobal->getAllData())
+	for (const auto& item : table->getAllData())
 	{
 		removeAll(item.second->mParamValue, ' ');
 		paramMap.add(item.second->mParamName, item.second->mParamValue);

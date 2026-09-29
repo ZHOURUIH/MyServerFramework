@@ -1,19 +1,17 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
+#include "TCPServerIOBenchmark.h"
 
 void UnitTest::test()
 {
+	llong start = getRealTimeMS();
 	LOG("开始单元测试...");
+	//TCPServerIOBenchmark::test();
 #ifdef _MYSQL
 	MySQLCacheTableTest::test();
 	MySQLCacheDataTest::test();
 #endif
 	SerializeTest::test();
-	UtilityTest::test();
-	MathTest::test();
-	ContainerTest::test();
-	MathExtTest::test();
-	STLExtTest::test();
-	SystemTest::test();
 	FrameUtilityTest::test();
 	PacketTest::test();
 	GeometryTest::test();
@@ -21,25 +19,21 @@ void UnitTest::test()
 	TimePointTest::test();
 	AnimationCurveTest::test();
 	FileContentTest::test();
-	FileUtilityDeepTest::test();
 	MathUtilityTest::test();
 	SafeVectorTest::test();
 	BinaryUtilityTest::test();
 	DoubleBufferTest::test();
 	ClassPoolTest::test();
-	VectorExtTest::test();
-	HashMapExtTest::test();
+	VectorTest::test();
+	HashMapTest::test();
 	MathStructTest::test();
 	TypeUtilityTest::test();
 	FileUtilityTest::test();
-	SystemExtTest::test();
-	ArrayExtTest::test();
-	QueueAndModifyTest::test();
-	StreamBufferExtTest::test();
-	MapExtTest::test();
-	SetExtTest::test();
-	StackExtTest::test();
-	ArrayListExtTest::test();
+	ArrayTest::test();
+	MapTest::test();
+	SetTest::test();
+	StackTest::test();
+	ArrayListTest::test();
 	SingletonTest::test();
 	ClassTypePoolTest::test();
 	ClassBaseTypePoolTest::test();
@@ -51,41 +45,33 @@ void UnitTest::test()
 	SystemUtilityTest::test();
 	ClassKeyPoolTest::test();
 	ValueModifyTest::test();
+	QueueTest::test();
 	ArrayPoolSingleTest::test();
 	IsPODTypeTraitsTest::test();
-	SafeContainerTest::test();
 	ClassObjectTest::test();
 	PodPoolThreadTest::test();
 	SafeScopeContainerTest::test();
-	ColorQuaternionTest::test();
 	SafeMapTest::test();
 	IntPoolThreadTest::test();
 	ThreadLockTest::test();
 	TickerTest::test();
-	ArrayScopeDeepTest::test();
-	TimeValueExtTest::test();
+	ArrayScopeTest::test();
+	TimeValueTest::test();
 	SafeHashMapTest::test();
-	Vector3ExtTest::test();
-	Vector2ExtTest::test();
-	Vector4ExtTest::test();
-	TypeUtilityExtTest::test();
 	StringUtilityTest::test();
 	EventSystemTest::test();
-	EventSystemExtendedTest::test();
 	SPSCQueueTest::test();
 	QuickSortTest::test();
-	StreamBufferSwapLinearizeTest::test();
 	CRC16Test::test();
-	SerializerBitRoundTripTest::test();
-	HashMapBoundaryTest::test();
 	FactoryManagerTest::test();
 	LogFileInfoTest::test();
 	LogInfoTest::test();
-	SafeVector0Test::test();
+	SafeFastDeepVectorTest::test();
 	MovableObjectTest::test();
 	CharacterTest::test();
 	CommandReceiverTest::test();
-	StreamBufferEdgeTest::test();
-	MyStringEdgeTest::test();
-	LOG("结束单元测试...");
+	MyStringTest::test();
+	SafeSetTest::test();
+	LOG("结束单元测试...耗时:" + IToS((int)(getRealTimeMS() - start)) + "毫秒");
 }
+#endif

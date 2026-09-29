@@ -10,7 +10,7 @@ class MICRO_LEGEND_FRAME_API StateParam : public ClassObject
 {
 	BASE(StateParam, ClassObject);
 public:
-	// 这里拷贝原始参数是为了同步到客户端时使用
+	// 这里拷贝原始参数是为了同步到客户端时使用,子类中需要自己去逐个拷贝所有的参数
 	virtual void initFromCopy(StateParam* other)				{ mParamSet.initFromCopy(&(other->mParamSet)); }
 	virtual void afterGenerateExtraParam() {}
 	const Vector<StateParamMember>& getParamMemberList() const	{ return mParamSet.getParamMemberList(); }

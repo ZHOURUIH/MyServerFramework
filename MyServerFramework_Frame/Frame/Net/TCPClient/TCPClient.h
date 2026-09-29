@@ -2,6 +2,8 @@
 
 #include "ThreadLock.h"
 #include "DoubleBuffer.h"
+#include "SerializerBitRead.h"
+#include "PacketTCPCSThreadPool.h"
 
 // 当前程序是一个TCP客户端
 class MICRO_LEGEND_FRAME_API TCPClient
@@ -26,8 +28,9 @@ protected:
 	virtual void heartBeat() {}
 	bool processSend(bool needSelect);
 	bool processRecv(bool needSelect);
-	void checkSendRecvError(int successLength);
+	bool checkSendRecvError(int successLength);
 protected:
+	PacketTCPCSThreadPool* mInternalPacketTCPCSThreadPool = nullptr;	// 每个实例有自己的对象池,可能会有多个TCPClient实例,避免多线程访问冲突
 #ifndef STRESS_TEST
 	CustomThread* mSendThread = nullptr;			// 发送线程
 	CustomThread* mReceiveThread = nullptr;			// 接收线程
@@ -38,6 +41,7 @@ protected:
 	StreamBuffer* mWillSendBuffer0 = nullptr;		// 缓存一帧的客户端发送数据缓冲区,只在主线程访问
 	StreamBuffer* mWillSendBuffer1 = nullptr;		// Send线程中每帧写入到mSendBuffer,在主线程和Send线程访问
 	StreamBuffer* mRecvBuffer = nullptr;			// 客户端接收数据缓冲区
+	SerializerBitRead mRecvReader;			// 只在接收线程解析消息时使用,避免每个消息重复构造Reader
 	SerializerBitWrite* mSendWriter = nullptr;		// 只在发送消息时用将要发送的数据写入到发送缓冲区,避免频繁构造析构
 	SerializerBitWrite* mPacketDataBuffer = nullptr;// 用于在发送消息时消息序列化,序列化以后再加密然后写入到发送缓冲区,之前是存在Packet中,每个Packet都有一个,但是那样很占内存
 	ThreadLock mWillSendBuffer1Lock;				// mWillSendBuffer1的线程锁

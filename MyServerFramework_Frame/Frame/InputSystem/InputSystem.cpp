@@ -18,6 +18,27 @@ void InputSystem::quit()
 	mCurCharList.clear();
 }
 
+void InputSystem::update(float elapsedTime)
+{
+#ifdef WINDOWS
+	static Array<52, int> KEY_ARRAY{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
+									 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U' ,'V', 'W', 'X', 'Y', 'Z',
+									 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
+									 'n', 'o', 'p', 'q', 'r', 's', 't', 'u' ,'v', 'w', 'x', 'y', 'z' };
+	FOR(KEY_ARRAY.size())
+	{
+		if (GetAsyncKeyState(KEY_ARRAY[i]) & 0x8000)
+		{
+			keyDown(KEY_ARRAY[i]);
+		}
+		else
+		{
+			keyUp(KEY_ARRAY[i]);
+		}
+	}
+#endif
+}
+
 void InputSystem::lateUpdate(const float elapsedTime)
 {
 	for (auto& iter : mKeyState)

@@ -103,6 +103,14 @@ public:
 	{
 		return mSet.insert(elem).second;
 	}
+	bool addIf(const T& elem, bool condition)
+	{
+		if (!condition)
+		{
+			return false;
+		}
+		return mSet.insert(elem).second;
+	}
 	// 因为要兼容T类型的派生类,所以定义了一个新的类型
 	template<typename TElement>
 	void addRange(const Set<TElement>& other)

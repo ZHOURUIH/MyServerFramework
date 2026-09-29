@@ -1,14 +1,17 @@
-﻿#ifdef _MYSQL
+﻿#ifdef WINDOWS
+#ifdef _MYSQL
 #include "FrameHeader.h"
 
-namespace
+namespace MySQLCacheDataTestLocal
 {
 #define MCD_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("MySQLCacheDataTest FAILED: ") + (msg)); } } while(0)
+}
 
-	// ========== resetProperty: 重置为默认状态 ==========
-	static void testResetProperty()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testResetProperty()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		// 构造后直接 resetProperty
 		data.resetProperty();
@@ -17,10 +20,12 @@ namespace
 		MCD_ASSERT(data.isColumnValid(0) == false, "column 0 should be invalid after reset");
 		MCD_ASSERT(data.isColumnValid(63) == false, "column 63 should be invalid after reset");
 	}
+#endif
 
-	// ========== addValidFlag / getValidFlag: 标记累积 ==========
-	static void testAddValidFlag()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testAddValidFlag()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		data.resetProperty();
 
@@ -37,10 +42,12 @@ namespace
 		data.addValidFlag(1);
 		MCD_ASSERT(data.getValidFlag() == expected, "re-adding same flag should not change value");
 	}
+#endif
 
-	// ========== setColumnValid / isColumnValid: 单个字段有效性 ==========
-	static void testSetAndCheckColumnValid()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testSetAndCheckColumnValid()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		data.resetProperty();
 
@@ -70,10 +77,12 @@ namespace
 		data.setColumnValid(2);
 		MCD_ASSERT(data.isColumnValid(2) == true, "re-setting column 2 should still be valid");
 	}
+#endif
 
-	// ========== isColumnNameValid: colName 门槛检查 ==========
-	static void testIsColumnNameValid()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testIsColumnNameValid()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		data.resetProperty();
 
@@ -88,10 +97,12 @@ namespace
 		data.setColumnValid(0);
 		MCD_ASSERT(data.isColumnNameValid(0) == true, "colName=0 set valid => true");
 	}
+#endif
 
-	// ========== isColumnNamesValid: 非空 colNames 列表 ==========
-	static void testIsColumnNamesValid_NonEmpty()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testIsColumnNamesValid_NonEmpty()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		data.resetProperty();
 
@@ -146,10 +157,12 @@ namespace
 			MCD_ASSERT(data.isColumnNamesValid(cols) == false, "colName < 0 in list => false");
 		}
 	}
+#endif
 
-	// ========== validFlag 与 setColumnValid 一致 ==========
-	static void testValidFlagConsistency()
-	{
+#ifdef _MYSQL
+void MySQLCacheDataTest::testValidFlagConsistency()
+{
+	using namespace MySQLCacheDataTestLocal;
 		MySQLCacheData data;
 		data.resetProperty();
 
@@ -160,7 +173,7 @@ namespace
 		ullong expected = (1ULL << 0) | (1ULL << 10) | (1ULL << 20);
 		MCD_ASSERT(data.getValidFlag() == expected, "validFlag should match set columns");
 	}
-}
+#endif
 
 void MySQLCacheDataTest::test()
 {
@@ -171,4 +184,5 @@ void MySQLCacheDataTest::test()
 	testIsColumnNamesValid_NonEmpty();
 	testValidFlagConsistency();
 }
+#endif
 #endif

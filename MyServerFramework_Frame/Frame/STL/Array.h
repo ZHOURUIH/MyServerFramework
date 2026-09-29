@@ -16,6 +16,17 @@ public:
 	const T* cend() const { return mValue + Length; }
 	const T* data() const { return mValue; }
 	T* data() { return mValue; }
+	int indexOf(const T& value)
+	{
+		FOR(Length)
+		{
+			if (mValue[i] == value)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 	// 移除所有指定值的元素,并返回移除后的元素数量,curCount是当前数组中有效元素的数量
 	int removeAll(const T& element, const int curCount)
 	{

@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 #include "PacketBit.h"
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -113,7 +114,7 @@ public:
 // ──────────────────────────────────────────────────────────────────────────────
 // 辅助：模拟协议栈 write→read 往返
 // ──────────────────────────────────────────────────────────────────────────────
-static bool doWriteRead(TestPacketBit& w, TestPacketBit& r)
+bool SerializeTest::doWriteRead(TestPacketBit& w, TestPacketBit& r)
 {
 	const bool needSign = w.hasSign();
 	SerializerBitWrite writer(false);
@@ -132,7 +133,7 @@ static bool doWriteRead(TestPacketBit& w, TestPacketBit& r)
 // ══════════════════════════════════════════════════════════════════════════════
 
 // 测试1：全字段有效
-static void testPacketBit_AllFields()
+void SerializeTest::testPacketBit_AllFields()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -156,7 +157,7 @@ static void testPacketBit_AllFields()
 }
 
 // 测试2：部分字段（两个列表字段置无效）
-static void testPacketBit_PartialFields()
+void SerializeTest::testPacketBit_PartialFields()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -175,7 +176,7 @@ static void testPacketBit_PartialFields()
 }
 
 // 测试3：仅 List0 有效（List1 无效）
-static void testPacketBit_OnlyList0()
+void SerializeTest::testPacketBit_OnlyList0()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -197,7 +198,7 @@ static void testPacketBit_OnlyList0()
 }
 
 // 测试4：List1 含负数（触发 hasSign=true）
-static void testPacketBit_NegativeList1()
+void SerializeTest::testPacketBit_NegativeList1()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -218,7 +219,7 @@ static void testPacketBit_NegativeList1()
 }
 
 // 测试5：List0 含负数
-static void testPacketBit_NegativeList0()
+void SerializeTest::testPacketBit_NegativeList0()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -238,7 +239,7 @@ static void testPacketBit_NegativeList0()
 }
 
 // 测试6：空列表（字段有效但 size=0）
-static void testPacketBit_EmptyLists()
+void SerializeTest::testPacketBit_EmptyLists()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -254,7 +255,7 @@ static void testPacketBit_EmptyLists()
 }
 
 // 测试7：单元素列表
-static void testPacketBit_SingleElement()
+void SerializeTest::testPacketBit_SingleElement()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -276,7 +277,7 @@ static void testPacketBit_SingleElement()
 }
 
 // 测试8：clearFieldFlag（所有字段无效，只写 mFlag）
-static void testPacketBit_ClearFieldFlag()
+void SerializeTest::testPacketBit_ClearFieldFlag()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -294,7 +295,7 @@ static void testPacketBit_ClearFieldFlag()
 }
 
 // 测试9：resetProperty 后字段恢复 FULL_FIELD_FLAG
-static void testPacketBit_ResetProperty()
+void SerializeTest::testPacketBit_ResetProperty()
 {
 	TestPacketBit p;
 	p.resetProperty();
@@ -314,7 +315,7 @@ static void testPacketBit_ResetProperty()
 }
 
 // 测试10：大列表（100 条 llong），覆盖统一长度位 + 大缓冲区路径
-static void testPacketBit_LargeList()
+void SerializeTest::testPacketBit_LargeList()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -337,7 +338,7 @@ static void testPacketBit_LargeList()
 }
 
 // 测试11：size 字段边界值 0xFFFF（ushort 最大值）
-static void testPacketBit_SizeMaxValue()
+void SerializeTest::testPacketBit_SizeMaxValue()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -353,7 +354,7 @@ static void testPacketBit_SizeMaxValue()
 }
 
 // 测试12：两包顺序写入同一 writer，分别独立 read
-static void testPacketBit_TwoPacketsSequential()
+void SerializeTest::testPacketBit_TwoPacketsSequential()
 {
 	TestPacketBit w1, w2;
 	w1.resetProperty();
@@ -390,7 +391,7 @@ static void testPacketBit_TwoPacketsSequential()
 }
 
 // 测试13：flag 交替 true→false→true 三次独立往返
-static void testPacketBit_FlagToggle()
+void SerializeTest::testPacketBit_FlagToggle()
 {
 	for (int round = 0; round < 3; ++round)
 	{
@@ -408,7 +409,7 @@ static void testPacketBit_FlagToggle()
 }
 
 // 测试14：llong 极值（INT64_MIN/INT64_MAX）
-static void testPacketBit_LLongExtremes()
+void SerializeTest::testPacketBit_LLongExtremes()
 {
 	TestPacketBit w;
 	w.resetProperty();
@@ -428,7 +429,7 @@ static void testPacketBit_LLongExtremes()
 }
 
 // PacketBit 序列化测试总入口
-static void testPacketBitSerialize()
+void SerializeTest::testPacketBitSerialize()
 {
 	testPacketBit_AllFields();
 	testPacketBit_PartialFields();
@@ -449,7 +450,7 @@ static void testPacketBitSerialize()
 // ══════════════════════════════════════════════════════════════════════════════
 // 基础类型往返测试（第一段）
 // ══════════════════════════════════════════════════════════════════════════════
-static void testBasicTypes()
+void SerializeTest::testBasicTypes()
 {
 	// ── 标量期望值 ──────────────────────────────────────────────────────────
 	const bool   EXP_BOOL_TRUE       = true;
@@ -913,7 +914,7 @@ static void testBasicTypes()
 // ══════════════════════════════════════════════════════════════════════════════
 // 真实协议包：技能帧往返测试（第二段）
 // ══════════════════════════════════════════════════════════════════════════════
-static void testSkillFramePacket()
+void SerializeTest::testSkillFramePacket()
 {
 	const llong         expTargetGUID         = 0;
 	const llong         expSkillFireTimeStamp = 1718813086792LL;
@@ -970,3 +971,4 @@ void SerializeTest::test()
 	testSkillFramePacket();
 	testPacketBitSerialize();
 }
+#endif

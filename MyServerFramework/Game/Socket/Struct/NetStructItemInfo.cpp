@@ -7,6 +7,7 @@ NetStructItemInfo::NetStructItemInfo(int itemID, int itemCount) :
 
 NetStructItemInfo& NetStructItemInfo::operator=(const NetStructItemInfo& other)
 {
+	base::operator=(other);
 	mItemID = other.mItemID;
 	mItemCount = other.mItemCount;
 	return *this;

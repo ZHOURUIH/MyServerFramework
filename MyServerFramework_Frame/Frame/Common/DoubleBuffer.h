@@ -141,3 +141,6 @@ protected:
 	atomic<bool> mCloseBuffer;		// 是否已经关闭buffer,关闭后将不能往buffer中写入数据
 	atomic<bool> mReading;			// 是否正在操作读缓冲区
 };
+
+template<typename T>
+bool DoubleBuffer<T>::mEnableStackTrace = false;	// 是否启用堆栈追踪

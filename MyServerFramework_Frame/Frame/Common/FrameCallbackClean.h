@@ -26,7 +26,7 @@ typedef void (*ServerCheckPingCallback)(TCPServerClient* client, int index);
 typedef void (*WebServerCheckPingCallback)(WebSocketServerClient* client, int index);
 typedef void (*FreezeAccountCallback)(llong accountGUID, llong timeSecond, const char* reason);
 #ifdef _LIBEVENT
-typedef void (*HttpCallback)(evhttp_request* req, const string& uri, void* userData);
+typedef void (*HttpCallback)(const string& uri, string& response, void* userData);
 #endif
 
 typedef function<void()> VoidCallback;

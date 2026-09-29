@@ -2887,14 +2887,14 @@ namespace StringUtility
 		return true;
 	}
 
-	string charToHexString(byte value, bool upper)
+	string byteToHexString(byte value, bool upper)
 	{
 		MyString<3> byteHex;
-		charToHexString(byteHex, value, upper);
+		byteToHexString(byteHex, value, upper);
 		return byteHex.str();
 	}
 
-	void charToHexString(MyString<3>& byteHex, byte value, bool upper)
+	void byteToHexString(MyString<3>& byteHex, byte value, bool upper)
 	{
 		byteHex.clear();
 		const char* charPool = upper ? "ABCDEF" : "abcdef";
@@ -2914,7 +2914,7 @@ namespace StringUtility
 		CharArrayScopeThread byteData(getGreaterPower2(maxLength + 1));
 		FOR(dataCount)
 		{
-			charToHexString(byteHex, data[i], upper);
+			byteToHexString(byteHex, data[i], upper);
 			byteData.mArray[i * oneLength + 0] = byteHex[0];
 			byteData.mArray[i * oneLength + 1] = byteHex[1];
 			if (addSpace && i != dataCount - 1)
@@ -2924,6 +2924,19 @@ namespace StringUtility
 		}
 		byteData.mArray[maxLength] = '\0';
 		return byteData.mArray;
+	}
+
+	void hexStringToBytes(const string& str, byte* data, int length)
+	{
+		if (!isEven((int)str.size()))
+		{
+			return;
+		}
+		clampMaxRef(length, (int)str.size() / 2);
+		FOR(length)
+		{
+			data[i] = (hexCharToByte(str[i * 2 + 0]) << 4) | hexCharToByte(str[i * 2 + 1]);
+		}
 	}
 
 	bool isNumber(const string& str)

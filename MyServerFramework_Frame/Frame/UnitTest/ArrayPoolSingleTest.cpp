@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 #include <string>
 
 // ─── Assertion macros ───
@@ -12,7 +13,7 @@
 // ArrayPoolSingle — int 类型
 // =====================================================================
 
-static void testApsIntGetRelease()
+void ArrayPoolSingleTest::testApsIntGetRelease()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(10, false);
@@ -32,7 +33,7 @@ static void testApsIntGetRelease()
 	APS_ASSERT(arr == nullptr, "int release nulls pointer");
 }
 
-static void testApsIntReuse()
+void ArrayPoolSingleTest::testApsIntReuse()
 {
 	ArrayPoolSingle pool;
 	int* arr1 = pool.get<int>(10, false);
@@ -51,7 +52,7 @@ static void testApsIntReuse()
 	pool.release(arr2, 10);
 }
 
-static void testApsIntMultipleSizes()
+void ArrayPoolSingleTest::testApsIntMultipleSizes()
 {
 	ArrayPoolSingle pool;
 	// 分配不同大小的数组
@@ -67,7 +68,7 @@ static void testApsIntMultipleSizes()
 	pool.release(large, 500);
 }
 
-static void testApsIntZeroMemory()
+void ArrayPoolSingleTest::testApsIntZeroMemory()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(20, true);
@@ -80,7 +81,7 @@ static void testApsIntZeroMemory()
 	pool.release(arr, 20);
 }
 
-static void testApsIntZeroMemoryReuse()
+void ArrayPoolSingleTest::testApsIntZeroMemoryReuse()
 {
 	ArrayPoolSingle pool;
 	int* arr1 = pool.get<int>(10, true);
@@ -97,7 +98,7 @@ static void testApsIntZeroMemoryReuse()
 	pool.release(arr2, 10);
 }
 
-static void testApsIntReleaseNull()
+void ArrayPoolSingleTest::testApsIntReleaseNull()
 {
 	ArrayPoolSingle pool;
 	int* ptr = nullptr;
@@ -107,7 +108,7 @@ static void testApsIntReleaseNull()
 	APS_ASSERT(true, "int release nullptr no crash");
 }
 
-static void testApsIntReleaseZeroCount()
+void ArrayPoolSingleTest::testApsIntReleaseZeroCount()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(10, false);
@@ -117,7 +118,7 @@ static void testApsIntReleaseZeroCount()
 	APS_ASSERT(true, "int release zero count no crash");
 }
 
-static void testApsIntMultiplePools()
+void ArrayPoolSingleTest::testApsIntMultiplePools()
 {
 	ArrayPoolSingle pool1;
 	ArrayPoolSingle pool2;
@@ -131,7 +132,7 @@ static void testApsIntMultiplePools()
 	pool2.release(arr2, 10);
 }
 
-static void testApsIntGetLargerThanPrevious()
+void ArrayPoolSingleTest::testApsIntGetLargerThanPrevious()
 {
 	ArrayPoolSingle pool;
 	int* tempSmall = pool.get<int>(5, false);
@@ -148,7 +149,7 @@ static void testApsIntGetLargerThanPrevious()
 // ArrayPoolSingle — char 类型
 // =====================================================================
 
-static void testApsCharGetRelease()
+void ArrayPoolSingleTest::testApsCharGetRelease()
 {
 	ArrayPoolSingle pool;
 	char* arr = pool.get<char>(16, false);
@@ -164,7 +165,7 @@ static void testApsCharGetRelease()
 	pool.release(arr, 16);
 }
 
-static void testApsCharMultipleSizes()
+void ArrayPoolSingleTest::testApsCharMultipleSizes()
 {
 	ArrayPoolSingle pool;
 	char* tempSmall = pool.get<char>(4, false);
@@ -176,7 +177,7 @@ static void testApsCharMultipleSizes()
 	pool.release(large, 1024);
 }
 
-static void testApsCharReleaseNull()
+void ArrayPoolSingleTest::testApsCharReleaseNull()
 {
 	ArrayPoolSingle pool;
 	char* ptr = nullptr;
@@ -189,7 +190,7 @@ static void testApsCharReleaseNull()
 // ArrayPoolSingle — double 类型
 // =====================================================================
 
-static void testApsDoubleGetRelease()
+void ArrayPoolSingleTest::testApsDoubleGetRelease()
 {
 	ArrayPoolSingle pool;
 	double* arr = pool.get<double>(8, false);
@@ -201,7 +202,7 @@ static void testApsDoubleGetRelease()
 	pool.release(arr, 8);
 }
 
-static void testApsDoubleZeroMemory()
+void ArrayPoolSingleTest::testApsDoubleZeroMemory()
 {
 	ArrayPoolSingle pool;
 	double* arr = pool.get<double>(10, true);
@@ -216,7 +217,7 @@ static void testApsDoubleZeroMemory()
 // ArrayPoolSingle — 多个类型混合
 // =====================================================================
 
-static void testApsMixedTypes()
+void ArrayPoolSingleTest::testApsMixedTypes()
 {
 	ArrayPoolSingle pool;
 	int* intArr = pool.get<int>(10, false);
@@ -239,7 +240,7 @@ static void testApsMixedTypes()
 	pool.release(doubleArr, 5);
 }
 
-static void testApsReuseAfterMixedRelease()
+void ArrayPoolSingleTest::testApsReuseAfterMixedRelease()
 {
 	ArrayPoolSingle pool;
 	int* arr1 = pool.get<int>(5, false);
@@ -260,7 +261,7 @@ static void testApsReuseAfterMixedRelease()
 // ArrayPoolSingle — 批量操作
 // =====================================================================
 
-static void testApsBatchAllocFree()
+void ArrayPoolSingleTest::testApsBatchAllocFree()
 {
 	ArrayPoolSingle pool;
 	constexpr int COUNT = 100;
@@ -281,7 +282,7 @@ static void testApsBatchAllocFree()
 	APS_ASSERT(true, "batch alloc/free done");
 }
 
-static void testApsBatchSameSize()
+void ArrayPoolSingleTest::testApsBatchSameSize()
 {
 	ArrayPoolSingle pool;
 	constexpr int COUNT = 50;
@@ -306,7 +307,7 @@ static void testApsBatchSameSize()
 	pool.release(reused, SIZE);
 }
 
-static void testApsAllocAllSizes()
+void ArrayPoolSingleTest::testApsAllocAllSizes()
 {
 	ArrayPoolSingle pool;
 	// 从 1 到 100 的连续大小
@@ -324,7 +325,7 @@ static void testApsAllocAllSizes()
 // ArrayPoolSingle — edge cases
 // =====================================================================
 
-static void testApsSizeOne()
+void ArrayPoolSingleTest::testApsSizeOne()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(1, false);
@@ -334,7 +335,7 @@ static void testApsSizeOne()
 	pool.release(arr, 1);
 }
 
-static void testApsSizeLarge()
+void ArrayPoolSingleTest::testApsSizeLarge()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(10000, false);
@@ -346,7 +347,7 @@ static void testApsSizeLarge()
 	pool.release(arr, 10000);
 }
 
-static void testApsDestroy()
+void ArrayPoolSingleTest::testApsDestroy()
 {
 	ArrayPoolSingle pool;
 	int* arr = pool.get<int>(10, false);
@@ -360,7 +361,7 @@ static void testApsDestroy()
 // ArrayPoolSingleChar
 // =====================================================================
 
-static void testApsCharPoolGetRelease()
+void ArrayPoolSingleTest::testApsCharPoolGetRelease()
 {
 	ArrayPoolSingleChar pool;
 	char* buf = pool.get(32, false);
@@ -373,7 +374,7 @@ static void testApsCharPoolGetRelease()
 	pool.release(buf, 32);
 }
 
-static void testApsCharPoolGetZeroMemory()
+void ArrayPoolSingleTest::testApsCharPoolGetZeroMemory()
 {
 	ArrayPoolSingleChar pool;
 	char* buf = pool.get(64, true);
@@ -385,7 +386,7 @@ static void testApsCharPoolGetZeroMemory()
 	pool.release(buf, 64);
 }
 
-static void testApsCharPoolReuse()
+void ArrayPoolSingleTest::testApsCharPoolReuse()
 {
 	ArrayPoolSingleChar pool;
 	char* buf1 = pool.get(16, false);
@@ -397,7 +398,7 @@ static void testApsCharPoolReuse()
 	pool.release(buf2, 16);
 }
 
-static void testApsCharPoolMultipleSizes()
+void ArrayPoolSingleTest::testApsCharPoolMultipleSizes()
 {
 	ArrayPoolSingleChar pool;
 	char* sizes[5];
@@ -414,7 +415,7 @@ static void testApsCharPoolMultipleSizes()
 	APS_ASSERT(true, "charPool multiple sizes release");
 }
 
-static void testApsCharPoolReleaseNull()
+void ArrayPoolSingleTest::testApsCharPoolReleaseNull()
 {
 	ArrayPoolSingleChar pool;
 	char* ptr = nullptr;
@@ -423,7 +424,7 @@ static void testApsCharPoolReleaseNull()
 	APS_ASSERT(true, "charPool release nullptr no crash");
 }
 
-static void testApsCharPoolBatch()
+void ArrayPoolSingleTest::testApsCharPoolBatch()
 {
 	ArrayPoolSingleChar pool;
 	constexpr int COUNT = 30;
@@ -442,7 +443,7 @@ static void testApsCharPoolBatch()
 	APS_ASSERT(true, "charPool batch free");
 }
 
-static void testApsCharPoolIsNewAlloc()
+void ArrayPoolSingleTest::testApsCharPoolIsNewAlloc()
 {
 	ArrayPoolSingleChar pool;
 	bool isNew = false;
@@ -456,7 +457,7 @@ static void testApsCharPoolIsNewAlloc()
 	APS_ASSERT(true, "charPool isNewAlloc second time no crash");
 }
 
-static void testApsCharPoolDestroy()
+void ArrayPoolSingleTest::testApsCharPoolDestroy()
 {
 	ArrayPoolSingleChar pool;
 	char* buf = pool.get(32, false);
@@ -465,7 +466,7 @@ static void testApsCharPoolDestroy()
 	APS_ASSERT(true, "charPool destroy no crash");
 }
 
-static void testApsCharPoolConsecutiveReuse()
+void ArrayPoolSingleTest::testApsCharPoolConsecutiveReuse()
 {
 	ArrayPoolSingleChar pool;
 	constexpr int CYCLE = 10;
@@ -529,3 +530,4 @@ void ArrayPoolSingleTest::test()
 	testApsCharPoolDestroy();
 	testApsCharPoolConsecutiveReuse();
 }
+#endif

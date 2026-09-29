@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 #include "PacketBit.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ public:
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper: perform a write-then-read round-trip on TestSimplePacket
 // ─────────────────────────────────────────────────────────────────────────────
-static bool packetRoundTrip(const TestSimplePacket& src, TestSimplePacket& dst)
+bool PacketTest::packetRoundTrip(const TestSimplePacket& src, TestSimplePacket& dst)
 {
 	SerializerBitWrite writer;
 	const bool ns = const_cast<TestSimplePacket&>(src).hasSign();
@@ -88,7 +89,7 @@ static bool packetRoundTrip(const TestSimplePacket& src, TestSimplePacket& dst)
 //------------------------------------------------------------------------------
 // Packet::fieldFlag basic operations (via base class interface)
 //------------------------------------------------------------------------------
-static void testPacketFieldFlag()
+void PacketTest::testPacketFieldFlag()
 {
 	TestSimplePacket p;
 
@@ -154,7 +155,7 @@ static void testPacketFieldFlag()
 //------------------------------------------------------------------------------
 // Full round-trip: all fields valid, positive values
 //------------------------------------------------------------------------------
-static void testPacketRoundTripAllFields()
+void PacketTest::testPacketRoundTripAllFields()
 {
 	TestSimplePacket src;
 	src.mA = 111;
@@ -176,7 +177,7 @@ static void testPacketRoundTripAllFields()
 //------------------------------------------------------------------------------
 // Round-trip: only fields A and C valid
 //------------------------------------------------------------------------------
-static void testPacketRoundTripPartialFields()
+void PacketTest::testPacketRoundTripPartialFields()
 {
 	TestSimplePacket src;
 	src.clearFieldFlag();
@@ -203,7 +204,7 @@ static void testPacketRoundTripPartialFields()
 //------------------------------------------------------------------------------
 // Round-trip with negative values (hasSign=true path)
 //------------------------------------------------------------------------------
-static void testPacketRoundTripNegative()
+void PacketTest::testPacketRoundTripNegative()
 {
 	TestSimplePacket src;
 	src.mA = -100;
@@ -225,7 +226,7 @@ static void testPacketRoundTripNegative()
 //------------------------------------------------------------------------------
 // Round-trip: zero values
 //------------------------------------------------------------------------------
-static void testPacketRoundTripZero()
+void PacketTest::testPacketRoundTripZero()
 {
 	TestSimplePacket src;
 	src.mA = 0;
@@ -248,7 +249,7 @@ static void testPacketRoundTripZero()
 //------------------------------------------------------------------------------
 // Round-trip: extreme values (max int, min+1)
 //------------------------------------------------------------------------------
-static void testPacketRoundTripExtreme()
+void PacketTest::testPacketRoundTripExtreme()
 {
 	TestSimplePacket src;
 	src.mA = 2147483647;    // INT_MAX
@@ -270,7 +271,7 @@ static void testPacketRoundTripExtreme()
 //------------------------------------------------------------------------------
 // hasSign caching: generates once, cached on repeated calls
 //------------------------------------------------------------------------------
-static void testPacketHasSign()
+void PacketTest::testPacketHasSign()
 {
 	TestSimplePacket p;
 	p.mA = 10;
@@ -299,7 +300,7 @@ static void testPacketHasSign()
 //------------------------------------------------------------------------------
 // Multiple setFieldInvalid / setFieldValid cycles
 //------------------------------------------------------------------------------
-static void testPacketFieldCycles()
+void PacketTest::testPacketFieldCycles()
 {
 	TestSimplePacket p;
 
@@ -344,7 +345,7 @@ static void testPacketFieldCycles()
 //------------------------------------------------------------------------------
 // Consecutive round-trips reusing same packet
 //------------------------------------------------------------------------------
-static void testPacketConsecutiveRoundTrip()
+void PacketTest::testPacketConsecutiveRoundTrip()
 {
 	TestSimplePacket src;
 
@@ -370,7 +371,7 @@ static void testPacketConsecutiveRoundTrip()
 //------------------------------------------------------------------------------
 // setFieldFlag: bit manipulation correctness
 //------------------------------------------------------------------------------
-static void testPacketSetFieldFlagManual()
+void PacketTest::testPacketSetFieldFlagManual()
 {
 	TestSimplePacket p;
 
@@ -399,7 +400,7 @@ static void testPacketSetFieldFlagManual()
 //------------------------------------------------------------------------------
 // Extended: multi-round-trip consistency
 //------------------------------------------------------------------------------
-static void testPacketMultiRoundTrip()
+void PacketTest::testPacketMultiRoundTrip()
 {
 	// Do 20 round trips with varying values, verify each recovers correctly
 	for (int i = 0; i < 20; ++i)
@@ -425,7 +426,7 @@ static void testPacketMultiRoundTrip()
 //------------------------------------------------------------------------------
 // Extended: negative values in all combinations
 //------------------------------------------------------------------------------
-static void testPacketNegativeCombinations()
+void PacketTest::testPacketNegativeCombinations()
 {
 	// A negative, others positive
 	{
@@ -481,7 +482,7 @@ static void testPacketNegativeCombinations()
 //------------------------------------------------------------------------------
 // Extended: only flag field (no integer fields)
 //------------------------------------------------------------------------------
-static void testPacketFlagOnly()
+void PacketTest::testPacketFlagOnly()
 {
 	// Mark all integer fields invalid, only mFlag serialized
 	TestSimplePacket src;
@@ -506,7 +507,7 @@ static void testPacketFlagOnly()
 //------------------------------------------------------------------------------
 // Extended: partial field combinations - all 2-field combos
 //------------------------------------------------------------------------------
-static void testPacketPartialCombos()
+void PacketTest::testPacketPartialCombos()
 {
 	using F = TestSimplePacket::Field;
 
@@ -561,7 +562,7 @@ static void testPacketPartialCombos()
 //------------------------------------------------------------------------------
 // Extended: resetProperty clears all state
 //------------------------------------------------------------------------------
-static void testPacketResetPropertyFull()
+void PacketTest::testPacketResetPropertyFull()
 {
 	TestSimplePacket p;
 	p.setFieldFlag(FrameDefine::FULL_FIELD_FLAG);
@@ -589,7 +590,7 @@ static void testPacketResetPropertyFull()
 //------------------------------------------------------------------------------
 // Extended: hasSign detection
 //------------------------------------------------------------------------------
-static void testPacketHasSignDetection()
+void PacketTest::testPacketHasSignDetection()
 {
 	TestSimplePacket p;
 	p.setFieldFlag(FrameDefine::FULL_FIELD_FLAG);
@@ -639,7 +640,7 @@ static void testPacketHasSignDetection()
 //------------------------------------------------------------------------------
 // Extended: large values (near INT_MAX/2)
 //------------------------------------------------------------------------------
-static void testPacketLargeValues()
+void PacketTest::testPacketLargeValues()
 {
 	const int BIG = 1073741823;  // 2^30 - 1
 	TestSimplePacket src;
@@ -662,7 +663,7 @@ static void testPacketLargeValues()
 //------------------------------------------------------------------------------
 // Extended: clearFieldFlag then set individual fields
 //------------------------------------------------------------------------------
-static void testPacketClearAndSetFields()
+void PacketTest::testPacketClearAndSetFields()
 {
 	TestSimplePacket p;
 	p.clearFieldFlag();
@@ -698,7 +699,7 @@ static void testPacketClearAndSetFields()
 //------------------------------------------------------------------------------
 // Extended: sequentially encode decode multiple packets sharing a buffer
 //------------------------------------------------------------------------------
-static void testPacketSequentialBuffers()
+void PacketTest::testPacketSequentialBuffers()
 {
 	// Write two packets into separate buffers, read back each
 	TestSimplePacket src1, src2;
@@ -757,3 +758,4 @@ void PacketTest::test()
 	testPacketClearAndSetFields();
 	testPacketSequentialBuffers();
 }
+#endif

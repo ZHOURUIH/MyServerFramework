@@ -14,15 +14,15 @@ public:
 	typedef typename unordered_map<Key, Value>::iterator iterator;
 	typedef typename unordered_map<Key, Value>::const_iterator const_iterator;
 public:
-	HashMap():
-		mMap(16)
+	HashMap()
 	{
 		mMap.max_load_factor(0.25f);
+		mMap.reserve(16);
 	}
-	explicit HashMap(int bucket):
-		mMap(bucket)
+	explicit HashMap(int capacity)
 	{
 		mMap.max_load_factor(0.25f);
+		mMap.reserve(capacity);
 	}
 	HashMap(const HashMap<Key, Value>& other):
 		mMap(other.mMap)
@@ -337,6 +337,14 @@ public:
 			success = mMap.emplace(iter.first, iter.second).second && success;
 		}
 		return success;
+	}
+	// 预留可容纳的元素数量,避免元素持续增加时反复rehash.
+	void reserve(const int count)
+	{
+		if (count > 0)
+		{
+			mMap.reserve(count);
+		}
 	}
 	int size() const { return (int)mMap.size(); }
 	bool isEmpty() const { return (int)mMap.size() == 0; }

@@ -13,7 +13,7 @@ public:
 	void setParam(int index, const string& stringParam);
 	const Vector<StateParamMember>& getParamMemberList() const { return mParamMemberList != nullptr ? *mParamMemberList : Vector<StateParamMember>::mDefaultList; }
 	int getNeedParamCount() const { return mParamMemberList != nullptr ? mParamMemberList->size() : 0; }
-	void initFromCopy(ParamSet* other);
+	void initFromCopy(const ParamSet* other);
 	// 注册状态参数字段,只需要注册要发送到客户端的字段即可
 	template<typename T>
 	void registeParam(T& value)

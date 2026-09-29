@@ -9,6 +9,7 @@ class MICRO_LEGEND_FRAME_API InputSystem : public FrameComponent
 public:
 	InputSystem();
 	void quit() override;
+	void update(float elapsedTime) override;
 	void lateUpdate(float elapsedTime) override;
 	void keyDown(int key);
 	void keyUp(int key);

@@ -79,6 +79,7 @@ public:
 	int queryMaxInt(int column);
 	llong queryMaxLLong(int column);
 	void queryAllID(Vector<llong>& idList);
+	void queryAllID(Set<llong>& idList);
 
 	// 删除
 	bool deleteByID(llong instanceID) const;
@@ -97,6 +98,8 @@ public:
 	
 	// 插入
 	bool insertData(const MySQLData* data, bool showError = true) const;
+	// 仅写数据库,不写入MySQLTable缓存,用于离线数据库工具等大量导入场景
+	bool insertDataNoCache(const MySQLData* data, bool showError = true) const;
 
 	// 更新
 	bool updateData(const MySQLData* data, ullong flag) const;
@@ -123,22 +126,31 @@ public:
 	bool updateAllLLong(int col, llong paramValue) const;
 	bool updateAllFloat(int col, float paramValue) const;
 	bool updateAllBool(int col, bool paramValue) const;
+	// 查询单条数据的一个bool字段
+	bool queryBool(llong id, int col);
+	HashMap<llong, bool> queryBoolList(const Vector<llong>& id, int col);
+	HashMap<llong, bool> queryBoolList(int col);
+	Vector<pair<llong, bool>> queryBoolList2(int col);
 	// 查询单条数据的一个整数字段
 	int queryInt(llong id, int col);
 	HashMap<llong, int> queryIntList(const Vector<llong>& id, int col);
 	HashMap<llong, int> queryIntList(int col);
+	Vector<pair<llong, int>> queryIntList2(int col);
 	// 查询单条数据的一个浮点数字段
 	float queryFloat(llong id, int col);
 	HashMap<llong, float> queryFloatList(const Vector<llong>& id, int col);
 	HashMap<llong, float> queryFloatList(int col);
+	Vector<pair<llong, float>> queryFloatList2(int col);
 	// 查询单条数据的一个长整型字段
 	llong queryLLong(llong id, int col);
 	HashMap<llong, llong> queryLLongList(const Vector<llong>& id, int col);
 	HashMap<llong, llong> queryLLongList(int col);
+	Vector<pair<llong, llong>> queryLLongList2(int col);
 	// 查询单条数据的一个字符串字段
 	string queryString(llong id, int col);
 	HashMap<llong, string> queryStringList(const Vector<llong>& id, int col);
 	HashMap<llong, string> queryStringList(int col);
+	Vector<pair<llong, string>> queryStringList2(int col);
 
 	void addColName(const string& name) 
 	{

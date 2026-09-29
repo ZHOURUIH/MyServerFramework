@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define LIT_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("LogInfoTest FAILED: ") + (msg)); } } while(0)
@@ -67,3 +68,4 @@ void LogInfoTest::testResetPropertyAfterModification()
 	info.resetProperty();
 	LIT_ASSERT(!info.mError, "round3: error reset to false");
 }
+#endif

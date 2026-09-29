@@ -153,6 +153,44 @@ bool StreamBuffer::mergeFrom(const StreamBuffer* other, const bool clearIfFull)
 	return true;
 }
 
+int StreamBuffer::moveTo(StreamBuffer* target, const int maxCount)
+{
+	if (target == nullptr || target == this || mDataLength <= 0)
+	{
+		return 0;
+	}
+
+	int moveCount = getMin(mDataLength, target->getFreeSize());
+	if (maxCount >= 0)
+	{
+		moveCount = getMin(moveCount, maxCount);
+	}
+	if (moveCount <= 0)
+	{
+		return 0;
+	}
+
+	// source可能跨越环形缓冲区末尾,最多分两段写入target。
+	// moveCount已经限制在target剩余容量以内,所以addDataToBack不会因为容量不足失败。
+	const int firstLen = getMin(moveCount, mBufferSize - mHead);
+	if (!target->addDataToBack(mBuffer + mHead, firstLen))
+	{
+		return 0;
+	}
+	if (firstLen < moveCount)
+	{
+		if (!target->addDataToBack(mBuffer, moveCount - firstLen))
+		{
+			// 理论上不会进入这里,因为前面已经按target剩余容量限制过moveCount。
+			// 不回滚第一段,避免引入更复杂的异常路径。
+			removeDataFromFront(firstLen);
+			return firstLen;
+		}
+	}
+	removeDataFromFront(moveCount);
+	return moveCount;
+}
+
 void StreamBuffer::linearize()
 {
 	// Empty or already contiguous: no-op

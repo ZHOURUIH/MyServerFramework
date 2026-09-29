@@ -120,9 +120,12 @@
 #include <sstream>
 #include <signal.h>
 #include <stdint.h>
+#include <iomanip>
 #include <cstdio>
 #include <cassert>
 #include <numeric>
+#include <emmintrin.h>
+#include <climits>
 // 部分平台未安装mysql,所以需要使用宏来判断是否需要编译mysql相关代码
 #ifdef _MYSQL
 #include <mysql.h>
@@ -310,6 +313,11 @@ LLsToS(strBuffer, valueArray, count)
 		auto& UNIQUE_IDENTIFIER(temp) = safeList;																												\
 		SafeVectorScope<remove_cv<remove_reference<decltype(UNIQUE_IDENTIFIER(temp))>::type>::type::ValueType> UNIQUE_IDENTIFIER(a)(UNIQUE_IDENTIFIER(temp));	\
 		const auto& readList = UNIQUE_IDENTIFIER(a).getReadList()
+
+// SafeFastDeepVectorScope
+#define SAFE_VECTOR_0_SCOPE(safeList)																															\
+		auto& UNIQUE_IDENTIFIER(temp) = safeList;																												\
+		SafeFastDeepVectorScope<remove_cv<remove_reference<decltype(UNIQUE_IDENTIFIER(temp))>::type>::type::ValueType> UNIQUE_IDENTIFIER(a)(UNIQUE_IDENTIFIER(temp));
 
 // SafeHashMapScope
 #define SAFE_HASHMAP_SCOPE(safeList, readList)																													\

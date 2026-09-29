@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // SingletonTest — Singleton<T> 模板测试
@@ -19,7 +20,6 @@ public:
     string name;
     TestSingletonA() : value(0), name("A") {}
 };
-template<> TestSingletonA* Singleton<TestSingletonA>::ms_Singleton = nullptr;
 
 class TestSingletonB : public Singleton<TestSingletonB>
 {
@@ -28,7 +28,6 @@ public:
     TestSingletonB() : counter(100) {}
     void increment() { ++counter; }
 };
-template<> TestSingletonB* Singleton<TestSingletonB>::ms_Singleton = nullptr;
 
 class TestSingletonC : public Singleton<TestSingletonC>
 {
@@ -36,26 +35,25 @@ public:
     float data = 0.0f;
     TestSingletonC() : data(3.14f) {}
 };
-template<> TestSingletonC* Singleton<TestSingletonC>::ms_Singleton = nullptr;
 
 // ============================================================
 // 测试：构造后可通过 getSingleton() 获取
 // ============================================================
-static void testSingleton_GetAfterConstruct_A()
+void SingletonTest::testSingleton_GetAfterConstruct_A()
 {
     TestSingletonA inst;
     SGT_ASSERT(TestSingletonA::getSingleton() != nullptr, "getSingleton A non-null");
     SGT_ASSERT(TestSingletonA::getSingleton() == &inst, "getSingleton A == &inst");
 }
 
-static void testSingleton_GetAfterConstruct_B()
+void SingletonTest::testSingleton_GetAfterConstruct_B()
 {
     TestSingletonB inst;
     SGT_ASSERT(TestSingletonB::getSingleton() != nullptr, "getSingleton B non-null");
     SGT_ASSERT(TestSingletonB::getSingleton() == &inst, "getSingleton B == &inst");
 }
 
-static void testSingleton_GetAfterConstruct_C()
+void SingletonTest::testSingleton_GetAfterConstruct_C()
 {
     TestSingletonC inst;
     SGT_ASSERT(TestSingletonC::getSingleton() != nullptr, "getSingleton C non-null");
@@ -65,7 +63,7 @@ static void testSingleton_GetAfterConstruct_C()
 // ============================================================
 // 测试：析构后 getSingleton() 返回 null
 // ============================================================
-static void testSingleton_NullAfterDestruct_A()
+void SingletonTest::testSingleton_NullAfterDestruct_A()
 {
     {
         TestSingletonA inst;
@@ -74,7 +72,7 @@ static void testSingleton_NullAfterDestruct_A()
     SGT_ASSERT(TestSingletonA::getSingleton() == nullptr, "A null after scope");
 }
 
-static void testSingleton_NullAfterDestruct_B()
+void SingletonTest::testSingleton_NullAfterDestruct_B()
 {
     {
         TestSingletonB inst;
@@ -86,7 +84,7 @@ static void testSingleton_NullAfterDestruct_B()
 // ============================================================
 // 测试：通过指针修改成员
 // ============================================================
-static void testSingleton_ModifyViaPtr()
+void SingletonTest::testSingleton_ModifyViaPtr()
 {
     TestSingletonA inst;
     inst.value = 42;
@@ -97,7 +95,7 @@ static void testSingleton_ModifyViaPtr()
     SGT_ASSERT(ptr->name == "modified", "ptr->name==modified");
 }
 
-static void testSingleton_ModifyViaPtr_B()
+void SingletonTest::testSingleton_ModifyViaPtr_B()
 {
     TestSingletonB inst;
     inst.increment();
@@ -109,7 +107,7 @@ static void testSingleton_ModifyViaPtr_B()
 // ============================================================
 // 测试：不同类型互不干扰
 // ============================================================
-static void testSingleton_TypeIndependence()
+void SingletonTest::testSingleton_TypeIndependence()
 {
     TestSingletonA a;
     TestSingletonB b;
@@ -136,7 +134,7 @@ static void testSingleton_TypeIndependence()
 // ============================================================
 // 测试：getSingleton 在构造前返回 null
 // ============================================================
-static void testSingleton_NullBeforeConstruct()
+void SingletonTest::testSingleton_NullBeforeConstruct()
 {
     // 确保析构后是 null（依赖前面测试没有留下实例）
     SGT_ASSERT(TestSingletonA::getSingleton() == nullptr, "A null before construct");
@@ -147,7 +145,7 @@ static void testSingleton_NullBeforeConstruct()
 // ============================================================
 // 测试：多次构造只有第一个有效（第二个不覆盖）
 // ============================================================
-static void testSingleton_FirstConstructorWins()
+void SingletonTest::testSingleton_FirstConstructorWins()
 {
     TestSingletonA first;
     first.value = 100;
@@ -171,7 +169,7 @@ static void testSingleton_FirstConstructorWins()
 // ============================================================
 // 测试：析构与重建循环
 // ============================================================
-static void testSingleton_ConstructDestructCycle()
+void SingletonTest::testSingleton_ConstructDestructCycle()
 {
     FOR(200)
     {
@@ -189,7 +187,7 @@ static void testSingleton_ConstructDestructCycle()
 // ============================================================
 // 测试：通过 Singleton ptr 调用成员函数
 // ============================================================
-static void testSingleton_CallMemberFunctions()
+void SingletonTest::testSingleton_CallMemberFunctions()
 {
     TestSingletonB inst;
     TestSingletonB* ptr = TestSingletonB::getSingleton();
@@ -206,7 +204,7 @@ static void testSingleton_CallMemberFunctions()
 // ============================================================
 // 测试：getSingleton 引用等价于实例
 // ============================================================
-static void testSingleton_PtrEquality()
+void SingletonTest::testSingleton_PtrEquality()
 {
     TestSingletonA a;
     SGT_ASSERT(TestSingletonA::getSingleton() == &a, "ptr == &a");
@@ -240,3 +238,4 @@ void SingletonTest::test()
     testSingleton_PtrEquality();
     testSingleton_NullAfterDestruct_A();
 }
+#endif

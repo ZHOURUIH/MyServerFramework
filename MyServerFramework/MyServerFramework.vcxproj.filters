@@ -145,9 +145,6 @@
     <ClInclude Include="Game\Common\GameStringDefine.h">
       <Filter>Game\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Component\GameComponentRegister.cpp">
-      <Filter>Game\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Component\GameComponentRegister.h">
       <Filter>Game\Component</Filter>
     </ClInclude>
@@ -306,7 +303,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\UnityBuildGame.cpp">
+    <ClCompile Include="Game\UnityBuildGame_A_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_C_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_E_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_G_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_L_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_M_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_N_0.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\UnityBuildGame_S_0.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

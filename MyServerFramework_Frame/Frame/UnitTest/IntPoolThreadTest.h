@@ -3,6 +3,7 @@
 
 class MICRO_LEGEND_FRAME_API IntPoolThreadTest
 {
+#ifdef WINDOWS
 public:
 	static void test();
 private:
@@ -26,4 +27,5 @@ private:
 	static void testValuePersistBetweenAllocs();
 	static void testZeroValueWrite();
 	static void testNegativeValueWrite();
+#endif
 };

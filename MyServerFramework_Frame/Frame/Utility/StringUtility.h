@@ -38,7 +38,7 @@ namespace StringUtility
 	// 去掉最后一个出现的指定字符
 	MICRO_LEGEND_FRAME_API void removeLast(string& stream, char key);
 	// 去掉最后一个逗号
-	void removeLastComma(string& stream) { removeLast(stream, ','); }
+	inline void removeLastComma(string& stream) { removeLast(stream, ','); }
 	MICRO_LEGEND_FRAME_API int strlength(const char* str, int maxLength);
 	MICRO_LEGEND_FRAME_API int strlength(const char* str);
 	// 查找str中指定key的数量
@@ -52,13 +52,13 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API string getFileSuffix(const string& fileName, bool keepDot);
 	MICRO_LEGEND_FRAME_API string removeStartString(const string& fileName, const string& startStr);
 	MICRO_LEGEND_FRAME_API string removeEndString(const string& fileName, const string& endStr);
-	string replaceSuffix(const string& fileName, const string& suffix) { return getFileNameNoSuffix(fileName, false) + suffix; }
+	inline string replaceSuffix(const string& fileName, const string& suffix) { return getFileNameNoSuffix(fileName, false) + suffix; }
 	// 获得字符串最后不是数字的下标
 	MICRO_LEGEND_FRAME_API int getLastNotNumberPos(const string& str);
 	// 获得字符串结尾的数字
 	MICRO_LEGEND_FRAME_API int getLastNumber(const string& str);
 	// 获得去除末尾数字以后的字符串
-	string getNotNumberSubString(const string& str) { return str.substr(0, getLastNotNumberPos(str) + 1); }
+	inline string getNotNumberSubString(const string& str) { return str.substr(0, getLastNotNumberPos(str) + 1); }
 	MICRO_LEGEND_FRAME_API int getLastChar(const char* str, char value);
 	MICRO_LEGEND_FRAME_API int getLastNotChar(const string& str, char value);
 	MICRO_LEGEND_FRAME_API void splitLine(const char* str, Vector<string>& vec, bool removeEmpty = true);
@@ -151,7 +151,7 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API string zeroString(int zeroCount);
 	// 基础数据类型转换为字符串
 	//-----------------------------------------------------------------------------------------------------------------------------
-	string BToS(const bool value) { return value ? "True" : "False"; }
+	inline string BToS(const bool value) { return value ? "True" : "False"; }
 	// 返回string类型的数字字符串,速度较慢
 	MICRO_LEGEND_FRAME_API string LLToS(llong value, int limitLen = 0);
 	template<int Length>
@@ -506,7 +506,7 @@ namespace StringUtility
 		return charArray.length();
 	}
 	MICRO_LEGEND_FRAME_API string bytesToString(const char* buffer, int length);
-	string V2ToS(Vector2 vec, const char* separate = ",") { return FToS(vec.x) + separate + FToS(vec.y); }
+	inline string V2ToS(Vector2 vec, const char* separate = ",") { return FToS(vec.x) + separate + FToS(vec.y); }
 	template<int Length>
 	void V2ToS(MyString<Length>& buffer, Vector2 vec, const char* separate = ",")
 	{
@@ -515,7 +515,7 @@ namespace StringUtility
 		FLOAT_STR(yStr, vec.y);
 		buffer.add(xStr.str(), separate, yStr.str());
 	}
-	string V3ToS(const Vector3& vec, const char* separate = ",") { return FToS(vec.x) + separate + FToS(vec.y) + separate + FToS(vec.z); }
+	inline string V3ToS(const Vector3& vec, const char* separate = ",") { return FToS(vec.x) + separate + FToS(vec.y) + separate + FToS(vec.z); }
 	template<int Length>
 	void V3ToS(MyString<Length>& buffer, const Vector3& vec, const char* separate = ",")
 	{
@@ -525,7 +525,7 @@ namespace StringUtility
 		FLOAT_STR(zStr, vec.z);
 		buffer.add(xStr.str(), separate, yStr.str(), separate, zStr.str());
 	}
-	string V3IToS(const Vector3Int& vec, const char* separate = ",") { return IToS(vec.x) + separate + IToS(vec.y) + separate + IToS(vec.z); }
+	inline string V3IToS(const Vector3Int& vec, const char* separate = ",") { return IToS(vec.x) + separate + IToS(vec.y) + separate + IToS(vec.z); }
 	template<int Length>
 	void V3IToS(MyString<Length>& buffer, const Vector3Int& vec, const char* separate = ",")
 	{
@@ -535,10 +535,10 @@ namespace StringUtility
 		INT_STR(zStr, vec.z);
 		buffer.add(xStr.str(), separate, yStr.str(), separate, zStr.str());
 	}
-	string V2IToS(Vector2Int value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
+	inline string V2IToS(Vector2Int value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
 	MICRO_LEGEND_FRAME_API string V2IsToS(const Vector<Vector2Int>& value, const char* separate = "|");
 	MICRO_LEGEND_FRAME_API string V2IsToS(const HashMap<int, int>& value, const char* separate = "|");
-	string V2UIToS(Vector2UInt value, const char* separate = ",") { return UIToS(value.x) + separate + UIToS(value.y); }
+	inline string V2UIToS(Vector2UInt value, const char* separate = ",") { return UIToS(value.x) + separate + UIToS(value.y); }
 	template<int Length>
 	void V2IToS(MyString<Length>& buffer, Vector2Int value, const char* separate = ",")
 	{
@@ -555,7 +555,7 @@ namespace StringUtility
 		INT_STR(yStr, value.y);
 		buffer.add(xStr.str(), separate, yStr.str());
 	}
-	string V2SToS(Vector2Short value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
+	inline string V2SToS(Vector2Short value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
 	template<int Length>
 	void V2SToS(MyString<Length>& buffer, Vector2Short value, const char* separate = ",")
 	{
@@ -564,7 +564,7 @@ namespace StringUtility
 		INT_STR(yStr, value.y);
 		buffer.add(xStr.str(), separate, yStr.str());
 	}
-	string V2USToS(Vector2UShort value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
+	inline string V2USToS(Vector2UShort value, const char* separate = ",") { return IToS(value.x) + separate + IToS(value.y); }
 	template<int Length>
 	void V2USToS(MyString<Length>& buffer, Vector2UShort value, const char* separate = ",")
 	{
@@ -576,16 +576,16 @@ namespace StringUtility
 	//-----------------------------------------------------------------------------------------------------------------------------
 	// 字符串转换为基础数据类型
 	//-----------------------------------------------------------------------------------------------------------------------------
-	bool SToB(const string& str)					{ return str == "True" || str == "true"; }
-	bool SToB(const char* str)						{ return strcmp(str, "True") == 0 || strcmp(str, "true") == 0; }
-	int SToI(const string& str)						{ return atoi(str.c_str()); }
-	int SToI(const char* str)						{ return atoi(str); }
-	ullong stringToULLong(const string& str)		{ return (ullong)atoll(str.c_str()); }
-	ullong stringToULLong(const char* str)			{ return (ullong)atoll(str); }
-	llong SToLL(const string& str)					{ return atoll(str.c_str()); }
-	llong SToLL(const char* str)					{ return atoll(str); }
-	float SToF(const string& str)					{ return (float)atof(str.c_str()); }
-	float SToF(const char* str)						{ return (float)atof(str); }
+	inline bool SToB(const string& str) { return str == "True" || str == "true"; }
+	inline bool SToB(const char* str) { return strcmp(str, "True") == 0 || strcmp(str, "true") == 0; }
+	inline int SToI(const string& str) { return atoi(str.c_str()); }
+	inline int SToI(const char* str) { return atoi(str); }
+	inline ullong stringToULLong(const string& str) { return (ullong)atoll(str.c_str()); }
+	inline ullong stringToULLong(const char* str) { return (ullong)atoll(str); }
+	inline llong SToLL(const string& str) { return atoll(str.c_str()); }
+	inline llong SToLL(const char* str) { return atoll(str); }
+	inline float SToF(const string& str) { return (float)atof(str.c_str()); }
+	inline float SToF(const char* str) { return (float)atof(str); }
 	MICRO_LEGEND_FRAME_API Vector2 SToV2(const string& str, const char* separate = ",");
 	MICRO_LEGEND_FRAME_API Vector2Int SToV2I(const string& str, const char* separate = ",");
 	MICRO_LEGEND_FRAME_API Vector2UInt SToV2UI(const string& str, const char* separate = ",");
@@ -1934,21 +1934,21 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API void ANSIToUTF8(const string& str, char* output, int maxLength, bool addBOM = false);
 	// 根据不同的平台选择不同的实现方式,windows下进行转换,linux直接返回原字符串
 #ifdef WINDOWS
-	string ANSIToUTF8Auto(const char* str, bool addBOM = false) { return ANSIToUTF8(str, addBOM); }
-	string ANSIToUTF8Auto(const string& str, bool addBOM = false) { return ANSIToUTF8(str, addBOM); }
+	inline string ANSIToUTF8Auto(const char* str, bool addBOM = false) { return ANSIToUTF8(str, addBOM); }
+	inline string ANSIToUTF8Auto(const string& str, bool addBOM = false) { return ANSIToUTF8(str, addBOM); }
 #elif defined LINUX
-	string ANSIToUTF8Auto(const char* str, bool addBOM = false) { return str; }
-	const string& ANSIToUTF8Auto(const string& str, bool addBOM = false) { return str; }
+	inline string ANSIToUTF8Auto(const char* str, bool addBOM = false) { return str; }
+	inline const string& ANSIToUTF8Auto(const string& str, bool addBOM = false) { return str; }
 #endif
 	MICRO_LEGEND_FRAME_API string UTF8ToANSI(const char* str, bool eraseBOM = false);
 	MICRO_LEGEND_FRAME_API string UTF8ToANSI(const string& str, bool eraseBOM = false);
 	MICRO_LEGEND_FRAME_API void UTF8ToANSI(const char* str, char* output, int maxLength, bool eraseBOM = false);
 #ifdef WINDOWS
-	string UTF8ToANSIAuto(const char* str, bool eraseBOM = false) { return UTF8ToANSI(str, eraseBOM); }
-	string UTF8ToANSIAuto(const string& str, bool eraseBOM = false) { return UTF8ToANSI(str, eraseBOM); }
+	inline string UTF8ToANSIAuto(const char* str, bool eraseBOM = false) { return UTF8ToANSI(str, eraseBOM); }
+	inline string UTF8ToANSIAuto(const string& str, bool eraseBOM = false) { return UTF8ToANSI(str, eraseBOM); }
 #elif defined LINUX
-	string UTF8ToANSIAuto(const char* str, bool eraseBOM = false) { return str; }
-	const string& UTF8ToANSIAuto(const string& str, bool eraseBOM = false) { return str; }
+	inline string UTF8ToANSIAuto(const char* str, bool eraseBOM = false) { return str; }
+	inline const string& UTF8ToANSIAuto(const string& str, bool eraseBOM = false) { return str; }
 #endif
 	MICRO_LEGEND_FRAME_API void removeBOM(string& str);
 	MICRO_LEGEND_FRAME_API void removeBOM(char* str, int length = 0);
@@ -1961,12 +1961,12 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API void jsonAddObject(string& str, const string& name, const string& value, int preTableCount = 0, bool returnLine = false);
 	MICRO_LEGEND_FRAME_API string toLower(const string& str);
 	MICRO_LEGEND_FRAME_API string toUpper(const string& str);
-	bool isUpper(char c) { return c >= 'A' && c <= 'Z'; }
-	bool isLower(char c) { return c >= 'a' && c <= 'z'; }
-	bool isNumber(char c) { return c >= '0' && c <= '9'; }
+	inline bool isUpper(char c) { return c >= 'A' && c <= 'Z'; }
+	inline bool isLower(char c) { return c >= 'a' && c <= 'z'; }
+	inline bool isNumber(char c) { return c >= '0' && c <= '9'; }
 	MICRO_LEGEND_FRAME_API bool isNumber(const string& str);
-	bool isLetter(char c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
-	char toLower(const char value)
+	inline bool isLetter(char c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
+	inline char toLower(const char value)
 	{
 		if (isUpper(value))
 		{
@@ -1974,7 +1974,7 @@ namespace StringUtility
 		}
 		return value;
 	}
-	char toUpper(const char value)
+	inline char toUpper(const char value)
 	{
 		if (isLower(value))
 		{
@@ -1985,17 +1985,19 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API void rightToLeft(string& str);
 	MICRO_LEGEND_FRAME_API void leftToRight(string& str);
 	MICRO_LEGEND_FRAME_API bool checkString(const string& str, const string& valid);
-	bool checkIntString(const string& str, const string& valid = "") { return checkString(str, "0123456789" + valid); }
-	bool checkFloatString(const string& str, const string& valid = "") { return checkIntString(str, '.' + valid); }
+	inline bool checkIntString(const string& str, const string& valid = "") { return checkString(str, "0123456789" + valid); }
+	inline bool checkFloatString(const string& str, const string& valid = "") { return checkIntString(str, '.' + valid); }
 	MICRO_LEGEND_FRAME_API bool hasNonAscii(const char* str);
-	MICRO_LEGEND_FRAME_API string charToHexString(byte value, bool upper = true);
-	MICRO_LEGEND_FRAME_API void charToHexString(MyString<3>& byteHex, byte value, bool upper = true);
+	MICRO_LEGEND_FRAME_API string byteToHexString(byte value, bool upper = true);
+	MICRO_LEGEND_FRAME_API void byteToHexString(MyString<3>& byteHex, byte value, bool upper = true);
 	MICRO_LEGEND_FRAME_API int getCharCount(const string& str, char key);
 	MICRO_LEGEND_FRAME_API int getCharCount(const char* str, char key);
 	MICRO_LEGEND_FRAME_API void appendWithAlign(string& oriStr, const string& appendStr, int alignWidth);
 	MICRO_LEGEND_FRAME_API bool isPhoneNumber(const char* str);
 	MICRO_LEGEND_FRAME_API string bytesToHexString(const byte* data, int dataCount, bool addSpace = true, bool upper = true);
-	byte hexCharToByte(const char hex)
+	// data是指向一个可用内存的指针,长度为length,会将str转换为byte[]填充到data中
+	MICRO_LEGEND_FRAME_API void hexStringToBytes(const string& str, byte* data, int length);
+	inline byte hexCharToByte(const char hex)
 	{
 		if (isNumber(hex))
 		{
@@ -2007,7 +2009,7 @@ namespace StringUtility
 		}
 		return 0;
 	}
-	char byteToHexChar(const byte value)
+	inline char byteToHexChar(const byte value)
 	{
 		if (value <= 9)
 		{
@@ -2025,9 +2027,9 @@ namespace StringUtility
 	MICRO_LEGEND_FRAME_API bool hasInvisibleChar(const string& str);
 	// sql语法相关字符串处理
 	// 带任何引号都不允许
-	bool checkSQLString(const char* str) { return strchar(str, '\'') < 0 && strchar(str, '\"') < 0; }
+	inline bool checkSQLString(const char* str) { return strchar(str, '\'') < 0 && strchar(str, '\"') < 0; }
 	// 带任何引号都不允许
-	bool checkSQLString(const string& str) { return strchar(str.c_str(), '\'', 0, (int)str.length()) < 0 && strchar(str.c_str(), '\"', 0, (int)str.length()) < 0; }
+	inline bool checkSQLString(const string& str) { return strchar(str.c_str(), '\'', 0, (int)str.length()) < 0 && strchar(str.c_str(), '\"', 0, (int)str.length()) < 0; }
 	// base64编码
 	MICRO_LEGEND_FRAME_API string base64_encode(const byte* str, int length);
 	MICRO_LEGEND_FRAME_API string base64_encode(const string& str);
@@ -2159,6 +2161,13 @@ using StringUtility::getNotNumberSubString;
 using StringUtility::_i64toa_s_;
 using StringUtility::replaceSuffix;
 using StringUtility::isPhoneNumber;
-using StringUtility::charToHexString;
+using StringUtility::byteToHexString;
 using StringUtility::findStringInverse;
 using StringUtility::checkSQLString;
+using StringUtility::hexStringToBytes;
+using StringUtility::jsonStartArray;
+using StringUtility::jsonEndArray;
+using StringUtility::jsonStartStruct;
+using StringUtility::jsonEndStruct;
+using StringUtility::jsonAddPair;
+using StringUtility::jsonAddObject;

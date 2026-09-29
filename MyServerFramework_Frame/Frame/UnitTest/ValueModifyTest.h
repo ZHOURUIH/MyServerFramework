@@ -3,6 +3,7 @@
 
 class MICRO_LEGEND_FRAME_API ValueModifyTest
 {
+#ifdef WINDOWS
 public:
     static void test();
 private:
@@ -24,4 +25,7 @@ private:
     static void testValueModifyMixedIntBool();
     static void testValueModifyLargeScale();
     static void testMapModifyLargeScale();
+	static void testMapModify();
+	static void testValueModify();
+#endif
 };

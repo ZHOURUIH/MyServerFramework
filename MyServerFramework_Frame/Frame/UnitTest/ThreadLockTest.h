@@ -3,6 +3,7 @@
 
 class MICRO_LEGEND_FRAME_API ThreadLockTest
 {
+#ifdef WINDOWS
 public:
     static void test();
 private:
@@ -20,4 +21,5 @@ private:
     static void testTimeLockHighFPS();
     static void testTimeLock30FPS();
     static void testTimeLock60FPS();
+#endif
 };

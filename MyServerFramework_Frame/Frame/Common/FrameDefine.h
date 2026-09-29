@@ -26,7 +26,7 @@
 #include "IsSubClassOf.h"
 #include "SafeHashMap.h"
 #include "SafeVector.h"
-#include "SafeVector0.h"
+#include "SafeFastDeepVector.h"
 #include "Ref.h"
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,6 +36,7 @@ public:
 	// 常量数字定义
 	static constexpr int UDP_MAX_PACKET_SIZE = 64 * 1024;			// udp单个消息包最大的大小,64KB
 	static constexpr int CLIENT_MAX_PACKET_SIZE = 128 * 1024;		// 客户端临时缓冲区大小,应该不小于单个消息包最大的大小,128KB
+	static constexpr int CLIENT_MAX_PENDING_SEND_SIZE = 8 * 1024 * 1024;	// 单个客户端允许临时积压的待发送数据上限,仅在发送缓冲区不足时动态占用内存
 #ifdef STRESS_TEST
 	static constexpr int CLIENT_SEND_BUFFER = 256 * 1024;			// 客户端发送数据缓冲区大小,256KB
 	static constexpr int CLIENT_RECV_BUFFER = 256 * 1024;			// 客户端接收数据缓冲区大小,256KB
@@ -47,8 +48,6 @@ public:
 	static constexpr int PACKET_CRC_SIZE = sizeof(ushort);			// 消息包中的包CRC校验码的变量类型大小
 	static constexpr int MIN_PARSE_COUNT = 5;						// 只有成功解析5个消息包以后的客户端才认为是有效客户端,当无效客户端接收到错误消息时直接断开连接并且不报错
 	static constexpr int NOT_FIND = -1;								// 字符串查找未找到时的返回值
-	static constexpr int ENCRYPT_KEY_LENGTH = 1 << 8;				// 网络消息加密密钥的长度
-	static byte ENCRYPT_KEY[ENCRYPT_KEY_LENGTH];					// 网络消息加密密钥,使用对称加密的方式
 	// 常量字符串定义
 	static const string MEDIA_PATH;
 	static const string CONFIG_PATH;

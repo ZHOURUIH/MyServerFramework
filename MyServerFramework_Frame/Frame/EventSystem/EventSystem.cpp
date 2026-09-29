@@ -96,44 +96,24 @@ void EventSystem::pushEventInternal(GameEvent* param, const Character* character
 			characterListenerList->remove(eventType);
 			break;
 		}
-		// 事件处理过程中可能会再次发送事件,所以如果没有正在遍历,则开始正常遍历
+		// 事件处理过程中可能会再次发送事件
 		// 在遍历过程中还可能会出现会将后续需要遍历的事件销毁的情况,所以分发时需要确定事件未销毁且还在分发列表中
 		// 但是由于在此循环中判断是否存在于列表会非常耗时,就考虑是否已经销毁就可以了
-		if (!listenerList->isForeaching())
+		// 这里只能使用固定的遍历长度,否则可能会遍历到新加入的事件,导致意外情况
+		SAFE_VECTOR_0_SCOPE(*listenerList);
+		FOR(listenerList->size())
 		{
-			// 这里只能使用固定的遍历长度,否则可能会遍历到新加入的事件,导致意外情况
-			FOR(listenerList->size())
+			EventInfo* info = listenerList->get(i);
+			if (info == nullptr)
 			{
-				EventInfo* info = listenerList->get(i);
-				if (info == nullptr)
-				{
-					continue;
-				}
-				if (info->isDestroy())
-				{
-					ERROR_PROFILE("0事件信息已经被销毁");
-					continue;
-				}
-				info->mCallback(param, info->mListener);
+				continue;
 			}
-		}
-		// 如果正在遍历过程中,则使用临时列表复制一份
-		else
-		{
-			listenerList->getMainList().cloneTo(mTempEventList);
-			for (EventInfo* info : mTempEventList)
+			if (info->isDestroy())
 			{
-				if (info == nullptr)
-				{
-					continue;
-				}
-				if (info->isDestroy())
-				{
-					ERROR_PROFILE("1事件信息已经被销毁");
-					continue;
-				}
-				info->mCallback(param, info->mListener);
+				ERROR_PROFILE("0事件信息已经被销毁");
+				continue;
 			}
+			info->mCallback(param, info->mListener);
 		}
 	}
 
@@ -143,6 +123,7 @@ void EventSystem::pushEventInternal(GameEvent* param, const Character* character
 		auto* globalListenerList = mGlobalEventList.getPtr(eventType);
 		if (globalListenerList != nullptr && !globalListenerList->isEmpty())
 		{
+			SAFE_VECTOR_0_SCOPE(*globalListenerList);
 			FOR(globalListenerList->size())
 			{
 				EventInfo* info = globalListenerList->get(i);
@@ -232,6 +213,15 @@ void EventSystem::removeCharacterEvent(const llong characterID)
 		// 从以监听者为索引的列表中移除此角色的所有事件
 		for (EventInfo* item : iter->second.getMainList())
 		{
+			if (item == nullptr)
+			{
+				continue;
+			}
+			if (item->isDestroy())
+			{
+				ERROR_PROFILE("3事件信息已经被销毁");
+				continue;
+			}
 			auto* infoList = mListenerEventMap.getPtr(item->mListener);
 			if (infoList != nullptr)
 			{

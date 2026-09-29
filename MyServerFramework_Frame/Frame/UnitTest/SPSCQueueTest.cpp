@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // 辅助
@@ -9,7 +10,7 @@
         return false; \
     }} while(0)
 
-void print_pass(const char* name) 
+void SPSCQueueTest::print_pass(const char* name)
 {
     cout << "[PASS] " << name << "\n";
 }
@@ -17,7 +18,7 @@ void print_pass(const char* name)
 // ============================================================
 // 单线程测试
 // ============================================================
-bool test_empty_pop() 
+bool SPSCQueueTest::test_empty_pop()
 {
     SPSCQueue<int, 4> q;
     CHECK(q.pop() == nullptr);
@@ -25,7 +26,7 @@ bool test_empty_pop()
     return true;
 }
 
-bool test_push_then_pop() 
+bool SPSCQueueTest::test_push_then_pop()
 {
     SPSCQueue<int, 4> q;
     int x = 99;
@@ -37,7 +38,7 @@ bool test_push_then_pop()
     return true;
 }
 
-bool test_full_push_returns_false() 
+bool SPSCQueueTest::test_full_push_returns_false()
 {
     SPSCQueue<int, 4> q;
     int a = 1;
@@ -51,7 +52,7 @@ bool test_full_push_returns_false()
     return true;
 }
 
-bool test_fifo_order()
+bool SPSCQueueTest::test_fifo_order()
 {
     constexpr size_t N = 8;
     SPSCQueue<int, 16> q;
@@ -71,7 +72,7 @@ bool test_fifo_order()
     return true;
 }
 
-bool test_wraparound_reuse() 
+bool SPSCQueueTest::test_wraparound_reuse()
 {
     SPSCQueue<int, 4> q;
     int v[6] = { 10, 20, 30, 40, 50, 60 };
@@ -94,7 +95,7 @@ bool test_wraparound_reuse()
     return true;
 }
 
-bool test_large_sequential() 
+bool SPSCQueueTest::test_large_sequential()
 {
     constexpr int MSG = 10000;
     constexpr size_t QSIZ = 64;
@@ -132,7 +133,7 @@ struct Item
     uint64_t checksum;
 };
 
-bool test_mt_order_and_integrity() 
+bool SPSCQueueTest::test_mt_order_and_integrity()
 {
     constexpr size_t QSIZ = 256;
     constexpr int COUNT = 100000;
@@ -219,7 +220,7 @@ bool test_mt_order_and_integrity()
     return true;
 }
 
-bool test_mt_tiny_queue_boundary() 
+bool SPSCQueueTest::test_mt_tiny_queue_boundary()
 {
     constexpr size_t QSIZ = 4;
     constexpr int COUNT = 50000;
@@ -282,7 +283,7 @@ bool test_mt_tiny_queue_boundary()
     return true;
 }
 
-bool test_mt_producer_leads_consumer() 
+bool SPSCQueueTest::test_mt_producer_leads_consumer()
 {
     // 队列容量必须 >= COUNT+1，否则 producer 会在 join 前死锁
     // （没有消费者在跑，队列满了 producer 永远退不出 while 循环）
@@ -327,7 +328,7 @@ bool test_mt_producer_leads_consumer()
     return true;
 }
 
-bool test_mt_consumer_leads_producer() 
+bool SPSCQueueTest::test_mt_consumer_leads_producer()
 {
     constexpr size_t QSIZ = 128;
     constexpr int COUNT = 20000;
@@ -396,7 +397,7 @@ bool test_mt_consumer_leads_producer()
 //------------------------------------------------------------------------------
 
 // ── ① 连续 push 两个元素，再连续 pop 两个元素 ──
-bool test_two_element_batch()
+bool SPSCQueueTest::test_two_element_batch()
 {
     SPSCQueue<int, 8> q;
     int a = 111;
@@ -418,7 +419,7 @@ bool test_two_element_batch()
 
 // ── ② nullptr 本身作为哨兵值被正确传递 ──
 // 注意：SPSCQueue 不禁止 push(nullptr)，所以 nullptr 作为普通指针传入时应该原样弹出
-bool test_nullptr_element()
+bool SPSCQueueTest::test_nullptr_element()
 {
     SPSCQueue<int, 4> q;
     CHECK(q.push(nullptr) == true);   // 可以 push nullptr
@@ -460,7 +461,7 @@ int TrackedObject::sDestructCount = 0;
 bool TrackedObject::sLastDestructIdValid = false;
 int TrackedObject::sLastDestructId = -1;
 
-bool test_non_pod_object()
+bool SPSCQueueTest::test_non_pod_object()
 {
     // 单线程下 push/pop TrackedObject，验证构造/析构配对
     // 模拟 acquire/release 语义：创建对象 → push，pop → 销毁对象
@@ -507,7 +508,7 @@ bool test_non_pod_object()
 }
 
 // ── ④ 不同容量大小（全部是 2^n），验证无编译/运行错误 ──
-bool test_various_capacities()
+bool SPSCQueueTest::test_various_capacities()
 {
     // 容量 2, 4, 8, 16, 64, 256, 1024
     int dummy = 42;
@@ -554,7 +555,7 @@ bool test_various_capacities()
 
 // ── ⑤ 单线程快速交替 push/pop，验证状态始终一致 ──
 // push 1, pop 1, push 2, pop 2, ...
-bool test_alternating_push_pop()
+bool SPSCQueueTest::test_alternating_push_pop()
 {
     SPSCQueue<int, 8> q;
     FOR(100)
@@ -570,7 +571,7 @@ bool test_alternating_push_pop()
 }
 
 // ── ⑥ 极小容量（2槽），反复绕圈，验证无越界 ──
-bool test_tiny_capacity_repeated_wraparound()
+bool SPSCQueueTest::test_tiny_capacity_repeated_wraparound()
 {
     SPSCQueue<int, 2> q;    // 实际可用 = 1
     int v[16];
@@ -592,7 +593,7 @@ bool test_tiny_capacity_repeated_wraparound()
 }
 
 // ── ⑦ 单线程：push 到满 → 全量 drain → 再 push（完整绕圈）──
-bool test_full_then_drain_then_full()
+bool SPSCQueueTest::test_full_then_drain_then_full()
 {
     SPSCQueue<int, 8> q;   // 可用 = 7
     int items[14];
@@ -632,7 +633,7 @@ bool test_full_then_drain_then_full()
 }
 
 // ── ⑧ 跨数据类型：不同类型指针共用同一队列大小（模板实例化正确性）──
-bool test_multi_type_same_capacity()
+bool SPSCQueueTest::test_multi_type_same_capacity()
 {
 	SPSCQueue<char, 8> qc;
 	SPSCQueue<short, 8> qs;
@@ -661,7 +662,7 @@ bool test_multi_type_same_capacity()
 //------------------------------------------------------------------------------
 
 // ── ⑨ 多轮 burst：生产者 burst 推送一批，消费者 burst 消费一批──
-bool test_mt_burst_rounds()
+bool SPSCQueueTest::test_mt_burst_rounds()
 {
 	constexpr size_t QSIZ = 64;
 	constexpr int ROUNDS = 100;
@@ -722,7 +723,7 @@ bool test_mt_burst_rounds()
 }
 
 // ── ⑩ 消费者快于生产者：消费者持续空转直到数据到来──
-bool test_mt_consumer_faster_than_producer()
+bool SPSCQueueTest::test_mt_consumer_faster_than_producer()
 {
     constexpr size_t QSIZ  = 128;
     constexpr int COUNT = 10000;
@@ -783,7 +784,7 @@ bool test_mt_consumer_faster_than_producer()
 }
 
 // ── ⑪ 验证 push/pop 不改变对象内容（通过 const 指针）──
-bool test_mt_data_integrity_with_padding()
+bool SPSCQueueTest::test_mt_data_integrity_with_padding()
 {
     constexpr size_t QSIZ  = 128;
     constexpr int COUNT = 30000;
@@ -893,7 +894,7 @@ bool test_mt_data_integrity_with_padding()
 }
 
 // ── ⑫ 反复创建/销毁队列，验证无内存泄漏和状态残留 ──
-bool test_mt_repeated_queue_lifecycle()
+bool SPSCQueueTest::test_mt_repeated_queue_lifecycle()
 {
     constexpr int LIFECYCLES = 20;
     constexpr size_t QSIZ = 64;
@@ -965,7 +966,7 @@ struct TestMetrics
     alignas(64) atomic<bool>     running{true};
 };
 
-bool test_mt_realistic_create_destroy()
+bool SPSCQueueTest::test_mt_realistic_create_destroy()
 {
     constexpr size_t QSIZ = 65536;              // 队列容量 2^16
     constexpr int OBJECTS_PER_FRAME = 10000;    // 每帧批量数
@@ -973,13 +974,14 @@ bool test_mt_realistic_create_destroy()
 
     SPSCQueue<PoolObject, QSIZ>* q = new SPSCQueue<PoolObject, QSIZ>();
     TestMetrics metrics;
+    atomic<bool> creatorDone{ false };          // 创建线程是否已经完全结束
 
     // 对象池：循环分配，避免堆分配开销
     constexpr size_t POOL_SIZE = QSIZ + OBJECTS_PER_FRAME;
     vector<PoolObject>* pObjPool = new vector<PoolObject>(POOL_SIZE);
     auto& objPool = *pObjPool;
-    atomic<uint64_t> nextId{0};
-    atomic<size_t> allocCursor{0};
+    atomic<uint64_t> nextId{ 0 };
+    atomic<size_t> allocCursor{ 0 };
 
     // ── 线程1：创建对象，全速运行，不限帧率 ──
     thread creator([&]() -> bool
@@ -990,29 +992,31 @@ bool test_mt_realistic_create_destroy()
             // 每帧批量创建 OBJECTS_PER_FRAME 个
             int pushedThisFrame = 0;
             while (pushedThisFrame < OBJECTS_PER_FRAME && metrics.running.load(memory_order_relaxed))
-			{
-				size_t idx = allocCursor.fetch_add(1, memory_order_relaxed) % POOL_SIZE;
-				uint64_t id = nextId.fetch_add(1, memory_order_relaxed);
+            {
+                size_t idx = allocCursor.load(memory_order_relaxed) % POOL_SIZE;
+                uint64_t id = nextId.load(memory_order_relaxed);
 
-				// 初始化：只设 magic，不做 memset
-				objPool[idx].id = static_cast<int>(id);
-				objPool[idx].magic = 0xCAFEBABE00000000ULL | id;
+                // 初始化：只设 magic，不做 memset
+                objPool[idx].id = static_cast<int>(id);
+                objPool[idx].magic = 0xCAFEBABE00000000ULL | id;
 
-				if (q->push(&objPool[idx]))
-				{
-					++pushedThisFrame;
-					++created;
-				}
+                if (q->push(&objPool[idx]))
+                {
+                    allocCursor.fetch_add(1, memory_order_relaxed);
+                    nextId.fetch_add(1, memory_order_relaxed);
+                    ++pushedThisFrame;
+                    ++created;
+                }
                 else
                 {
-                    // 队列满，回退 id，yield 让消费者腾空间
-                    nextId.fetch_sub(1, memory_order_relaxed);
+                    // 队列满时不能推进 allocCursor 和 nextId,否则会覆盖还未消费的对象
                     yield();
                 }
             }
         }
 
         metrics.totalCreated.store(created, memory_order_release);
+        creatorDone.store(true, memory_order_release);
         return true;
     });
 
@@ -1021,7 +1025,10 @@ bool test_mt_realistic_create_destroy()
     {
         uint64_t destroyed = 0;
         uint64_t errors = 0;
-        while (metrics.running.load(memory_order_relaxed))
+
+        // running=false 只表示主线程要求停止,不代表 creator 已经完全停止
+        // 所以这里必须等 creatorDone=true 以后才能退出
+        while (metrics.running.load(memory_order_relaxed) || !creatorDone.load(memory_order_acquire))
         {
             // 全速 pop 并销毁
             while (PoolObject* obj = q->pop())
@@ -1031,22 +1038,27 @@ bool test_mt_realistic_create_destroy()
                 {
                     ++errors;
                 }
+
                 // 标记为已销毁
                 obj->magic = 0;
                 obj->id = -1;
                 ++destroyed;
             }
+
             // 队列空，yield 让生产者填充
             yield();
         }
 
-        // drain 残余
+        // drain 残余,此时 creatorDone 已经为 true,不会再有新对象 push 进来
         while (PoolObject* obj = q->pop())
         {
             if (obj->magic != (0xCAFEBABE00000000ULL | static_cast<uint64_t>(obj->id)))
             {
                 ++errors;
             }
+
+            obj->magic = 0;
+            obj->id = -1;
             ++destroyed;
         }
 
@@ -1055,27 +1067,28 @@ bool test_mt_realistic_create_destroy()
         return true;
     });
 
-	// ── 主线程：等 10 秒后通知停止 ──
-	auto testStart = steady_clock::now();
-	sleep_for(seconds(TEST_DURATION_SEC));
-	metrics.running.store(false, memory_order_release);
+    // ── 主线程：等 10 秒后通知停止 ──
+    auto testStart = steady_clock::now();
+    sleep_for(seconds(TEST_DURATION_SEC));
+    metrics.running.store(false, memory_order_release);
 
-	creator.join();
-	destroyer.join();
+    creator.join();
+    destroyer.join();
 
     DELETE(q);
     DELETE(pObjPool);
 
-	auto testEnd = steady_clock::now();
-	double actualSec = duration_cast<milliseconds>(testEnd - testStart).count() / 1000.0;
+    auto testEnd = steady_clock::now();
+    double actualSec = duration_cast<milliseconds>(testEnd - testStart).count() / 1000.0;
 
-	// ── 结果统计 ──
-	uint64_t totalCreated = metrics.totalCreated.load();
-	uint64_t totalDestroyed = metrics.totalDestroyed.load();
-	uint64_t integrityErrs = metrics.integrityErrors.load();
+    // ── 结果统计 ──
+    uint64_t totalCreated = metrics.totalCreated.load(memory_order_acquire);
+    uint64_t totalDestroyed = metrics.totalDestroyed.load(memory_order_acquire);
+    uint64_t integrityErrs = metrics.integrityErrors.load(memory_order_acquire);
 
-    double createPerSec  = totalCreated / actualSec;
+    double createPerSec = totalCreated / actualSec;
     double destroyPerSec = totalDestroyed / actualSec;
+
     // 验证条件
     CHECK(integrityErrs == 0);
     CHECK(totalDestroyed <= totalCreated);
@@ -1124,3 +1137,4 @@ void SPSCQueueTest::test()
     // 真实场景压测：双线程同时跑 10 秒，每帧创建/销毁 ≥1 万个对象
     test_mt_realistic_create_destroy();
 }
+#endif

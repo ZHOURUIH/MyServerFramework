@@ -3,8 +3,8 @@
 #include "Vector.h"
 #include "ValueModify.h"
 
-// 支持在遍历列表时对列表进行插入和删除
-// 需要搭配SAFE_SET_SCOPE宏来进行遍历
+// 支持在遍历列表时对列表进行插入和删除,但是不能嵌套遍历
+// 需要搭配SAFE_VECTOR_SCOPE宏来进行遍历
 // SafeVector<int> list;
 // SAFE_VECTOR_SCOPE(list, readList);
 // for (const int item : readList)
@@ -30,15 +30,15 @@ public:
 	void endForeach()
 	{
 		mForeaching = false;
-		// 在结束遍历时同步一次
-		if (mModified)
-		{
-			sync();
-		}
 		if (mHasResetCount > 0)
 		{
 			mUpdateList.clearDefaultElement(mHasResetCount);
 			mHasResetCount = 0;
+		}
+		// 在结束遍历时同步一次
+		if (mModified)
+		{
+			sync();
 		}
 	}
 	bool isForeaching() const				{ return mForeaching; }
@@ -114,15 +114,21 @@ public:
 		// 正在遍历中,则只是重置元素
 		if (mForeaching)
 		{
-			mUpdateList.resetElement(value);
-			++mHasResetCount;
+			// 无论当前mUpdateList中有没有这个元素,都必须记录删除操作
+			// mModifyList描述的是本轮对实时列表发生的完整修改
+			mModifyList.emplace(value, false);
+			// 如果元素原本就在当前遍历列表中,则立即重置,避免本轮继续遍历它
+			if (mUpdateList.resetElement(value))
+			{
+				++mHasResetCount;
+			}
 		}
 		// 不在遍历中,则可以直接移除
 		else
 		{
 			mUpdateList.remove(value);
-			mModified = true;
 		}
+		mModified = true;
 		return true;
 	}
 	// 清空所有数据
@@ -173,6 +179,8 @@ protected:
 		mModifyList.clear();
 		mModified = false;
 	}
+public:
+	static const SafeVector<T> mDefaultList;
 protected:
 	Vector<ValueModify<T>> mModifyList;	// 记录操作的列表
 	Vector<T> mUpdateList;				// 用于遍历更新的列表
@@ -180,4 +188,12 @@ protected:
 	bool mForeaching = false;			// 是否正在遍历中
 	bool mModified = false;				// 是否有被修改,如果被修改,则在结束遍历时需要同步
 	int mHasResetCount = 0;				// 在遍历中被重置的元素个数
+private:
+	static const T mDefaultValue;
 };
+
+template<typename T>
+const T SafeVector<T>::mDefaultValue = T();
+
+template<typename T>
+const SafeVector<T> SafeVector<T>::mDefaultList;

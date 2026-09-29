@@ -402,7 +402,7 @@ namespace FileUtility
 		{
 			return false;
 		}
-		createFolder(getFilePath(destFile, false));
+		createDir(getFilePath(destFile, false));
 		return writeFileSimple(destFile, file.mBuffer, file.mFileSize);
 	}
 
@@ -419,7 +419,7 @@ namespace FileUtility
 		return result;
 	}
 
-	bool createFolder(const string& path)
+	bool createDir(const string& path)
 	{
 		// 如果目录已经存在,则返回true
 		if (isFileExist(path))
@@ -430,7 +430,7 @@ namespace FileUtility
 		const string parentDir = getFilePath(path, false);
 		if (parentDir != path)
 		{
-			createFolder(parentDir);
+			createDir(parentDir);
 		}
 #ifdef WINDOWS
 		if (0 != _mkdir(path.c_str()))
@@ -489,7 +489,7 @@ namespace FileUtility
 		string newPath = filePath;
 		rightToLeft(newPath);
 		const string path = getFilePath(newPath, false);
-		if (!createFolder(path))
+		if (!createDir(path))
 		{
 			ERROR("can not create folder, name : " + path);
 			return false;
@@ -606,7 +606,7 @@ namespace FileUtility
 		{
 			return true;
 		}
-		createFolder(getFilePath(newName, false));
+		createDir(getFilePath(newName, false));
 		return renameFile(fileName, newName, forceCover);
 	}
 

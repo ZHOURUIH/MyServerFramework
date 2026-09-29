@@ -1,5 +1,7 @@
 ﻿// auto generate start
 #include "EDAchivement.h"
+#include "ExcelTable.h"
+#include "SerializerRead.h"
 
 void EDAchivement::cloneTo(ExcelData* target)
 {

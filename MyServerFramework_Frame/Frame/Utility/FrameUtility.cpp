@@ -2,6 +2,7 @@
 
 namespace FrameUtility
 {
+	llong mGUIDSeed = 0;
 	bool tickTimerLoop(float& time, const float elapsedTime, const float interval)
 	{
 		if (time < 0.0f)

@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // IntPoolThreadTest
@@ -327,3 +328,4 @@ void IntPoolThreadTest::testNegativeValueWrite()
 	IPT_ASSERT(*p == -1);
 	pool.destroyPod(p);
 }
+#endif

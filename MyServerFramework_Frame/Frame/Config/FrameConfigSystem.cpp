@@ -5,6 +5,11 @@ void FrameConfigSystem::init()
 	readConfig(parseConfig(FrameDefine::CONFIG_PATH + "FrameConfig.txt"));
 }
 
+void FrameConfigSystem::destory()
+{
+	DELETE_ARRAY(mEncryptKey);
+}
+
 void FrameConfigSystem::readConfig(const Vector<pair<string, string>>& valueList)
 {
 	for (const auto& iterValue : valueList)
@@ -83,6 +88,32 @@ void FrameConfigSystem::readConfig(const Vector<pair<string, string>>& valueList
 		{
 			mServerID = SToI(paramValue);
 		}
+		else if (paramName == "KEY_0")
+		{
+			mKey0 = SToI(paramValue);
+		}
+		else if (paramName == "KEY_1")
+		{
+			mKey1 = SToI(paramValue);
+		}
+		else if (paramName == "KEY_2")
+		{
+			mKey2 = SToI(paramValue);
+		}
+		else if (paramName == "KEY_3")
+		{
+			mKey3 = SToI(paramValue);
+		}
+		else if (paramName == "ENCRYPT_KEY")
+		{
+			mEncryptKeyLength = (int)paramValue.size() / 2;
+			if (!isPow2(mEncryptKeyLength))
+			{
+				ERROR("网络密钥的长度必须是2的n次方,当前长度为:" + IToS(mEncryptKeyLength));
+			}
+			mEncryptKey = new byte[mEncryptKeyLength];
+			hexStringToBytes(paramValue, mEncryptKey, mEncryptKeyLength);
+		}
 	}
 }
 
@@ -101,12 +132,10 @@ Vector<pair<string, string>> FrameConfigSystem::parseConfig(const string& fileNa
 		// 首先去掉所有的空格和制表符
 		FOR(lineString.length())
 		{
-			if (lineString[i] != ' ' && lineString[i] != '\t' && lineString[i] != '\r' && lineString[i] != '\n')
+			const char c = lineString[i];
+			if (c != ' ' && c != '\t' && c != '\r' && c != '\n' && !tempBuffer.add(c))
 			{
-				if (!tempBuffer.add(lineString[i]))
-				{
-					break;
-				}
+				break;
 			}
 		}
 		const string newString(tempBuffer.str());

@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define TICK_ASSERT(expr, msg) \
     do { if (!(expr)) { ERROR(string("TickerTest FAILED: ") + (msg)); } } while(0)
@@ -193,3 +194,4 @@ void TickerTest::testTickerCallbackReturnsTrueMany()
     TICK_ASSERT(n == 200, "callback called 200 times");
     TICK_ASSERT(!t.isFinish(), "all true => never finish");
 }
+#endif

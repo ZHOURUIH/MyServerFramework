@@ -15,6 +15,7 @@ public:
 	void init() override;
 	void quit() override;
 	void update(float elapsedTime) override;
+	void endFrame(float elapsedTime) override;
 	float getHeartBeatTimeOut()	const											{ return mHeartBeatTimeOut; }
 	bool getOutputLog() const 													{ return mOutputLog; }
 	bool isAvailable() const													{ return mSocket != INVALID_SOCKET; }
@@ -27,11 +28,17 @@ public:
 	void setServerCheckPingCallback(ServerCheckPingCallback callback)			{ mServerCheckPing = callback; }
 	void setFreezeAccountCallback(FreezeAccountCallback callback)				{ mFreezeAccount = callback; }
 	void increaseReceivePacketCount(int count)									{ mReceivePacketCount += count; }
-	void increaseSendPacketCount(ushort packetType, const string& name)	
+	void setEnablePacketLog(bool enable)										{ mEnablePacketLog = enable; }
+	void increaseSendPacketCount(ushort packetType, const string& name)
 	{
 		++mSendPacketCount;
-		++mPacketSendCountMap.addOrGet(packetType);
-		mPacketSendNameMap.add(packetType, name);
+		int& packetCount = mPacketSendCountList.data()[packetType];
+		if (packetCount == 0)
+		{
+			mPacketSendActiveTypeList.add(packetType);
+			mPacketSendNameMap.add(packetType, name);
+		}
+		++packetCount;
 	}
 	void freezeAccount(llong accountGUID, llong timeSecond, const char* reason) { CALL(mFreezeAccount, accountGUID, timeSecond, reason); }
 	// 将消息数据写入到缓冲区,在发送消息前调用
@@ -58,7 +65,8 @@ public:
 protected:
 	Vector<pair<MY_SOCKET, string>> mAcceptBuffer;			// 连接缓存列表
 	HashMap<ushort, string> mPacketSendNameMap;				// 用于查询消息ID对应的名字
-	HashMap<ushort, int> mPacketSendCountMap;				// 记录每个消息发送的数量
+	Vector<int> mPacketSendCountList;						// 按ushort消息类型直接索引发送数量,避免每次发包查询HashMap
+	Vector<ushort> mPacketSendActiveTypeList;				// 当前统计周期内实际出现过的消息类型,用于快速清零和Top10统计
 	HashMap<int, TCPServerClient*> mClientList;				// 客户端列表,用于主线程访问
 	Vector<TCPServerClient*> mSendClientList;				// 客户端列表,用于发送线程访问,修改客户端列表时,需要同步修改这三个列表
 	Vector<TCPServerClient*> mRecvClientList;				// 客户端列表,用于接收线程访问
@@ -72,6 +80,7 @@ protected:
 	ServerCheckPingCallback mServerCheckPing = nullptr;		// 服务器主动检查客户端延迟的函数
 	FreezeAccountCallback mFreezeAccount = nullptr;			// 冻结账号的函数
 	MY_SOCKET mSocket = INVALID_SOCKET;						// 服务器套接字
+	int mRecvEpollFD = -1;									// Linux接收线程使用的epoll实例,Windows不使用
 	char* mRecvBuffer = nullptr;							// 数据接收缓冲区
 	float mHeartBeatTimeOut = 0.0f;							// 心跳超时时间
 	int mServerHeartBeat = 0;								// 服务器当前心跳次数
@@ -85,6 +94,7 @@ protected:
 	ushort mPort = 0;										// 端口号
 	bool mOutputLog = true;									// 是否输出日志
 	bool mWinsockInitialized = false;						// 是否已经初始化了winsock,防止重复调用WSACleanup
+	bool mEnablePacketLog = true;							// 是否每20秒打印一次收发数据信息
 	static constexpr float mDumpPacketTimeInternal = 20.0f;	// 每20秒打印一次收发数据信息
 	static constexpr float mServerHeartBeatTimeOut = 60.0f;	// 服务器自身心跳间隔时间
 	static constexpr int mKey0 = 41;

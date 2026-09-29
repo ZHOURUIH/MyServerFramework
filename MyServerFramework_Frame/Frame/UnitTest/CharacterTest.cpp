@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define CH_ASSERT(expr, msg) \
 	if (!(expr)) { ERROR(string("CharacterExtTest FAIL: ") + (msg)); }
@@ -7,34 +8,34 @@
 // Character GUID
 // =====================================================================
 
-static void testChGuidDefault()
+void CharacterTest::testChGuidDefault()
 {
 	Character ch;
 	CH_ASSERT(ch.getGUID() == 0, "GUID default 0");
 }
 
-static void testChGuidPositive()
+void CharacterTest::testChGuidPositive()
 {
 	Character ch;
 	ch.setGUID(12345);
 	CH_ASSERT(ch.getGUID() == 12345, "GUID positive");
 }
 
-static void testChGuidNegative()
+void CharacterTest::testChGuidNegative()
 {
 	Character ch;
 	ch.setGUID(-1);
 	CH_ASSERT(ch.getGUID() == -1, "GUID negative");
 }
 
-static void testChGuidLarge()
+void CharacterTest::testChGuidLarge()
 {
 	Character ch;
 	ch.setGUID(9223372036854775807LL); // LLONG_MAX safe
 	CH_ASSERT(ch.getGUID() == 9223372036854775807LL, "GUID large positive");
 }
 
-static void testChGuidZero()
+void CharacterTest::testChGuidZero()
 {
 	Character ch;
 	ch.setGUID(999);
@@ -42,7 +43,7 @@ static void testChGuidZero()
 	CH_ASSERT(ch.getGUID() == 0, "GUID reset zero");
 }
 
-static void testChGuidSequential()
+void CharacterTest::testChGuidSequential()
 {
 	Character ch;
 	for (int i = 0; i < 20; ++i)
@@ -52,7 +53,7 @@ static void testChGuidSequential()
 	}
 }
 
-static void testChGuidMultipleCharacters()
+void CharacterTest::testChGuidMultipleCharacters()
 {
 	Character ch1, ch2, ch3;
 	ch1.setGUID(1);
@@ -72,27 +73,27 @@ static void testChGuidMultipleCharacters()
 // Character Type
 // =====================================================================
 
-static void testChTypeDefault()
+void CharacterTest::testChTypeDefault()
 {
 	Character ch;
 	CH_ASSERT(ch.getType() == 0, "type default 0");
 }
 
-static void testChTypePositive()
+void CharacterTest::testChTypePositive()
 {
 	Character ch;
 	ch.setType(5);
 	CH_ASSERT(ch.getType() == 5, "type positive");
 }
 
-static void testChTypeMax()
+void CharacterTest::testChTypeMax()
 {
 	Character ch;
 	ch.setType(255);
 	CH_ASSERT(ch.getType() == 255, "type max byte");
 }
 
-static void testChTypeZero()
+void CharacterTest::testChTypeZero()
 {
 	Character ch;
 	ch.setType(127);
@@ -100,7 +101,7 @@ static void testChTypeZero()
 	CH_ASSERT(ch.getType() == 0, "type reset zero");
 }
 
-static void testChTypeSequential()
+void CharacterTest::testChTypeSequential()
 {
 	Character ch;
 	for (int i = 0; i <= 10; ++i)
@@ -114,7 +115,7 @@ static void testChTypeSequential()
 // Character GUID + Type 组合
 // =====================================================================
 
-static void testChGUIDAndType()
+void CharacterTest::testChGUIDAndType()
 {
 	Character ch;
 	ch.setGUID(1000);
@@ -122,7 +123,7 @@ static void testChGUIDAndType()
 	CH_ASSERT(ch.getGUID() == 1000 && ch.getType() == 3, "GUID+type combined");
 }
 
-static void testChGUIDAndTypeSwapOrder()
+void CharacterTest::testChGUIDAndTypeSwapOrder()
 {
 	Character ch;
 	ch.setType(7);
@@ -134,7 +135,7 @@ static void testChGUIDAndTypeSwapOrder()
 // Character ResetProperty
 // =====================================================================
 
-static void testChResetPropertyGuid()
+void CharacterTest::testChResetPropertyGuid()
 {
 	Character ch;
 	ch.setGUID(8888);
@@ -142,7 +143,7 @@ static void testChResetPropertyGuid()
 	CH_ASSERT(ch.getGUID() == 0, "resetProperty GUID zero");
 }
 
-static void testChResetPropertyType()
+void CharacterTest::testChResetPropertyType()
 {
 	Character ch;
 	ch.setType(10);
@@ -150,7 +151,7 @@ static void testChResetPropertyType()
 	CH_ASSERT(ch.getType() == 0, "resetProperty type zero");
 }
 
-static void testChResetPropertyBoth()
+void CharacterTest::testChResetPropertyBoth()
 {
 	Character ch;
 	ch.setGUID(7777);
@@ -159,7 +160,7 @@ static void testChResetPropertyBoth()
 	CH_ASSERT(ch.getGUID() == 0 && ch.getType() == 0, "resetProperty both zero");
 }
 
-static void testChResetPropertyMultiple()
+void CharacterTest::testChResetPropertyMultiple()
 {
 	Character ch;
 	for (int i = 0; i < 5; ++i)
@@ -171,7 +172,7 @@ static void testChResetPropertyMultiple()
 	}
 }
 
-static void testChResetThenSet()
+void CharacterTest::testChResetThenSet()
 {
 	Character ch;
 	ch.setGUID(100);
@@ -187,7 +188,7 @@ static void testChResetThenSet()
 // Character 继承链
 // =====================================================================
 
-static void testChInheritsMovableObjectPosition()
+void CharacterTest::testChInheritsMovableObjectPosition()
 {
 	Character ch;
 	ch.setPosition(Vector3(1.0f, 2.0f, 3.0f));
@@ -195,7 +196,7 @@ static void testChInheritsMovableObjectPosition()
 	CH_ASSERT(pos.x == 1.0f && pos.y == 2.0f && pos.z == 3.0f, "inherits position");
 }
 
-static void testChInheritsCommandReceiverName()
+void CharacterTest::testChInheritsCommandReceiverName()
 {
 	Character ch;
 	ch.setName("test_char");
@@ -233,3 +234,4 @@ void CharacterTest::test()
 	testChInheritsMovableObjectPosition();
 	testChInheritsCommandReceiverName();
 }
+#endif

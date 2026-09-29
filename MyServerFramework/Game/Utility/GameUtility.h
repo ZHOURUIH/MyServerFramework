@@ -5,8 +5,8 @@
 
 namespace GameUtility
 {
-	static CharacterPlayer* getPlayer(llong playerGUID);
-	static CharacterPlayer* toPlayer(Character* character);
+	CharacterPlayer* getPlayer(llong playerGUID);
+	CharacterPlayer* toPlayer(Character* character);
 };
 
 using namespace GameUtility;

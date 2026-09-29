@@ -1,18 +1,5 @@
-﻿#include "FrameHeader.h"
-
-// ============================================================
-// FileUtilityTest — FileUtility 全方位测试
-// 覆盖：
-//   createFolder / isDirExist / isFileExist
-//   writeFile / openFile / openTxtFile / openTxtFileLines
-//   writeFileSimple / openBinaryFile
-//   copyFile / moveFile / renameFile / deleteFile
-//   findFiles / findFolders
-//   copyFolder / deleteFolder
-//   generateMD5 / generateFileMD5
-//   getFileSize
-//   validPath
-// ============================================================
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define FUT_FILE_ASSERT(expr, msg) \
     do { if (!(expr)) { ERROR(string("FileUtilityTest FAILED: ") + (msg)); } } while(0)
@@ -54,15 +41,15 @@ void FileUtilityTest::testValidPath()
 }
 
 // ============================================================
-// createFolder / isDirExist / deleteFolder
+// createDir / isDirExist / deleteFolder
 // ============================================================
 void FileUtilityTest::testCreateAndDeleteFolder()
 {
     cleanupTestRoot();
 
     // 创建根目录
-    bool r1 = createFolder(kTestRoot);
-    FUT_FILE_ASSERT(r1, "createFolder root success");
+    bool r1 = createDir(kTestRoot);
+    FUT_FILE_ASSERT(r1, "createDir root success");
     FUT_FILE_ASSERT(isDirExist(kTestRoot), "isDirExist root true");
 
     // 不存在的目录
@@ -70,17 +57,17 @@ void FileUtilityTest::testCreateAndDeleteFolder()
 
     // 创建子目录
     const string sub = kTestRoot + "/subdir";
-    FUT_FILE_ASSERT(createFolder(sub), "createFolder subdir success");
+    FUT_FILE_ASSERT(createDir(sub), "createDir subdir success");
     FUT_FILE_ASSERT(isDirExist(sub), "isDirExist subdir true");
 
     // 再次创建同名目录（不崩溃，通常返回 false 或 true，行为由实现决定）
-    createFolder(sub); // 不崩溃即可
+    createDir(sub); // 不崩溃即可
 
     // 创建深层目录
     const string deep = kTestRoot + "/a/b/c";
-    createFolder(kTestRoot + "/a");
-    createFolder(kTestRoot + "/a/b");
-    FUT_FILE_ASSERT(createFolder(deep), "createFolder deep success");
+    createDir(kTestRoot + "/a");
+    createDir(kTestRoot + "/a/b");
+    FUT_FILE_ASSERT(createDir(deep), "createDir deep success");
     FUT_FILE_ASSERT(isDirExist(deep), "isDirExist deep true");
 
     // deleteFolder
@@ -330,12 +317,12 @@ void FileUtilityTest::testCopyAndRenameFolder()
 {
     const string srcDir = kTestRoot + "/folder_src";
     const string dstDir = kTestRoot + "/folder_dst";
-    createFolder(srcDir);
+    createDir(srcDir);
 
     // 在源目录中创建一些文件
     writeFile(srcDir + "/file1.txt", "file1 content");
     writeFile(srcDir + "/file2.txt", "file2 content");
-    createFolder(srcDir + "/sub");
+    createDir(srcDir + "/sub");
     writeFile(srcDir + "/sub/file3.txt", "sub file3 content");
 
     // copyFolder
@@ -375,9 +362,9 @@ void FileUtilityTest::testCopyAndRenameFolder()
 void FileUtilityTest::testFindFiles()
 {
     const string dir = kTestRoot + "/findfiles_test";
-    createFolder(dir);
-    createFolder(dir + "/sub1");
-    createFolder(dir + "/sub2");
+    createDir(dir);
+    createDir(dir + "/sub1");
+    createDir(dir + "/sub2");
 
     // 创建文件
     writeFile(dir + "/a.txt", "a");
@@ -422,7 +409,7 @@ void FileUtilityTest::testFindFiles()
     // 空目录
     {
         const string emptyDir = kTestRoot + "/findfiles_empty";
-        createFolder(emptyDir);
+        createDir(emptyDir);
         Vector<string> files;
         findFiles(emptyDir, files);
         FUT_FILE_ASSERT(files.size() == 0, "findFiles empty dir 0");
@@ -438,10 +425,10 @@ void FileUtilityTest::testFindFiles()
 void FileUtilityTest::testFindFolders()
 {
     const string dir = kTestRoot + "/findfolders_test";
-    createFolder(dir);
-    createFolder(dir + "/subA");
-    createFolder(dir + "/subB");
-    createFolder(dir + "/subA/subAA");
+    createDir(dir);
+    createDir(dir + "/subA");
+    createDir(dir + "/subB");
+    createDir(dir + "/subA/subAA");
     writeFile(dir + "/file.txt", "x");
 
     // 非递归：只找顶层子目录
@@ -461,7 +448,7 @@ void FileUtilityTest::testFindFolders()
     // 空目录
     {
         const string emptyDir = kTestRoot + "/findfolders_empty";
-        createFolder(emptyDir);
+        createDir(emptyDir);
         Vector<string> folders;
         findFolders(emptyDir, folders, false);
         FUT_FILE_ASSERT(folders.size() == 0, "findFolders empty dir 0");
@@ -611,7 +598,7 @@ void FileUtilityTest::testDeleteEmptyFolder()
 {
     // 空目录：应成功删除
     const string emptyDir = kTestRoot + "/delete_empty";
-    createFolder(emptyDir);
+    createDir(emptyDir);
     FUT_FILE_ASSERT(isDirExist(emptyDir), "deleteEmptyFolder dir created");
     bool r = deleteEmptyFolder(emptyDir);
     FUT_FILE_ASSERT(r, "deleteEmptyFolder empty dir success");
@@ -619,7 +606,7 @@ void FileUtilityTest::testDeleteEmptyFolder()
 
     // 非空目录：应返回 false（或不删除）
     const string nonEmptyDir = kTestRoot + "/delete_nonempty";
-    createFolder(nonEmptyDir);
+    createDir(nonEmptyDir);
     writeFile(nonEmptyDir + "/file.txt", "x");
     bool r2 = deleteEmptyFolder(nonEmptyDir);
     FUT_FILE_ASSERT(!r2, "deleteEmptyFolder nonempty returns false");
@@ -636,7 +623,7 @@ void FileUtilityTest::testComprehensiveScenario()
     cleanupTestRoot();
 
     const string workDir = kTestRoot + "/scenario";
-    createFolder(workDir);
+    createDir(workDir);
 
     // 创建多个文件
     for (int i = 0; i < 10; ++i)
@@ -673,7 +660,7 @@ void FileUtilityTest::testComprehensiveScenario()
 
     // 创建备份目录并拷贝
     const string backupDir = kTestRoot + "/scenario_backup";
-    createFolder(backupDir);
+    createDir(backupDir);
     for (int i = 0; i < (int)allFiles.size(); ++i)
     {
         const string fileName = getFileName(allFiles[i]);
@@ -697,7 +684,7 @@ void FileUtilityTest::testComprehensiveScenario()
     FUT_FILE_ASSERT(isDirExist(backupDir), "scenario: backup dir still exists");
 
     // 从备份恢复
-    createFolder(workDir);
+    createDir(workDir);
     copyFolder(backupDir + "/", workDir + "/");
     Vector<string> restoredFiles;
     findFiles(workDir, restoredFiles);
@@ -713,7 +700,7 @@ void FileUtilityTest::testComprehensiveScenario()
 void FileUtilityTest::testManySmallFiles()
 {
     const string dir = kTestRoot + "/stress";
-    createFolder(dir);
+    createDir(dir);
 
     const int count = 50;
 
@@ -849,7 +836,7 @@ void FileUtilityTest::test()
 {
     // 初始化测试目录
     cleanupTestRoot();
-    createFolder(kTestRoot);
+    createDir(kTestRoot);
 
     testValidPath();
     testCreateAndDeleteFolder();
@@ -874,4 +861,155 @@ void FileUtilityTest::test()
 
     // 清理测试目录
     cleanupTestRoot();
+	testDeep();
 }
+
+
+namespace FileUtilityTestDeepLocal
+{
+	struct TempDirGuard
+	{
+		string root;
+		explicit TempDirGuard(string dir) : root(move(dir)) {}
+		~TempDirGuard()
+		{
+			deleteFolder(root);
+		}
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+void FileUtilityTest::assertFileUtility(bool condition, const char* message)
+{
+	using namespace FileUtilityTestDeepLocal;
+		if (!condition)
+		{
+			ERROR(string("FileUtilityTest failed: ") + message);
+		}
+	}
+
+string FileUtilityTest::tempRoot()
+{
+	using namespace FileUtilityTestDeepLocal;
+		return "FileUtilityTest_tmp";
+	}
+
+void FileUtilityTest::prepareTree(const string& root)
+{
+	using namespace FileUtilityTestDeepLocal;
+		createDir(root);
+		createDir(root + "/a");
+		createDir(root + "/b");
+		createDir(root + "/b/c");
+		writeFile(root + "/root.txt", string("root"), false);
+		writeFile(root + "/a/alpha.txt", string("alpha"), false);
+		writeFile(root + "/a/beta.log", string("beta"), false);
+		writeFile(root + "/b/c/gamma.txt", string("gamma"), false);
+	}
+
+void FileUtilityTest::testPathAndExistence()
+{
+	using namespace FileUtilityTestDeepLocal;
+		const string root = tempRoot();
+		TempDirGuard guard(root);
+		prepareTree(root);
+
+		string path = "abc";
+		validPath(path);
+		assertFileUtility(path == "abc/", "validPath append");
+		assertFileUtility(isDirExist(root), "root dir exists");
+		assertFileUtility(isFileExist(root + "/root.txt"), "root file exists");
+		assertFileUtility(!isFileExist(root + "/missing.txt"), "missing file not exists");
+	}
+
+void FileUtilityTest::testFindAndCopy()
+{
+	using namespace FileUtilityTestDeepLocal;
+		const string root = tempRoot();
+		TempDirGuard guard(root);
+		prepareTree(root);
+
+		Vector<string> txtFiles;
+		findFiles(root, txtFiles, string(".txt"), true);
+		assertFileUtility(txtFiles.size() == 3, "txt file count");
+
+		Vector<string> folders;
+		findFolders(root, folders, true);
+		assertFileUtility(folders.size() >= 3, "folder count");
+
+		assertFileUtility(copyFile(root + "/root.txt", root + "/root_copy.txt", true), "copy file");
+		assertFileUtility(isFileExist(root + "/root_copy.txt"), "copied file exists");
+
+		assertFileUtility(renameFile(root + "/root_copy.txt", root + "/root_renamed.txt", true), "rename file");
+		assertFileUtility(isFileExist(root + "/root_renamed.txt"), "renamed file exists");
+		assertFileUtility(!isFileExist(root + "/root_copy.txt"), "old copy removed");
+
+		assertFileUtility(copyFolder(root + "/a/", root + "/a_copy/", true), "copy folder");
+		assertFileUtility(isDirExist(root + "/a_copy"), "copied folder exists");
+		assertFileUtility(isFileExist(root + "/a_copy/alpha.txt"), "copied nested file");
+	}
+
+void FileUtilityTest::testReadWriteAndMD5()
+{
+	using namespace FileUtilityTestDeepLocal;
+		const string root = tempRoot();
+		TempDirGuard guard(root);
+		prepareTree(root);
+
+		const string txt = root + "/sample.txt";
+		const string content = "hello\nworld";
+		assertFileUtility(writeFile(txt, content, false), "write text");
+		assertFileUtility(getFileSize(txt) == (int)content.length(), "file size");
+
+		string loaded = openTxtFile(txt, false, true);
+		assertFileUtility(loaded == content, "open text");
+
+		Vector<string> lines;
+		assertFileUtility(openTxtFileLines(txt, lines, false, true), "open lines");
+		assertFileUtility(lines.size() == 2, "line count");
+		assertFileUtility(lines[0] == "hello", "line 0");
+		assertFileUtility(lines[1] == "world", "line 1");
+
+		const string md5A = generateMD5(content, false);
+		const string md5B = generateFileMD5(txt, false);
+		assertFileUtility(!md5A.empty(), "md5 memory");
+		assertFileUtility(!md5B.empty(), "md5 file");
+	}
+
+void FileUtilityTest::testDeleteHelpers()
+{
+	using namespace FileUtilityTestDeepLocal;
+		const string root = tempRoot();
+		TempDirGuard guard(root);
+		prepareTree(root);
+
+		const string emptyDir = root + "/empty";
+		createDir(emptyDir);
+		assertFileUtility(deleteEmptyFolder(emptyDir), "delete empty folder");
+		assertFileUtility(!isDirExist(emptyDir), "empty removed");
+
+		deleteFile(root + "/root.txt");
+		assertFileUtility(!isFileExist(root + "/root.txt"), "file deleted");
+	}
+
+void FileUtilityTest::testDeep()
+{
+	testPathAndExistence();
+	testFindAndCopy();
+	testReadWriteAndMD5();
+	testDeleteHelpers();
+}
+#endif

@@ -6,9 +6,7 @@ ComponentOwner::~ComponentOwner()
 	DELETE(mLateFrameTickList);
 	DELETE(mSecondTickList);
 	DELETE(mBreakableComponentList);
-	DELETE(mComponentArray);
 	destroyAllComponents();
-	DELETE(mComponentTypeMap);
 	DELETE(mComponentTypeList);
 }
 
@@ -122,18 +120,18 @@ void ComponentOwner::destroyComponent(GameComponent* component)
 	{
 		mSecondTickList->remove(component);
 	}
-	if (mComponentTypeMap != nullptr)
-	{
-		mComponentTypeMap->remove(component->getType());
-	}
 	if (mComponentTypeList != nullptr)
 	{
 		mComponentTypeList->remove(component);
 	}
 	removeBreakableComponent(component);
-	if (mComponentArray != nullptr)
+	for (int i = 0; i < COMPONENT_ARRAY_COUNT; ++i)
 	{
-		mComponentArray->remove(component);
+		if (mComponentArray[i] == component)
+		{
+			mComponentArray[i] = nullptr;
+			break;
+		}
 	}
 }
 
@@ -151,10 +149,6 @@ void ComponentOwner::destroyAllComponents()
 	{
 		mSecondTickList->clear();
 	}
-	if (mComponentTypeMap != nullptr)
-	{
-		mComponentTypeMap->clear();
-	}
 	if (mComponentTypeList != nullptr)
 	{
 		mGameComponentPool->destroyClassList(*mComponentTypeList);
@@ -163,10 +157,7 @@ void ComponentOwner::destroyAllComponents()
 	{
 		mBreakableComponentList->clear();
 	}
-	if (mComponentArray != nullptr)
-	{
-		mComponentArray->clear();
-	}
+	clearComponentArray();
 }
 
 void ComponentOwner::resetProperty()
@@ -184,10 +175,6 @@ void ComponentOwner::resetProperty()
 	{
 		mSecondTickList->clear();
 	}
-	if (mComponentTypeMap != nullptr)
-	{
-		mComponentTypeMap->clear();
-	}
 	if (mComponentTypeList != nullptr)
 	{
 		mComponentTypeList->clear();
@@ -196,11 +183,16 @@ void ComponentOwner::resetProperty()
 	{
 		mBreakableComponentList->clear();
 	}
-	if (mComponentArray != nullptr)
-	{
-		mComponentArray->clear();
-	}
+	clearComponentArray();
 	mTickTimer = 1.0f;
+}
+
+void ComponentOwner::clearComponentArray()
+{
+	for (int i = 0; i < COMPONENT_ARRAY_COUNT; ++i)
+	{
+		mComponentArray[i] = nullptr;
+	}
 }
 
 void ComponentOwner::setFrameTick(GameComponent* component, FloatCallback callback)

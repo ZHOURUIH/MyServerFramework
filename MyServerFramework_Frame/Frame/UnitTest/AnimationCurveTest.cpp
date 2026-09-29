@@ -1,17 +1,18 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // AC_ASSERT: AnimationCurveTest 专用断言宏
 #define AC_ASSERT(expr) \
 	if (!(expr)) { ERROR("AnimationCurveTest FAILED: " #expr); }
 
 // 浮点比较辅助
-static bool acNear(float a, float b, float eps = 1e-4f)
+bool AnimationCurveTest::acNear(float a, float b, float eps)
 {
 	return fabsf(a - b) <= eps;
 }
 
 // ========== AnimationCurve 基类 ==========
-static void testAnimationCurveBase()
+void AnimationCurveTest::testAnimationCurveBase()
 {
 	// 基类 evaluate 默认返回 time 本身
 	AnimationCurve base;
@@ -27,7 +28,7 @@ static void testAnimationCurveBase()
 }
 
 // ========== CurveLinearZeroOne (0→1) ==========
-static void testCurveLinearZeroOne()
+void AnimationCurveTest::testCurveLinearZeroOne()
 {
 	CurveLinearZeroOne c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -44,7 +45,7 @@ static void testCurveLinearZeroOne()
 }
 
 // ========== CurveLinearOneZero (1→0) ==========
-static void testCurveLinearOneZero()
+void AnimationCurveTest::testCurveLinearOneZero()
 {
 	CurveLinearOneZero c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 1.0f));
@@ -60,7 +61,7 @@ static void testCurveLinearOneZero()
 }
 
 // ========== CurveLinearZeroOneZero (0→1→0) ==========
-static void testCurveLinearZeroOneZero()
+void AnimationCurveTest::testCurveLinearZeroOneZero()
 {
 	CurveLinearZeroOneZero c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -73,7 +74,7 @@ static void testCurveLinearZeroOneZero()
 }
 
 // ========== CurveLinearOneZeroOne (1→0→1) ==========
-static void testCurveLinearOneZeroOne()
+void AnimationCurveTest::testCurveLinearOneZeroOne()
 {
 	CurveLinearOneZeroOne c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 1.0f));
@@ -86,7 +87,7 @@ static void testCurveLinearOneZeroOne()
 }
 
 // ========== CurveCubicIn (t^3) ==========
-static void testCurveCubicIn()
+void AnimationCurveTest::testCurveCubicIn()
 {
 	CurveCubicIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -105,7 +106,7 @@ static void testCurveCubicIn()
 }
 
 // ========== CurveCubicOut ==========
-static void testCurveCubicOut()
+void AnimationCurveTest::testCurveCubicOut()
 {
 	CurveCubicOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -123,7 +124,7 @@ static void testCurveCubicOut()
 }
 
 // ========== CurveCubicInOut ==========
-static void testCurveCubicInOut()
+void AnimationCurveTest::testCurveCubicInOut()
 {
 	CurveCubicInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -140,7 +141,7 @@ static void testCurveCubicInOut()
 }
 
 // ========== CurveQuadIn (t^2) ==========
-static void testCurveQuadIn()
+void AnimationCurveTest::testCurveQuadIn()
 {
 	CurveQuadIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -156,7 +157,7 @@ static void testCurveQuadIn()
 }
 
 // ========== CurveQuadOut ==========
-static void testCurveQuadOut()
+void AnimationCurveTest::testCurveQuadOut()
 {
 	CurveQuadOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -173,7 +174,7 @@ static void testCurveQuadOut()
 }
 
 // ========== CurveQuadInOut ==========
-static void testCurveQuadInOut()
+void AnimationCurveTest::testCurveQuadInOut()
 {
 	CurveQuadInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -189,7 +190,7 @@ static void testCurveQuadInOut()
 }
 
 // ========== CurveQuartIn (t^4) ==========
-static void testCurveQuartIn()
+void AnimationCurveTest::testCurveQuartIn()
 {
 	CurveQuartIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -205,7 +206,7 @@ static void testCurveQuartIn()
 }
 
 // ========== CurveQuartOut ==========
-static void testCurveQuartOut()
+void AnimationCurveTest::testCurveQuartOut()
 {
 	CurveQuartOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -220,7 +221,7 @@ static void testCurveQuartOut()
 }
 
 // ========== CurveQuintIn (t^5) ==========
-static void testCurveQuintIn()
+void AnimationCurveTest::testCurveQuintIn()
 {
 	CurveQuintIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -236,7 +237,7 @@ static void testCurveQuintIn()
 }
 
 // ========== CurveQuintOut ==========
-static void testCurveQuintOut()
+void AnimationCurveTest::testCurveQuintOut()
 {
 	CurveQuintOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -251,7 +252,7 @@ static void testCurveQuintOut()
 }
 
 // ========== CurveSineIn ==========
-static void testCurveSineIn()
+void AnimationCurveTest::testCurveSineIn()
 {
 	CurveSineIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -266,7 +267,7 @@ static void testCurveSineIn()
 }
 
 // ========== CurveSineOut ==========
-static void testCurveSineOut()
+void AnimationCurveTest::testCurveSineOut()
 {
 	CurveSineOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -281,7 +282,7 @@ static void testCurveSineOut()
 }
 
 // ========== CurveSineInOut ==========
-static void testCurveSineInOut()
+void AnimationCurveTest::testCurveSineInOut()
 {
 	CurveSineInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -297,7 +298,7 @@ static void testCurveSineInOut()
 }
 
 // ========== CurveCircleIn ==========
-static void testCurveCircleIn()
+void AnimationCurveTest::testCurveCircleIn()
 {
 	CurveCircleIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -312,7 +313,7 @@ static void testCurveCircleIn()
 }
 
 // ========== CurveCircleOut ==========
-static void testCurveCircleOut()
+void AnimationCurveTest::testCurveCircleOut()
 {
 	CurveCircleOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -327,7 +328,7 @@ static void testCurveCircleOut()
 }
 
 // ========== CurveCircleInOut ==========
-static void testCurveCircleInOut()
+void AnimationCurveTest::testCurveCircleInOut()
 {
 	CurveCircleInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -343,7 +344,7 @@ static void testCurveCircleInOut()
 }
 
 // ========== CurveExpoIn ==========
-static void testCurveExpoIn()
+void AnimationCurveTest::testCurveExpoIn()
 {
 	CurveExpoIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -358,7 +359,7 @@ static void testCurveExpoIn()
 }
 
 // ========== CurveExpoOut ==========
-static void testCurveExpoOut()
+void AnimationCurveTest::testCurveExpoOut()
 {
 	CurveExpoOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -373,7 +374,7 @@ static void testCurveExpoOut()
 }
 
 // ========== CurveExpoInOut ==========
-static void testCurveExpoInOut()
+void AnimationCurveTest::testCurveExpoInOut()
 {
 	CurveExpoInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -389,7 +390,7 @@ static void testCurveExpoInOut()
 }
 
 // ========== CurveBackIn ==========
-static void testCurveBackIn()
+void AnimationCurveTest::testCurveBackIn()
 {
 	CurveBackIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -401,7 +402,7 @@ static void testCurveBackIn()
 }
 
 // ========== CurveBackOut ==========
-static void testCurveBackOut()
+void AnimationCurveTest::testCurveBackOut()
 {
 	CurveBackOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -417,7 +418,7 @@ static void testCurveBackOut()
 }
 
 // ========== CurveBackInOut ==========
-static void testCurveBackInOut()
+void AnimationCurveTest::testCurveBackInOut()
 {
 	CurveBackInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -426,7 +427,7 @@ static void testCurveBackInOut()
 }
 
 // ========== CurveBounceOut ==========
-static void testCurveBounceOut()
+void AnimationCurveTest::testCurveBounceOut()
 {
 	CurveBounceOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -441,7 +442,7 @@ static void testCurveBounceOut()
 }
 
 // ========== CurveBounceIn ==========
-static void testCurveBounceIn()
+void AnimationCurveTest::testCurveBounceIn()
 {
 	CurveBounceIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -455,7 +456,7 @@ static void testCurveBounceIn()
 }
 
 // ========== CurveBounceInOut ==========
-static void testCurveBounceInOut()
+void AnimationCurveTest::testCurveBounceInOut()
 {
 	CurveBounceInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -470,7 +471,7 @@ static void testCurveBounceInOut()
 }
 
 // ========== CurveElasticIn ==========
-static void testCurveElasticIn()
+void AnimationCurveTest::testCurveElasticIn()
 {
 	CurveElasticIn c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -481,7 +482,7 @@ static void testCurveElasticIn()
 }
 
 // ========== CurveElasticOut ==========
-static void testCurveElasticOut()
+void AnimationCurveTest::testCurveElasticOut()
 {
 	CurveElasticOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -497,7 +498,7 @@ static void testCurveElasticOut()
 }
 
 // ========== CurveElasticInOut ==========
-static void testCurveElasticInOut()
+void AnimationCurveTest::testCurveElasticInOut()
 {
 	CurveElasticInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f, 1e-3f));
@@ -506,7 +507,7 @@ static void testCurveElasticInOut()
 }
 
 // ========== AnimationCurve::bounceEaseOut 静态方法 ==========
-static void testBounceEaseOut()
+void AnimationCurveTest::testBounceEaseOut()
 {
 	// 4个分段边界
 	AC_ASSERT(acNear(AnimationCurve::bounceEaseOut(0.0f), 0.0f, 1e-3f));
@@ -526,7 +527,7 @@ static void testBounceEaseOut()
 }
 
 // ========== AnimationCurve::bounceEaseIn 静态方法 ==========
-static void testBounceEaseIn()
+void AnimationCurveTest::testBounceEaseIn()
 {
 	AC_ASSERT(acNear(AnimationCurve::bounceEaseIn(0.0f), 0.0f, 1e-3f));
 	AC_ASSERT(acNear(AnimationCurve::bounceEaseIn(1.0f), 1.0f, 1e-3f));
@@ -538,7 +539,7 @@ static void testBounceEaseIn()
 }
 
 // ========== AnimationCurve::bounceEaseInOut 静态方法 ==========
-static void testBounceEaseInOut()
+void AnimationCurveTest::testBounceEaseInOut()
 {
 	AC_ASSERT(acNear(AnimationCurve::bounceEaseInOut(0.0f), 0.0f, 1e-3f));
 	AC_ASSERT(acNear(AnimationCurve::bounceEaseInOut(0.5f), 0.5f, 1e-3f));
@@ -559,7 +560,7 @@ static void testBounceEaseInOut()
 }
 
 // ========== 所有曲线端点和中点 批量测试 ==========
-static void testAllCurvesEndpoints()
+void AnimationCurveTest::testAllCurvesEndpoints()
 {
 	// 用数组统一测试所有 In/Out/InOut 曲线的端点
 	CurveCubicIn c1;   AC_ASSERT(acNear(c1.evaluate(0.0f), 0.0f, 1e-3f)); AC_ASSERT(acNear(c1.evaluate(1.0f), 1.0f, 1e-3f));
@@ -590,7 +591,7 @@ static void testAllCurvesEndpoints()
 }
 
 // ========== length 对所有曲线都返回 1.0 ==========
-static void testAllCurvesLength()
+void AnimationCurveTest::testAllCurvesLength()
 {
 	AnimationCurve base;      AC_ASSERT(acNear(base.length(), 1.0f));
 	CurveLinearZeroOne c1;    AC_ASSERT(acNear(c1.length(), 1.0f));
@@ -612,7 +613,7 @@ static void testAllCurvesLength()
 //------------------------------------------------------------------------------
 // Extended: monotonicity tests
 //------------------------------------------------------------------------------
-static void testAllCurvesMonotonicity()
+void AnimationCurveTest::testAllCurvesMonotonicity()
 {
 	CurveQuadIn quadIn;
 	{
@@ -665,7 +666,7 @@ static void testAllCurvesMonotonicity()
 //------------------------------------------------------------------------------
 // Extended: midpoint value tests
 //------------------------------------------------------------------------------
-static void testAllCurvesMidpoints()
+void AnimationCurveTest::testAllCurvesMidpoints()
 {
 	CurveLinearZeroOne lin01;
 	AC_ASSERT(acNear(lin01.evaluate(0.5f), 0.5f));
@@ -692,7 +693,7 @@ static void testAllCurvesMidpoints()
 //------------------------------------------------------------------------------
 // Extended: InOut symmetry f(t) + f(1-t) == 1
 //------------------------------------------------------------------------------
-static void testInOutSymmetry()
+void AnimationCurveTest::testInOutSymmetry()
 {
 	CurveQuadInOut qio;
 	for (int step = 1; step <= 9; ++step)
@@ -717,7 +718,7 @@ static void testInOutSymmetry()
 //------------------------------------------------------------------------------
 // Extended: base curve dense sampling
 //------------------------------------------------------------------------------
-static void testAnimationCurveBaseExtended()
+void AnimationCurveTest::testAnimationCurveBaseExtended()
 {
 	AnimationCurve base;
 	for (int step = 0; step <= 10; ++step)
@@ -735,7 +736,7 @@ static void testAnimationCurveBaseExtended()
 }
 
 // ========== CurveQuartInOut ==========
-static void testCurveQuartInOut()
+void AnimationCurveTest::testCurveQuartInOut()
 {
 	CurveQuartInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -751,7 +752,7 @@ static void testCurveQuartInOut()
 }
 
 // ========== CurveQuintInOut ==========
-static void testCurveQuintInOut()
+void AnimationCurveTest::testCurveQuintInOut()
 {
 	CurveQuintInOut c;
 	AC_ASSERT(acNear(c.evaluate(0.0f), 0.0f));
@@ -816,3 +817,4 @@ void AnimationCurveTest::test()
 	testAnimationCurveBaseExtended();
 }
 
+#endif

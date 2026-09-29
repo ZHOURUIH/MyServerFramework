@@ -44,6 +44,10 @@ public:
 	{
 		return insertData(data, showError);
 	}
+	bool insertDataNoCacheT(const T* data, bool showError = true) const
+	{
+		return insertDataNoCache(data, showError);
+	}
 	ullong generateColumnFlagT(typename T::Column colIndex)
 	{
 		return generateColumnFlag((int)colIndex);
@@ -151,7 +155,7 @@ public:
 	MySQLDataListScopeT<T> queryAllPartialT(const Vector<typename T::Column>& columns, bool createTempData = true)
 	{
 		Vector<string> columnInts;
-		for (const T::Column col : columns)
+		for (const typename T::Column col : columns)
 		{
 			columnInts.add(getColName((int)col));
 		}
@@ -177,6 +181,10 @@ public:
 	MySQLDataListScopeT<T> queryListByFullParamT(const QueryParam& param)
 	{
 		return MySQLDataListScopeT<T>(queryListByFullParam(param));
+	}
+	MySQLDataListScopeT<T> queryListByFullParamNoCacheT(const QueryParam& param, bool createTempData = true)
+	{
+		return MySQLDataListScopeT<T>(queryList(param, createTempData));
 	}
 	MySQLDataListScopeT<T> queryListByLLongT(typename T::Column column, llong value, int maxCount)
 	{
@@ -284,6 +292,23 @@ public:
 	{
 		return MySQLDataScopeT<T>(static_cast<T*>(queryByLLong((int)column, value)));
 	}
+	// 查询单条数据的一个bool字段
+	bool queryBoolT(llong id, typename T::Column column)
+	{
+		return queryBool(id, (int)column);
+	}
+	HashMap<llong, bool> queryBoolListT(const Vector<llong>& id, typename T::Column column)
+	{
+		return queryBoolList(id, (int)column);
+	}
+	HashMap<llong, bool> queryBoolListT(typename T::Column column)
+	{
+		return queryBoolList((int)column);
+	}
+	Vector<pair<llong, bool>> queryBoolListT2(typename T::Column column)
+	{
+		return queryBoolList2((int)column);
+	}
 	// 查询单条数据的一个整数字段
 	int queryIntT(llong id, typename T::Column column)
 	{
@@ -296,6 +321,10 @@ public:
 	HashMap<llong, int> queryIntListT(typename T::Column column)
 	{
 		return queryIntList((int)column);
+	}
+	Vector<pair<llong, int>> queryIntListT2(typename T::Column column)
+	{
+		return queryIntList2((int)column);
 	}
 	// 查询单条数据的一个浮点数字段
 	float queryFloatT(llong id, typename T::Column column)
@@ -310,6 +339,10 @@ public:
 	{
 		return queryFloatList((int)column);
 	}
+	Vector<pair<llong, float>> queryFloatListT2(typename T::Column column)
+	{
+		return queryFloatList2((int)column);
+	}
 	// 查询单条数据的一个长整型字段
 	llong queryLLongT(llong id, typename T::Column column)
 	{
@@ -323,6 +356,10 @@ public:
 	{
 		return queryLLongList((int)column);
 	}
+	Vector<pair<llong, llong>> queryLLongListT2(typename T::Column column)
+	{
+		return queryLLongList2((int)column);
+	}
 	// 查询单条数据的一个字符串字段
 	string queryStringT(llong id, typename T::Column column)
 	{
@@ -335,6 +372,10 @@ public:
 	HashMap<llong, string> queryStringListT(typename T::Column column)
 	{
 		return queryStringList((int)column);
+	}
+	Vector<pair<llong, string>> queryStringListT2(typename T::Column column)
+	{
+		return queryStringList2((int)column);
 	}
 };
 #endif

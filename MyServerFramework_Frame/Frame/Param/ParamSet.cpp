@@ -21,7 +21,7 @@ void ParamSet::setParam(const int index, const string& stringParam)
 	(*mParamMemberList)[index].setValue(stringParam);
 }
 
-void ParamSet::initFromCopy(ParamSet* other)
+void ParamSet::initFromCopy(const ParamSet* other)
 {
 	if (mParamMemberList == nullptr || other->mParamMemberList == nullptr)
 	{

@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // TypeUtilityTest — TypeUtility namespace 全方位测试
@@ -24,7 +25,7 @@ struct Poodle : public Dog {};
 // -----------------------------------------------------------
 // isType<T0, T1>
 // -----------------------------------------------------------
-static void testTypeUtil_IsType_Same()
+void TypeUtilityTest::testTypeUtil_IsType_Same()
 {
     TUT_ASSERT((isType<int, int>()), "isType int==int");
     TUT_ASSERT((isType<float, float>()), "isType float==float");
@@ -39,7 +40,7 @@ static void testTypeUtil_IsType_Same()
     TUT_ASSERT((isType<char, char>()), "isType char==char");
 }
 
-static void testTypeUtil_IsType_Different()
+void TypeUtilityTest::testTypeUtil_IsType_Different()
 {
     TUT_ASSERT((!isType<int, float>()), "isType int!=float");
     TUT_ASSERT((!isType<int, bool>()), "isType int!=bool");
@@ -52,7 +53,7 @@ static void testTypeUtil_IsType_Different()
     TUT_ASSERT((!isType<bool, byte>()), "isType bool!=byte");
 }
 
-static void testTypeUtil_IsType_WithConst()
+void TypeUtilityTest::testTypeUtil_IsType_WithConst()
 {
     // isType 会 decay const/ref/volatile，所以 const int == int
     TUT_ASSERT((isType<const int, int>()), "isType const int==int");
@@ -61,7 +62,7 @@ static void testTypeUtil_IsType_WithConst()
     TUT_ASSERT((isType<volatile int, int>()), "isType volatile int == int");
 }
 
-static void testTypeUtil_IsType_UserDefined()
+void TypeUtilityTest::testTypeUtil_IsType_UserDefined()
 {
     TUT_ASSERT((isType<Animal, Animal>()), "isType Animal==Animal");
     TUT_ASSERT((!isType<Dog, Animal>()), "isType Dog!=Animal");
@@ -72,26 +73,26 @@ static void testTypeUtil_IsType_UserDefined()
 // -----------------------------------------------------------
 // isSubClass<B, C>
 // -----------------------------------------------------------
-static void testTypeUtil_IsSubClass_DirectChild()
+void TypeUtilityTest::testTypeUtil_IsSubClass_DirectChild()
 {
     TUT_ASSERT((isSubClass<Animal, Dog>()), "isSubClass Dog is Animal");
     TUT_ASSERT((isSubClass<Animal, Cat>()), "isSubClass Cat is Animal");
     TUT_ASSERT((isSubClass<Dog, Poodle>()), "isSubClass Poodle is Dog");
 }
 
-static void testTypeUtil_IsSubClass_Transitive()
+void TypeUtilityTest::testTypeUtil_IsSubClass_Transitive()
 {
     TUT_ASSERT((isSubClass<Animal, Poodle>()), "isSubClass Poodle is Animal (transitive)");
 }
 
-static void testTypeUtil_IsSubClass_SameClass()
+void TypeUtilityTest::testTypeUtil_IsSubClass_SameClass()
 {
     // IsSubClassOf<T, T>::mValue is true (same type passes test)
     TUT_ASSERT((isSubClass<Animal, Animal>()), "isSubClass same class true");
     TUT_ASSERT((isSubClass<Dog, Dog>()), "isSubClass Dog same true");
 }
 
-static void testTypeUtil_IsSubClass_NotRelated()
+void TypeUtilityTest::testTypeUtil_IsSubClass_NotRelated()
 {
     TUT_ASSERT((!isSubClass<Dog, Cat>()), "isSubClass Cat is NOT Dog");
     TUT_ASSERT((!isSubClass<Cat, Dog>()), "isSubClass Dog is NOT Cat");
@@ -99,7 +100,7 @@ static void testTypeUtil_IsSubClass_NotRelated()
     TUT_ASSERT((!isSubClass<Cat, Animal>()), "isSubClass Animal is NOT Cat");
 }
 
-static void testTypeUtil_IsSubClass_Poodle()
+void TypeUtilityTest::testTypeUtil_IsSubClass_Poodle()
 {
     TUT_ASSERT((isSubClass<Dog, Poodle>()), "isSubClass Poodle is Dog");
     TUT_ASSERT((isSubClass<Animal, Poodle>()), "isSubClass Poodle is Animal");
@@ -109,7 +110,7 @@ static void testTypeUtil_IsSubClass_Poodle()
 // -----------------------------------------------------------
 // isPODType<T>
 // -----------------------------------------------------------
-static void testTypeUtil_IsPODType_True()
+void TypeUtilityTest::testTypeUtil_IsPODType_True()
 {
     TUT_ASSERT((isPODType<bool>()), "isPOD bool true");
     TUT_ASSERT((isPODType<char>()), "isPOD char true");
@@ -126,7 +127,7 @@ static void testTypeUtil_IsPODType_True()
     TUT_ASSERT((isPODType<double>()), "isPOD double true");
 }
 
-static void testTypeUtil_IsPODType_False()
+void TypeUtilityTest::testTypeUtil_IsPODType_False()
 {
     TUT_ASSERT((!isPODType<string>()), "isPOD string false");
     TUT_ASSERT((!isPODType<Animal>()), "isPOD Animal false");
@@ -138,7 +139,7 @@ static void testTypeUtil_IsPODType_False()
 // -----------------------------------------------------------
 // isSignedInteger<T>
 // -----------------------------------------------------------
-static void testTypeUtil_IsSignedInteger_True()
+void TypeUtilityTest::testTypeUtil_IsSignedInteger_True()
 {
     TUT_ASSERT((isSignedInteger<char>()), "signed char true");
     TUT_ASSERT((isSignedInteger<short>()), "signed short true");
@@ -147,7 +148,7 @@ static void testTypeUtil_IsSignedInteger_True()
     TUT_ASSERT((isSignedInteger<llong>()), "signed llong true");
 }
 
-static void testTypeUtil_IsSignedInteger_False()
+void TypeUtilityTest::testTypeUtil_IsSignedInteger_False()
 {
     TUT_ASSERT((!isSignedInteger<bool>()), "signed bool false");
     TUT_ASSERT((!isSignedInteger<byte>()), "signed byte false");
@@ -163,7 +164,7 @@ static void testTypeUtil_IsSignedInteger_False()
 // -----------------------------------------------------------
 // isUnsignedInteger<T>
 // -----------------------------------------------------------
-static void testTypeUtil_IsUnsignedInteger_True()
+void TypeUtilityTest::testTypeUtil_IsUnsignedInteger_True()
 {
     TUT_ASSERT((isUnsignedInteger<byte>()), "unsigned byte true");
     TUT_ASSERT((isUnsignedInteger<ushort>()), "unsigned ushort true");
@@ -172,7 +173,7 @@ static void testTypeUtil_IsUnsignedInteger_True()
     TUT_ASSERT((isUnsignedInteger<ullong>()), "unsigned ullong true");
 }
 
-static void testTypeUtil_IsUnsignedInteger_False()
+void TypeUtilityTest::testTypeUtil_IsUnsignedInteger_False()
 {
     TUT_ASSERT((!isUnsignedInteger<bool>()), "unsigned bool false");
     TUT_ASSERT((!isUnsignedInteger<char>()), "unsigned char false");
@@ -187,7 +188,7 @@ static void testTypeUtil_IsUnsignedInteger_False()
 // -----------------------------------------------------------
 // IsPod<T>::mValue 直接访问
 // -----------------------------------------------------------
-static void testTypeUtil_IsPodDirect()
+void TypeUtilityTest::testTypeUtil_IsPodDirect()
 {
     TUT_ASSERT((IsPod<int>::mValue), "IsPod<int>::mValue true");
     TUT_ASSERT((IsPod<float>::mValue), "IsPod<float>::mValue true");
@@ -200,7 +201,7 @@ static void testTypeUtil_IsPodDirect()
 // -----------------------------------------------------------
 // IsPointer<T>::mValue
 // -----------------------------------------------------------
-static void testTypeUtil_IsPointer()
+void TypeUtilityTest::testTypeUtil_IsPointer()
 {
     TUT_ASSERT((IsPointer<int*>::mValue), "IsPointer<int*> true");
     TUT_ASSERT((IsPointer<Animal*>::mValue), "IsPointer<Animal*> true");
@@ -214,7 +215,7 @@ static void testTypeUtil_IsPointer()
 // -----------------------------------------------------------
 // IsPodOrPointerType<T>::mValue
 // -----------------------------------------------------------
-static void testTypeUtil_IsPodOrPointer()
+void TypeUtilityTest::testTypeUtil_IsPodOrPointer()
 {
     TUT_ASSERT((IsPodOrPointerType<int>::mValue), "IsPodOrPointer int true");
     TUT_ASSERT((IsPodOrPointerType<float>::mValue), "IsPodOrPointer float true");
@@ -228,7 +229,7 @@ static void testTypeUtil_IsPodOrPointer()
 // -----------------------------------------------------------
 // IsNotPodAndPointerType<T>::mValue
 // -----------------------------------------------------------
-static void testTypeUtil_IsNotPodAndPointer()
+void TypeUtilityTest::testTypeUtil_IsNotPodAndPointer()
 {
     TUT_ASSERT((IsNotPodAndPointerType<string>::mValue), "NotPodPointer string true");
     TUT_ASSERT((IsNotPodAndPointerType<Animal>::mValue), "NotPodPointer Animal true");
@@ -241,7 +242,7 @@ static void testTypeUtil_IsNotPodAndPointer()
 // -----------------------------------------------------------
 // IsSubClassOf<B,C>::mValue 直接访问
 // -----------------------------------------------------------
-static void testTypeUtil_IsSubClassOfDirect()
+void TypeUtilityTest::testTypeUtil_IsSubClassOfDirect()
 {
     TUT_ASSERT((IsSubClassOfV<Animal, Dog>::mValue), "IsSubClassOf Dog:Animal true");
     TUT_ASSERT((IsSubClassOfV<Animal, Poodle>::mValue), "IsSubClassOf Poodle:Animal true");
@@ -253,7 +254,7 @@ static void testTypeUtil_IsSubClassOfDirect()
 // -----------------------------------------------------------
 // 编译期约束与运行期综合测试
 // -----------------------------------------------------------
-static void testTypeUtil_RuntimeComposite_Pod()
+void TypeUtilityTest::testTypeUtil_RuntimeComposite_Pod()
 {
     const int podCount = 13; // bool/char/byte/short/ushort/int/uint/long/ulong/llong/ullong/float/double
     int detected = 0;
@@ -273,7 +274,7 @@ static void testTypeUtil_RuntimeComposite_Pod()
     TUT_ASSERT(detected == podCount, "runtime pod count==13");
 }
 
-static void testTypeUtil_RuntimeComposite_Signed()
+void TypeUtilityTest::testTypeUtil_RuntimeComposite_Signed()
 {
     int signedCount = 0;
     if (isSignedInteger<char>())  ++signedCount;
@@ -284,7 +285,7 @@ static void testTypeUtil_RuntimeComposite_Signed()
     TUT_ASSERT(signedCount == 5, "runtime signed count==5");
 }
 
-static void testTypeUtil_RuntimeComposite_Unsigned()
+void TypeUtilityTest::testTypeUtil_RuntimeComposite_Unsigned()
 {
     int unsignedCount = 0;
     if (isUnsignedInteger<byte>())   ++unsignedCount;
@@ -295,7 +296,7 @@ static void testTypeUtil_RuntimeComposite_Unsigned()
     TUT_ASSERT(unsignedCount == 5, "runtime unsigned count==5");
 }
 
-static void testTypeUtil_RuntimeComposite_Hierarchy()
+void TypeUtilityTest::testTypeUtil_RuntimeComposite_Hierarchy()
 {
     // 运行时动态模拟类型判断
     bool dogIsAnimal   = isSubClass<Animal, Dog>();
@@ -311,7 +312,7 @@ static void testTypeUtil_RuntimeComposite_Hierarchy()
     TUT_ASSERT(animalIsNotDog, "dynamic animalIsNotDog");
 }
 
-static void testTypeUtil_IsType_EnumType()
+void TypeUtilityTest::testTypeUtil_IsType_EnumType()
 {
     // enum 也可以匹配 isType
     enum Color { RED, GREEN, BLUE };
@@ -319,14 +320,14 @@ static void testTypeUtil_IsType_EnumType()
     TUT_ASSERT((!isType<Color, int>()), "isType enum!=int");
 }
 
-static void testTypeUtil_IsPODType_Enum()
+void TypeUtilityTest::testTypeUtil_IsPODType_Enum()
 {
     // IsPodType includes enums via is_enum<T>
     enum ETest { EA, EB };
     TUT_ASSERT((isPODType<ETest>()), "isPOD enum true (is_enum)");
 }
 
-static void testTypeUtil_ComplexSignedChain()
+void TypeUtilityTest::testTypeUtil_ComplexSignedChain()
 {
     // 验证有符号/无符号互不交叉
     TUT_ASSERT((isSignedInteger<int>() && !isUnsignedInteger<int>()), "int: signed not unsigned");
@@ -335,14 +336,14 @@ static void testTypeUtil_ComplexSignedChain()
     TUT_ASSERT((!isSignedInteger<ullong>() && isUnsignedInteger<ullong>()), "ullong: unsigned not signed");
 }
 
-static void testTypeUtil_PointerVsNot()
+void TypeUtilityTest::testTypeUtil_PointerVsNot()
 {
     TUT_ASSERT(IsPointer<int*>::mValue && !IsPointer<int>::mValue, "int* is pointer, int is not");
     TUT_ASSERT(IsPointer<Dog*>::mValue && !IsPointer<Dog>::mValue, "Dog* is pointer, Dog is not");
     TUT_ASSERT(IsPointer<void*>::mValue, "void* is pointer");
 }
 
-static void testTypeUtil_IsPodNotFloat()
+void TypeUtilityTest::testTypeUtil_IsPodNotFloat()
 {
     TUT_ASSERT(!isSignedInteger<float>(), "float not signed integer");
     TUT_ASSERT(!isUnsignedInteger<float>(), "float not unsigned integer");
@@ -351,7 +352,7 @@ static void testTypeUtil_IsPodNotFloat()
     TUT_ASSERT(isPODType<double>(), "double is POD");
 }
 
-static void testTypeUtil_BoolNotSignedOrUnsigned()
+void TypeUtilityTest::testTypeUtil_BoolNotSignedOrUnsigned()
 {
     // bool: IsPodSignedInteger false, IsPodUnsignedInteger false
     TUT_ASSERT(!isSignedInteger<bool>(), "bool not signed");
@@ -359,7 +360,7 @@ static void testTypeUtil_BoolNotSignedOrUnsigned()
     TUT_ASSERT(isPODType<bool>(), "bool is POD");
 }
 
-static void testTypeUtil_IsSubClass_ClassObjectHierarchy()
+void TypeUtilityTest::testTypeUtil_IsSubClass_ClassObjectHierarchy()
 {
     // ClassObject 层次
     TUT_ASSERT((isSubClass<ClassObject, ClassObject>()), "ClassObject same");
@@ -367,7 +368,7 @@ static void testTypeUtil_IsSubClass_ClassObjectHierarchy()
     // 所以 ClassObject 是 IEventListener 的子类
 }
 
-static void testTypeUtil_IsPodOfAllFrameBasicTypes()
+void TypeUtilityTest::testTypeUtil_IsPodOfAllFrameBasicTypes()
 {
     // 确认框架使用的所有基础类型
     int count = 0;
@@ -385,7 +386,7 @@ static void testTypeUtil_IsPodOfAllFrameBasicTypes()
     TUT_ASSERT(count == 11, "IsPod all 11 basic types");
 }
 
-static void testTypeUtil_IsType_PodAndNonPodMix()
+void TypeUtilityTest::testTypeUtil_IsType_PodAndNonPodMix()
 {
     TUT_ASSERT((!isType<int, string>()), "int vs string diff");
     TUT_ASSERT((!isType<float, Vector2>()), "float vs Vector2 diff");
@@ -414,7 +415,7 @@ struct UnrelatedStruct {};
 // -----------------------------------------------------------
 // isType<T0, T1> — 更多组合
 // -----------------------------------------------------------
-static void testTypeUtil_IsType_AllPodPairs()
+void TypeUtilityTest::testTypeUtil_IsType_AllPodPairs()
 {
     // 每对不同基础类型都应返回 false
     TUT_ASSERT((!isType<int, llong>()), "int!=llong");
@@ -430,7 +431,7 @@ static void testTypeUtil_IsType_AllPodPairs()
     TUT_ASSERT((!isType<llong, ullong>()), "llong!=ullong");
 }
 
-static void testTypeUtil_IsType_StructTypes()
+void TypeUtilityTest::testTypeUtil_IsType_StructTypes()
 {
     TUT_ASSERT((isType<EmptyStruct, EmptyStruct>()), "EmptyStruct same");
     TUT_ASSERT((!isType<EmptyStruct, UnrelatedStruct>()), "EmptyStruct!=Unrelated");
@@ -440,7 +441,7 @@ static void testTypeUtil_IsType_StructTypes()
     TUT_ASSERT((!isType<Vector2Int, Vector2>()), "Vector2Int!=Vector2");
 }
 
-static void testTypeUtil_IsType_ScopedEnum()
+void TypeUtilityTest::testTypeUtil_IsType_ScopedEnum()
 {
     TUT_ASSERT((isType<EColor, EColor>()), "scoped enum same");
     TUT_ASSERT((!isType<EColor, EOldStyle>()), "scoped!=old style");
@@ -450,7 +451,7 @@ static void testTypeUtil_IsType_ScopedEnum()
 // -----------------------------------------------------------
 // isSubClass<B, C> — 更多层次
 // -----------------------------------------------------------
-static void testTypeUtil_IsSubClass_3Level()
+void TypeUtilityTest::testTypeUtil_IsSubClass_3Level()
 {
     // NestedGrandchild → NestedChild → NestedParent
     TUT_ASSERT((isSubClass<NestedParent, NestedChild>()), "Child is Parent");
@@ -461,7 +462,7 @@ static void testTypeUtil_IsSubClass_3Level()
     TUT_ASSERT((!isSubClass<UnrelatedStruct, NestedParent>()), "Unrelated not Parent");
 }
 
-static void testTypeUtil_IsSubClass_Self()
+void TypeUtilityTest::testTypeUtil_IsSubClass_Self()
 {
     // Same class as both args: isSubClass<T, T> should return true (treated as same)
     TUT_ASSERT((isSubClass<Animal, Animal>()), "Animal isSubClass Animal");
@@ -469,7 +470,7 @@ static void testTypeUtil_IsSubClass_Self()
     TUT_ASSERT((isSubClass<NestedParent, NestedParent>()), "NestedParent self");
 }
 
-static void testTypeUtil_IsSubClass_CrossBranch()
+void TypeUtilityTest::testTypeUtil_IsSubClass_CrossBranch()
 {
     // Different branches under same parent
     TUT_ASSERT((!isSubClass<Dog, Cat>()), "Cat not subclass of Dog");
@@ -480,7 +481,7 @@ static void testTypeUtil_IsSubClass_CrossBranch()
 // -----------------------------------------------------------
 // isPODType<T> — 覆盖所有框架类型
 // -----------------------------------------------------------
-static void testTypeUtil_IsPODType_AllBasic()
+void TypeUtilityTest::testTypeUtil_IsPODType_AllBasic()
 {
     TUT_ASSERT(isPODType<bool>(),   "bool isPOD");
     TUT_ASSERT(isPODType<char>(),   "char isPOD");
@@ -502,7 +503,7 @@ static void testTypeUtil_IsPODType_AllBasic()
 // -----------------------------------------------------------
 // isSignedInteger<T> — 完整覆盖
 // -----------------------------------------------------------
-static void testTypeUtil_IsSignedInteger_Exhaustive()
+void TypeUtilityTest::testTypeUtil_IsSignedInteger_Exhaustive()
 {
     TUT_ASSERT(isSignedInteger<char>(),  "char signed");
     TUT_ASSERT(isSignedInteger<short>(), "short signed");
@@ -523,7 +524,7 @@ static void testTypeUtil_IsSignedInteger_Exhaustive()
 // -----------------------------------------------------------
 // isUnsignedInteger<T> — 完整覆盖
 // -----------------------------------------------------------
-static void testTypeUtil_IsUnsignedInteger_Exhaustive()
+void TypeUtilityTest::testTypeUtil_IsUnsignedInteger_Exhaustive()
 {
     TUT_ASSERT(isUnsignedInteger<byte>(),   "byte unsigned");
     TUT_ASSERT(isUnsignedInteger<ushort>(), "ushort unsigned");
@@ -544,7 +545,7 @@ static void testTypeUtil_IsUnsignedInteger_Exhaustive()
 // -----------------------------------------------------------
 // IsPod<T>::mValue — 完整覆盖
 // -----------------------------------------------------------
-static void testTypeUtil_IsPodMValue_AllTypes()
+void TypeUtilityTest::testTypeUtil_IsPodMValue_AllTypes()
 {
     TUT_ASSERT(IsPod<bool>::mValue,   "IsPod bool");
     TUT_ASSERT(IsPod<char>::mValue,   "IsPod char");
@@ -565,7 +566,7 @@ static void testTypeUtil_IsPodMValue_AllTypes()
 // -----------------------------------------------------------
 // IsPointer<T>::mValue — 各种指针类型
 // -----------------------------------------------------------
-static void testTypeUtil_IsPointerMValue_Various()
+void TypeUtilityTest::testTypeUtil_IsPointerMValue_Various()
 {
     TUT_ASSERT(IsPointer<int*>::mValue,    "int* pointer");
     TUT_ASSERT(IsPointer<float*>::mValue,  "float* pointer");
@@ -584,7 +585,7 @@ static void testTypeUtil_IsPointerMValue_Various()
 // -----------------------------------------------------------
 // IsSubClassOf<B, C>::mValue — 完整验证
 // -----------------------------------------------------------
-static void testTypeUtil_IsSubClassOfMValue_Full()
+void TypeUtilityTest::testTypeUtil_IsSubClassOfMValue_Full()
 {
     TUT_ASSERT((IsSubClassOfV<Animal, Dog>::mValue),   "SOF Dog:Animal");
     TUT_ASSERT((IsSubClassOfV<Animal, Cat>::mValue),   "SOF Cat:Animal");
@@ -599,7 +600,7 @@ static void testTypeUtil_IsSubClassOfMValue_Full()
 // -----------------------------------------------------------
 // 混合测试：指针 + 继承组合
 // -----------------------------------------------------------
-static void testTypeUtil_PointerAndInheritance()
+void TypeUtilityTest::testTypeUtil_PointerAndInheritance()
 {
     // isType<Dog*, Dog*> should be true, isType<Dog*, Animal*> false
     TUT_ASSERT((isType<Dog*, Dog*>()), "Dog* same");
@@ -613,7 +614,7 @@ static void testTypeUtil_PointerAndInheritance()
 // -----------------------------------------------------------
 // isType 对 nullptr_t
 // -----------------------------------------------------------
-static void testTypeUtil_NullptrType()
+void TypeUtilityTest::testTypeUtil_NullptrType()
 {
     TUT_ASSERT((isType<nullptr_t, nullptr_t>()), "nullptr_t same");
     TUT_ASSERT((!isType<nullptr_t, int*>()), "nullptr_t != int*");
@@ -622,7 +623,7 @@ static void testTypeUtil_NullptrType()
 // -----------------------------------------------------------
 // IsSubClassOf — 同类测试（边界）
 // -----------------------------------------------------------
-static void testTypeUtil_IsSubClassOf_BoundaryRules()
+void TypeUtilityTest::testTypeUtil_IsSubClassOf_BoundaryRules()
 {
     // Self-to-self should be true
     TUT_ASSERT((IsSubClassOfV<Dog, Dog>::mValue), "SOF Dog:Dog true");
@@ -636,7 +637,7 @@ static void testTypeUtil_IsSubClassOf_BoundaryRules()
 // 扩展入口（由 TypeUtilityTest::test 调用内部注册）
 // 实际上是附加到 TypeUtilityTest.cpp 末尾的补充测试
 // ============================================================
-static void testTypeUtil_ExtendedAllPodPairs()
+void TypeUtilityTest::testTypeUtil_ExtendedAllPodPairs()
 {
     testTypeUtil_IsType_AllPodPairs();
     testTypeUtil_IsType_StructTypes();
@@ -694,5 +695,151 @@ void TypeUtilityTest::test()
     testTypeUtil_IsPodOfAllFrameBasicTypes();
     testTypeUtil_IsType_PodAndNonPodMix();
     testTypeUtil_ExtendedAllPodPairs();
-
+	testExtended();
 }
+
+
+#define TUTE_ASSERT(expr) \
+	if (!(expr)) { ERROR(string("TypeUtilityTest FAILED: ") + (#expr)); }
+
+// Helper base and derived class for isSubClass tests
+struct TuteBase {};
+struct TuteDerived : public TuteBase {};
+struct TuteUnrelated {};
+
+// ========== isType ==========
+
+void TypeUtilityTest::testTUTE_IsTypeBasic()
+{
+	TUTE_ASSERT((isType<int, int>()));
+	TUTE_ASSERT((isType<float, float>()));
+	TUTE_ASSERT((isType<bool, bool>()));
+	TUTE_ASSERT((isType<double, double>()));
+	TUTE_ASSERT((isType<llong, llong>()));
+}
+
+void TypeUtilityTest::testTUTE_IsTypeWithConst()
+{
+	TUTE_ASSERT((isType<const int, int>()));
+	TUTE_ASSERT((isType<const float, float>()));
+	TUTE_ASSERT((isType<const bool, bool>()));
+}
+
+void TypeUtilityTest::testTUTE_IsTypeWithRef()
+{
+	TUTE_ASSERT((isType<int&, int>()));
+	TUTE_ASSERT((isType<const int&, int>()));
+	TUTE_ASSERT((isType<float&, float>()));
+}
+
+void TypeUtilityTest::testTUTE_IsTypeDifferent()
+{
+	TUTE_ASSERT(!(isType<int, float>()));
+	TUTE_ASSERT(!(isType<int, llong>()));
+	TUTE_ASSERT(!(isType<float, double>()));
+	TUTE_ASSERT(!(isType<bool, int>()));
+}
+
+// ========== isSubClass ==========
+
+void TypeUtilityTest::testTUTE_IsSubClassTrue()
+{
+	TUTE_ASSERT((isSubClass<TuteBase, TuteDerived>()));
+}
+
+void TypeUtilityTest::testTUTE_IsSubClassFalse()
+{
+	TUTE_ASSERT(!(isSubClass<TuteBase, TuteUnrelated>()));
+	TUTE_ASSERT(!(isSubClass<TuteDerived, TuteBase>()));
+	TUTE_ASSERT(!(isSubClass<TuteUnrelated, TuteDerived>()));
+}
+
+// ========== isPODType ==========
+
+void TypeUtilityTest::testTUTE_IsPODTypeTrue()
+{
+	TUTE_ASSERT((isPODType<int>()));
+	TUTE_ASSERT((isPODType<float>()));
+	TUTE_ASSERT((isPODType<double>()));
+	TUTE_ASSERT((isPODType<bool>()));
+	TUTE_ASSERT((isPODType<char>()));
+	TUTE_ASSERT((isPODType<byte>()));
+	TUTE_ASSERT((isPODType<short>()));
+	TUTE_ASSERT((isPODType<ushort>()));
+	TUTE_ASSERT((isPODType<uint>()));
+	TUTE_ASSERT((isPODType<llong>()));
+}
+
+void TypeUtilityTest::testTUTE_IsPODTypeFalse()
+{
+	TUTE_ASSERT(!(isPODType<string>()));
+	TUTE_ASSERT(!(isPODType<TuteBase>()));
+	TUTE_ASSERT(!(isPODType<TuteDerived>()));
+}
+
+// ========== isSignedInteger ==========
+
+void TypeUtilityTest::testTUTE_IsSignedIntegerTrue()
+{
+	TUTE_ASSERT((isSignedInteger<int>()));
+	TUTE_ASSERT((isSignedInteger<llong>()));
+	TUTE_ASSERT((isSignedInteger<short>()));
+	TUTE_ASSERT((isSignedInteger<char>()));
+}
+
+void TypeUtilityTest::testTUTE_IsSignedIntegerFalse()
+{
+	TUTE_ASSERT(!(isSignedInteger<uint>()));
+	TUTE_ASSERT(!(isSignedInteger<ushort>()));
+	TUTE_ASSERT(!(isSignedInteger<byte>()));
+	TUTE_ASSERT(!(isSignedInteger<float>()));
+	TUTE_ASSERT(!(isSignedInteger<double>()));
+}
+
+// ========== isUnsignedInteger ==========
+
+void TypeUtilityTest::testTUTE_IsUnsignedIntegerTrue()
+{
+	TUTE_ASSERT((isUnsignedInteger<uint>()));
+	TUTE_ASSERT((isUnsignedInteger<ushort>()));
+	TUTE_ASSERT((isUnsignedInteger<byte>()));
+}
+
+void TypeUtilityTest::testTUTE_IsUnsignedIntegerFalse()
+{
+	TUTE_ASSERT(!(isUnsignedInteger<int>()));
+	TUTE_ASSERT(!(isUnsignedInteger<llong>()));
+	TUTE_ASSERT(!(isUnsignedInteger<short>()));
+	TUTE_ASSERT(!(isUnsignedInteger<float>()));
+	TUTE_ASSERT(!(isUnsignedInteger<double>()));
+}
+
+// ========== mixed primitive types ==========
+
+void TypeUtilityTest::testTUTE_IsTypeMixedPrimitive()
+{
+	TUTE_ASSERT((isType<uint, uint>()));
+	TUTE_ASSERT((isType<ushort, ushort>()));
+	TUTE_ASSERT((isType<byte, byte>()));
+	TUTE_ASSERT(!(isType<uint, int>()));
+	TUTE_ASSERT(!(isType<ushort, short>()));
+	TUTE_ASSERT(!(isType<byte, char>()));
+}
+
+void TypeUtilityTest::testExtended()
+{
+	testTUTE_IsTypeBasic();
+	testTUTE_IsTypeWithConst();
+	testTUTE_IsTypeWithRef();
+	testTUTE_IsTypeDifferent();
+	testTUTE_IsSubClassTrue();
+	testTUTE_IsSubClassFalse();
+	testTUTE_IsPODTypeTrue();
+	testTUTE_IsPODTypeFalse();
+	testTUTE_IsSignedIntegerTrue();
+	testTUTE_IsSignedIntegerFalse();
+	testTUTE_IsUnsignedIntegerTrue();
+	testTUTE_IsUnsignedIntegerFalse();
+	testTUTE_IsTypeMixedPrimitive();
+}
+#endif

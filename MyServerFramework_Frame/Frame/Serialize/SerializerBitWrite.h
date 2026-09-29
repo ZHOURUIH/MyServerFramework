@@ -64,6 +64,12 @@ public:
 		writeCheck(sizeof(value) + 1);
 		return writeUnsignedIntegerBit(mBuffer, mBufferSize, mBitIndex, value);
 	}
+	// 连续写多个字段前可一次性保证容量,随后使用Reserved接口跳过Serializer层重复扩容检查。
+	// BinaryUtility底层仍会检查buffer边界并返回false,因此Reserved接口并非无边界检查写入。
+	void reserveWrite(const int writeLen) { writeCheck(writeLen); }
+	template<typename T, typename TypeCheck = typename IsPodUnsignedIntegerType<T>::mType>
+	bool writeUnsignedReserved(const T value) { return writeUnsignedIntegerBit(mBuffer, mBufferSize, mBitIndex, value); }
+	bool writeBoolReserved(const bool value) { return writeBoolBit(mBuffer, mBufferSize, mBitIndex, value); }
 	bool writeFloat(const bool needWriteSign, const float value, const int precision = 3)
 	{
 		return writeSigned(needWriteSign, round_(value * pow10(precision)));
@@ -166,6 +172,7 @@ public:
 	}
 	bool writeStringList(const Vector<string>& list);
 	const char* getBuffer() const			{ return mBuffer; }
+	char* getMutableBuffer()				{ return mBuffer; }
 	int getBufferSize() const				{ return mBufferSize; }
 	int getBitCount() const					{ return mBitIndex; }
 	int getByteCount() const				{ return bitCountToByteCount(mBitIndex); }

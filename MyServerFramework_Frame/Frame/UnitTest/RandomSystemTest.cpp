@@ -1,6 +1,7 @@
+﻿#ifdef WINDOWS
 #include "FrameHeader.h"
 
-namespace
+namespace RandomSystemTestLocal
 {
 	class RandomSystemTestProxy : public RandomSystem
 	{
@@ -9,25 +10,29 @@ namespace
 		using RandomSystem::mUpdateIndex;
 		using RandomSystem::mRandomSequence;
 	};
+}
 
-	static void assertRandomSystem(bool condition, const char* message)
-	{
+void RandomSystemTest::assertRandomSystem(bool condition, const char* message)
+{
+	using namespace RandomSystemTestLocal;
 		if (!condition)
 		{
 			ERROR(string("RandomSystemTest failed: ") + message);
 		}
 	}
 
-	static void testConstructionAndSize()
-	{
+void RandomSystemTest::testConstructionAndSize()
+{
+	using namespace RandomSystemTestLocal;
 		RandomSystemTestProxy system;
 		assertRandomSystem(system.mRandomSequence.size() == 1024 * 100, "sequence size");
 		assertRandomSystem(system.mCurIndex == 0, "cur index init");
 		assertRandomSystem(system.mUpdateIndex == 0, "update index init");
 	}
 
-	static void testRandomSequenceRead()
-	{
+void RandomSystemTest::testRandomSequenceRead()
+{
+	using namespace RandomSystemTestLocal;
 		RandomSystemTestProxy system;
 		FOR(16)
 		{
@@ -40,8 +45,9 @@ namespace
 		assertRandomSystem(system.mCurIndex == 3, "cur index advanced");
 	}
 
-	static void testRandomSequenceWrap()
-	{
+void RandomSystemTest::testRandomSequenceWrap()
+{
+	using namespace RandomSystemTestLocal;
 		RandomSystemTestProxy system;
 		const int size = system.mRandomSequence.size();
 		for (int i = 0; i < size; ++i)
@@ -55,8 +61,9 @@ namespace
 		assertRandomSystem(system.mCurIndex == 1, "wrap reset");
 	}
 
-	static void testUpdateTouchesOneSlot()
-	{
+void RandomSystemTest::testUpdateTouchesOneSlot()
+{
+	using namespace RandomSystemTestLocal;
 		RandomSystemTestProxy system;
 		FOR(8)
 		{
@@ -68,7 +75,6 @@ namespace
 		system.update(0.016f);
 		assertRandomSystem(system.mUpdateIndex == 2, "update index advanced 2");
 	}
-}
 
 void RandomSystemTest::test()
 {
@@ -77,3 +83,4 @@ void RandomSystemTest::test()
 	testRandomSequenceWrap();
 	testUpdateTouchesOneSlot();
 }
+#endif

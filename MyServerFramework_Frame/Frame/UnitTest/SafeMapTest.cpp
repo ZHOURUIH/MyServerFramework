@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // SafeMapTest
@@ -37,6 +38,14 @@ void SafeMapTest::test()
 	testSafeMapForeachAllRead();
 	testSafeMapAddThenEraseInForeach();
 	testSafeMapChainInsertErase();
+	testSafeMapBasicInsert();
+	testSafeMapBasicErase();
+	testSafeMapContainerContains();
+	testSafeMapContainerTryGet();
+	testSafeMapContainerClear();
+	testSafeMapContainerInsertDuringForeach();
+	testSafeMapContainerEraseDuringForeach();
+	testSafeMapSizeAndEmpty();
 }
 
 void SafeMapTest::testSafeMapEmpty()
@@ -430,3 +439,130 @@ void SafeMapTest::testSafeMapChainInsertErase()
 		SMT_ASSERT(sm.get(i, 0) == i * 5);
 	}
 }
+
+// ============================================================
+// Consolidated safe container tests
+// ============================================================
+#define SAFEMAPTEST_SCT_ASSERT(expr) \
+	if (!(expr)) { LOG("SafeMapTest FAILED: " #expr); }
+
+void SafeMapTest::testSafeMapBasicInsert()
+{
+	SafeMap<int, int> m;
+	SAFEMAPTEST_SCT_ASSERT(m.isEmpty());
+	SAFEMAPTEST_SCT_ASSERT(m.add(3, 30));
+	SAFEMAPTEST_SCT_ASSERT(m.add(1, 10));
+	SAFEMAPTEST_SCT_ASSERT(m.add(2, 20));
+	SAFEMAPTEST_SCT_ASSERT(m.size() == 3);
+	// 重复插入失败
+	SAFEMAPTEST_SCT_ASSERT(!m.add(1, 99));
+}
+
+void SafeMapTest::testSafeMapBasicErase()
+{
+	SafeMap<int, int> m;
+	m.add(5, 50);
+	m.add(10, 100);
+	SAFEMAPTEST_SCT_ASSERT(m.remove(5));
+	SAFEMAPTEST_SCT_ASSERT(!m.contains(5));
+	SAFEMAPTEST_SCT_ASSERT(m.size() == 1);
+	SAFEMAPTEST_SCT_ASSERT(!m.remove(999));
+}
+
+void SafeMapTest::testSafeMapContainerContains()
+{
+	SafeMap<string, int> m;
+	m.add("hello", 1);
+	SAFEMAPTEST_SCT_ASSERT(m.contains("hello"));
+	SAFEMAPTEST_SCT_ASSERT(!m.contains("world"));
+}
+
+void SafeMapTest::testSafeMapContainerTryGet()
+{
+	SafeMap<int, int> m;
+	m.add(42, 420);
+	const int& v = m.get(42);
+	SAFEMAPTEST_SCT_ASSERT(v == 420);
+	const int& def = m.get(99, -1);
+	SAFEMAPTEST_SCT_ASSERT(def == -1);
+}
+
+void SafeMapTest::testSafeMapContainerClear()
+{
+	SafeMap<int, int> m;
+	m.add(1, 1);
+	m.add(2, 2);
+	m.clear();
+	SAFEMAPTEST_SCT_ASSERT(m.isEmpty());
+}
+
+void SafeMapTest::testSafeMapContainerInsertDuringForeach()
+{
+	SafeMap<int, int> m;
+	m.add(1, 10);
+	m.add(2, 20);
+
+	{
+		int cnt = m.startForeach().size();
+		SAFEMAPTEST_SCT_ASSERT(cnt == 2);
+		m.add(3, 30);
+		m.endForeach();
+	}
+
+	SAFEMAPTEST_SCT_ASSERT(m.size() == 3);
+	SAFEMAPTEST_SCT_ASSERT(m.contains(3));
+
+	// 再次遍历包含新元素
+	{
+		int sum = 0;
+		for (const auto& pair : m.startForeach())
+		{
+			sum += pair.second;
+		}
+		m.endForeach();
+		SAFEMAPTEST_SCT_ASSERT(sum == 60);
+	}
+}
+
+void SafeMapTest::testSafeMapContainerEraseDuringForeach()
+{
+	SafeMap<int, int> m;
+	m.add(1, 10);
+	m.add(2, 20);
+	m.add(3, 30);
+
+	{
+		for (const auto& pair : m.startForeach())
+		{
+			(void)pair;
+		}
+		m.remove(2);
+		m.endForeach();
+	}
+
+	SAFEMAPTEST_SCT_ASSERT(m.size() == 2);
+	SAFEMAPTEST_SCT_ASSERT(!m.contains(2));
+
+	{
+		bool found2 = false;
+		for (const auto& pair : m.startForeach())
+		{
+			if (pair.first == 2)
+			{
+				found2 = true;
+			}
+		}
+		m.endForeach();
+		SAFEMAPTEST_SCT_ASSERT(!found2);
+	}
+}
+
+void SafeMapTest::testSafeMapSizeAndEmpty()
+{
+	SafeMap<int, int> m;
+	SAFEMAPTEST_SCT_ASSERT(m.isEmpty());
+	m.add(1, 1);
+	SAFEMAPTEST_SCT_ASSERT(!m.isEmpty());
+	SAFEMAPTEST_SCT_ASSERT(m.size() == 1);
+}
+#endif

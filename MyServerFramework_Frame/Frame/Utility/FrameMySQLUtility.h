@@ -10,7 +10,7 @@
 
 namespace FrameMySQLUtility
 {
-	void MICRO_LEGEND_FRAME_API pushCommandToMySQL(VoidCallback call, const char* name);
+	MICRO_LEGEND_FRAME_API void pushCommandToMySQL(VoidCallback call, const char* name);
 	template<typename T, typename TypeCheck = typename IsSubClassOf<MySQLData, T>::mType>
 	void updateLLong(MySQLTableT<T>* table, llong id, typename T::Column colName, llong value, const char* cmdName, const BoolCallback& callback = nullptr)
 	{

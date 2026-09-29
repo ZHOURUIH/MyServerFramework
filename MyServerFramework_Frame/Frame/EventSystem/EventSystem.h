@@ -37,9 +37,9 @@ protected:
 	void pushEventInternal(GameEvent* param, const Character* character);
 	void listenerEventInternal(EventCallback callback, const Character* character, int eventType, IEventListener* listener);
 protected:
-	HashMap<llong, HashMap<int, SafeVector0<EventInfo*>>> mCharacterEventList;	// 指定角色的事件监听列表
+	HashMap<llong, HashMap<int, SafeFastDeepVector<EventInfo*>>> mCharacterEventList;	// 指定角色的事件监听列表
 	HashMap<IEventListener*, Vector<EventInfo*>> mListenerEventMap;				// 存储每一个监听者的所有的事件列表
-	HashMap<int, SafeVector0<EventInfo*>> mGlobalEventList;						// 全局事件监听列表
+	HashMap<int, SafeFastDeepVector<EventInfo*>> mGlobalEventList;						// 全局事件监听列表
 	Vector<EventInfo*> mTempEventList;											// 用于临时遍历的列表
 	int mDispatchDepth = 0;														// 当前事件嵌套的深度,用于判断事件的嵌套次数是否过多或者循环嵌套的问题
 	const int MAX_DEPTH = 20;													// 事件嵌套的最大深度

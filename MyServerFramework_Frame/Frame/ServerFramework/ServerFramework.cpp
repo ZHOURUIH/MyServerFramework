@@ -1,7 +1,5 @@
 ﻿#include "FrameHeader.h"
 
-template<>ServerFramework* Singleton<ServerFramework>::ms_Singleton = nullptr;
-
 ServerFramework::ServerFramework():
 	mStop(false)
 {
@@ -221,6 +219,11 @@ void ServerFramework::update(const float elapsedTime)
 	for (FrameComponent* component : mFrameComponentVector)
 	{
 		component->lateUpdate(elapsedTime);
+	}
+	// 整帧最终提交
+	for (FrameComponent* component : mFrameComponentVector)
+	{
+		component->endFrame(elapsedTime);
 	}
 	TICK_LOOP(elapsedTime, 1.0f)
 	{

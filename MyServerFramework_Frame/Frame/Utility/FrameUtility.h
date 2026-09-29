@@ -14,6 +14,8 @@
 
 namespace FrameUtility
 {
+	MICRO_LEGEND_FRAME_API extern llong mGUIDSeed;
+	inline llong generateGUID() { return ++mGUIDSeed; }
 	// 用于简化ClassPool相关定义和使用的代码
 	template<typename T>
 	T* CLASS()
@@ -82,7 +84,7 @@ namespace FrameUtility
 		}
 	}
 	template<typename T>
-	void UN_CLASS(SafeVector0<T*>& objList)
+	void UN_CLASS(SafeFastDeepVector<T*>& objList)
 	{
 		constexpr bool hasNoPool = is_same<typename PoolOf<T>::type, void>::value;
 		static_assert(!hasNoPool, "type has no pool, please add PoolOf<Type> of your ClassObject Type, or add CLASS_POOL(yourType) at the end of yourType file");
@@ -636,7 +638,7 @@ namespace FrameUtility
 	// 延迟执行一个lambda表达式,回调会在主线程中执行,0秒表示在下一帧执行
 	MICRO_LEGEND_FRAME_API void delayCall(float time, const VoidCallback& func);
 	MICRO_LEGEND_FRAME_API void delayCall(const VoidCallback& func);
-	ushort generateCRC16(const char* buffer, int count) { return crc16(0x1F, buffer, count) ^ 0x123F; }
+	inline ushort generateCRC16(const char* buffer, int count) { return crc16(0x1F, buffer, count) ^ 0x123F; }
 	template<typename T>
 	ushort generateCRC16(T value) { return generateCRC16((char*)(&value), sizeof(T)); }
 }

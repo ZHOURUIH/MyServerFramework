@@ -23,7 +23,7 @@ void CrashHandler::init()
     sigaction(SIGILL, &sa, nullptr);
     sigaction(SIGBUS, &sa, nullptr);
     // 先创建Crash目录
-    createFolder(FrameDefine::CRASH_PATH);
+    createDir(FrameDefine::CRASH_PATH);
 #endif
 }
 

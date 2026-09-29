@@ -1,23 +1,28 @@
-﻿#ifdef _MYSQL
+﻿#ifdef WINDOWS
+#ifdef _MYSQL
 #include "FrameHeader.h"
 
-namespace
+namespace MySQLCacheTableTestLocal
 {
 #define MCTT_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("MySQLCacheTableTest FAILED: ") + (msg)); } } while(0)
+}
 
-	// ========== 构造函数: 保存 table 指针, 缓存列表为空 ==========
-	static void testConstructor()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testConstructor()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getCacheData(0) == nullptr, "empty cache: getCacheData(0) should be nullptr");
 		MCTT_ASSERT(table.getCacheData(1) == nullptr, "empty cache: getCacheData(1) should be nullptr");
 		MCTT_ASSERT(table.getCacheData(-1) == nullptr, "empty cache: getCacheData(-1) should be nullptr");
 	}
+#endif
 
-	// ========== columnToFlag: 单个字段的标记 ==========
-	static void testColumnToFlag()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testColumnToFlag()
+{
+	using namespace MySQLCacheTableTestLocal;
 		// 对任意非负 colName, columnToFlag 产生该 bit 置 1 的 flag
 		MySQLCacheTable table(nullptr);
 		ullong flag0 = table.columnToFlag(0);
@@ -33,10 +38,12 @@ namespace
 		// 不同 colName 产生不同 flag
 		MCTT_ASSERT(flag0 != flag1, "columnToFlag should produce different flags for different columns");
 	}
+#endif
 
-	// ========== columnsToFlag: 多个字段组合标记 ==========
-	static void testColumnsToFlag()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testColumnsToFlag()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 
 		// 空列表 -> flag = 0
@@ -65,87 +72,109 @@ namespace
 		ullong expected = table.columnToFlag(0) | table.columnToFlag(5) | table.columnToFlag(10);
 		MCTT_ASSERT(flagMulti == expected, "columnsToFlag equals OR of individual columnToFlag");
 	}
+#endif
 
-	// ========== getCacheData: 空缓存返回 nullptr ==========
-	static void testGetCacheData_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetCacheData_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getCacheData(0) == nullptr, "getCacheData on empty cache returns nullptr");
 		MCTT_ASSERT(table.getCacheData(LLONG_MAX) == nullptr, "getCacheData(LLONG_MAX) on empty cache returns nullptr");
 		MCTT_ASSERT(table.getCacheData(LLONG_MIN) == nullptr, "getCacheData(LLONG_MIN) on empty cache returns nullptr");
 	}
+#endif
 
-	// ========== getDataByInt: 空缓存返回 nullptr ==========
-	static void testGetDataByInt_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByInt_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByInt(0, 0) == nullptr, "getDataByInt on empty cache returns nullptr");
 		MCTT_ASSERT(table.getDataByInt(5, 999) == nullptr, "getDataByInt(5, 999) on empty cache returns nullptr");
 	}
+#endif
 
-	// ========== getDataByLLong: 空缓存返回 nullptr ==========
-	static void testGetDataByLLong_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByLLong_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByLLong(0, 0) == nullptr, "getDataByLLong on empty cache returns nullptr");
 		MCTT_ASSERT(table.getDataByLLong(3, 12345LL) == nullptr, "getDataByLLong(3, 12345) on empty cache");
 	}
+#endif
 
-	// ========== getDataByString: 空缓存返回 nullptr ==========
-	static void testGetDataByString_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByString_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByString(0, "test") == nullptr, "getDataByString on empty cache returns nullptr");
 		MCTT_ASSERT(table.getDataByString(2, "") == nullptr, "getDataByString(2, empty) on empty cache");
 	}
+#endif
 
-	// ========== getDataByLLong2Or: 空缓存返回 nullptr ==========
-	static void testGetDataByLLong2Or_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByLLong2Or_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByLLong2Or(0, 1LL, 1, 2LL) == nullptr, "getDataByLLong2Or on empty cache");
 	}
+#endif
 
-	// ========== getDataByLLong2And: 空缓存返回 nullptr ==========
-	static void testGetDataByLLong2And_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByLLong2And_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByLLong2And(0, 1LL, 1, 2LL) == nullptr, "getDataByLLong2And on empty cache");
 	}
+#endif
 
-	// ========== getDataByString2And: 空缓存返回 nullptr ==========
-	static void testGetDataByString2And_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByString2And_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByString2And(0, "a", 1, "b") == nullptr, "getDataByString2And on empty cache");
 	}
+#endif
 
-	// ========== getDataByLLongIntAnd: 空缓存返回 nullptr ==========
-	static void testGetDataByLLongIntAnd_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByLLongIntAnd_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByLLongIntAnd(0, 1LL, 1, 2) == nullptr, "getDataByLLongIntAnd on empty cache");
 	}
+#endif
 
-	// ========== getDataByLLongStringAnd: 空缓存返回 nullptr ==========
-	static void testGetDataByLLongStringAnd_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetDataByLLongStringAnd_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		MCTT_ASSERT(table.getDataByLLongStringAnd(0, 1LL, 1, "x") == nullptr, "getDataByLLongStringAnd on empty cache");
 	}
+#endif
 
-	// ========== getCacheDataListByInt: 空缓存返回空列表 ==========
-	static void testGetCacheDataListByInt_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testGetCacheDataListByInt_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		Vector<MySQLData*> dataList;
 		table.getCacheDataListByInt(0, 42, dataList);
 		MCTT_ASSERT(dataList.size() == 0, "getCacheDataListByInt on empty should yield empty list");
 	}
+#endif
 
-	// ========== update 方法: 不存在的 ID 不崩溃 ==========
-	static void testUpdateNonExistent_NoCrash()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testUpdateNonExistent_NoCrash()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		// 这些方法内部通过 mCacheDataList.get(id) 查找, 找不到就跳过
 		table.updateBool(999, true, 0);
@@ -159,10 +188,12 @@ namespace
 		table.updateString2(999, "a", 0, "b", 1);
 		MCTT_ASSERT(true, "update methods on non-existent ID should not crash");
 	}
+#endif
 
-	// ========== updateAll 方法: 空缓存不崩溃 ==========
-	static void testUpdateAll_Empty_NoCrash()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testUpdateAll_Empty_NoCrash()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		table.updateAllString(0, "x");
 		table.updateAllInt(1, 0);
@@ -171,19 +202,23 @@ namespace
 		table.updateAllBool(4, true);
 		MCTT_ASSERT(true, "updateAll methods on empty cache should not crash");
 	}
+#endif
 
-	// ========== addOrUpdateData(nullptr): 守卫 clause ==========
-	static void testAddOrUpdateData_NullPtr()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testAddOrUpdateData_NullPtr()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		// addOrUpdateData(nullptr) 应该直接 return, 不访问 pool
 		table.addOrUpdateData(nullptr);
 		MCTT_ASSERT(true, "addOrUpdateData(nullptr) should not crash");
 	}
+#endif
 
-	// ========== addOrUpdateDataList: 空列表/全nullptr ==========
-	static void testAddOrUpdateDataList_EmptyOrNull()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testAddOrUpdateDataList_EmptyOrNull()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		// 空列表
 		{
@@ -200,29 +235,35 @@ namespace
 			MCTT_ASSERT(true, "addOrUpdateDataList({nullptr,nullptr}) should not crash");
 		}
 	}
+#endif
 
-	// ========== deleteData: 不存在的 ID 不崩溃 ==========
-	static void testDeleteData_NonExistent()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testDeleteData_NonExistent()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		table.deleteData(999);
 		table.deleteData(0);
 		table.deleteData(-1);
 		MCTT_ASSERT(true, "deleteData on non-existent ID should not crash");
 	}
+#endif
 
-	// ========== deleteDataInIDRange: 空缓存不崩溃 ==========
-	static void testDeleteDataInIDRange_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testDeleteDataInIDRange_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		table.deleteDataInIDRange(0, 100);
 		table.deleteDataInIDRange(LLONG_MIN, LLONG_MAX);
 		MCTT_ASSERT(true, "deleteDataInIDRange on empty cache should not crash");
 	}
+#endif
 
-	// ========== deleteDataByColumn 方法: 空缓存不崩溃 ==========
-	static void testDeleteDataByColumn_Empty()
-	{
+#ifdef _MYSQL
+void MySQLCacheTableTest::testDeleteDataByColumn_Empty()
+{
+	using namespace MySQLCacheTableTestLocal;
 		MySQLCacheTable table(nullptr);
 		// 单字段: onlyOnce = false
 		table.deleteDataByColumnBool(0, true, false);
@@ -245,7 +286,7 @@ namespace
 		table.deleteDataByColumnLLong2Or(0, 1LL, 1, 2LL, true);
 		MCTT_ASSERT(true, "all deleteDataByColumn methods on empty cache should not crash");
 	}
-}
+#endif
 
 void MySQLCacheTableTest::test()
 {
@@ -270,4 +311,5 @@ void MySQLCacheTableTest::test()
 	testDeleteDataInIDRange_Empty();
 	testDeleteDataByColumn_Empty();
 }
+#endif
 #endif

@@ -8,7 +8,7 @@ string CSLogin::mPacketName = STR(CSLogin);
 void CSLogin::execute()
 {
 	UNIFIED_UTF8_STRING(name, "测试玩家");
-	CharacterPlayer* player = toPlayer(mCharacterManager->createCharacter(name, CHARACTER_TYPE::PLAYER, 1, true));
+	CharacterPlayer* player = toPlayer(mCharacterManager->createCharacter(name, CHARACTER_TYPE::PLAYER, 1, true, true));
 	if (player == nullptr)
 	{
 		return;

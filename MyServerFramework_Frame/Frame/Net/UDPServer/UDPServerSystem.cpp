@@ -27,65 +27,100 @@ void UDPServerSystem::quit()
 
 void UDPServerSystem::init()
 {
-	if (mWinsockInitialized)
+	if (isAvailable())
 	{
 		return;
 	}
+
 	mPort = (ushort)mFrameConfigSystem->getUDPPort();
-	// 未配置udp端口,则不启动udp服务器
+	// 未配置UDP端口,则不启动UDP服务器
 	if (mPort == 0)
 	{
 		return;
 	}
-	//初始化Socket环境
+
+	// 初始化Socket环境
 #ifdef WINDOWS
-	WSADATA wsd;
-	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
+	if (!mWinsockInitialized)
 	{
-		ERROR("WSAStartup failed!");
-		return;
+		WSADATA wsd;
+		if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
+		{
+			ERROR("WSAStartup failed!");
+			return;
+		}
+		mWinsockInitialized = true;
 	}
-	mWinsockInitialized = true;
 #endif
-	//创建监听的Socket
+
+	// 创建UDP Socket
 	mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (mSocket == INVALID_SOCKET)
 	{
-		ERROR("socket failed!");
+#ifdef WINDOWS
+		const int errorCode = WSAGetLastError();
+#else
+		const int errorCode = errno;
+#endif
+		ERROR("UDP socket failed,error:" + IToS(errorCode));
 		return;
 	}
 
-	//设置服务器Socket地址
-	sockaddr_in addrServ;
+#ifdef LINUX
+	// 服务器重启时允许快速重新绑定端口
+	int reuseAddr = 1;
+	if (setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuseAddr, sizeof(reuseAddr)) != 0)
+	{
+		const int errorCode = errno;
+		ERROR("UDP设置SO_REUSEADDR失败,error:" + IToS(errorCode));
+		CLOSE_SOCKET(mSocket);
+		return;
+	}
+#endif
+
+	// 设置服务器Socket地址
+	sockaddr_in addrServ{};
 	makeSockAddr(addrServ, INADDR_ANY, mPort);
-	//绑定Sockets Server
+
+	// 绑定UDP端口
 	if (bind(mSocket, (const struct sockaddr*)&addrServ, sizeof(sockaddr_in)) != 0)
 	{
-		CLOSE_SOCKET(mSocket);
-		ERROR("bind failed!");
-		// linux下只要绑定端口失败就退出,否则会一直无法连接此服务器
-#ifdef LINUX
-		exit(0);
-#endif
-		return;
-	}
-	// 因为可能会出现一直卡在send的情况,所以给send添加一个超时时间
 #ifdef WINDOWS
-	int timeout = 2000;
-	int ret = setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
-#elif defined LINUX
-	struct timeval timeout = { 2, 0 };
-	const int ret = setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(struct timeval));
+		const int errorCode = WSAGetLastError();
+#else
+		const int errorCode = errno;
 #endif
-	if (ret != 0)
-	{
+		ERROR("UDP bind failed,port:" + IToS(mPort) + ",error:" + IToS(errorCode));
 		CLOSE_SOCKET(mSocket);
-		ERROR("设置socket选项失败");
+#ifdef LINUX
+		exit(EXIT_FAILURE);
+#endif
 		return;
 	}
-	mSendThread = mThreadManager->createThread("SendSocketUDP", [this] {sendThread(); });
-	mReceiveThread = mThreadManager->createThread("ReceiveSocketUDP", [this] {receiveThread(); });
+
+	// UDP Socket设置为non-blocking
+#ifdef WINDOWS
+	u_long nonBlocking = 1;
+	if (ioctlsocket(mSocket, FIONBIO, &nonBlocking) != 0)
+	{
+		const int errorCode = WSAGetLastError();
+		ERROR("UDP设置non-blocking失败,error:" + IToS(errorCode));
+		CLOSE_SOCKET(mSocket);
+		return;
+	}
+#elif defined LINUX
+	const int socketFlags = fcntl(mSocket, F_GETFL, 0);
+	if (socketFlags < 0 || fcntl(mSocket, F_SETFL, socketFlags | O_NONBLOCK) != 0)
+	{
+		const int errorCode = errno;
+		ERROR("UDP设置non-blocking失败,error:" + IToS(errorCode));
+		CLOSE_SOCKET(mSocket);
+		return;
+	}
+#endif
+	mSendThread = mThreadManager->createThread("SendSocketUDP", [this]() { sendThread(); });
 	mSendThread->setTime(16, 0);
+	mReceiveThread = mThreadManager->createThread("ReceiveSocketUDP", [this]() { receiveThread(); });
 	mReceiveThread->setTime(16, 0);
 }
 
@@ -97,17 +132,56 @@ void UDPServerSystem::sendThread()
 
 void UDPServerSystem::receiveThread()
 {
-	// 接收消息
-	sockaddr_in fromAddr;
-#ifdef WINDOWS
-	int fromLen = sizeof(fromAddr);
-#elif defined LINUX
-	socklen_t fromLen = sizeof(fromAddr);
-#endif
-	const int nRecv = recvfrom(mSocket, mTempRecvBuffer, FrameDefine::CLIENT_RECV_BUFFER, 0, (sockaddr*)&fromAddr, &fromLen);
-	if (nRecv > 0)
+	// 限制单次循环最多处理的UDP包数量
+	// 防止极端UDP包洪水导致Receive线程长时间不退出本轮
+	constexpr int MAX_RECV_COUNT_PER_LOOP = 256;
+	FOR(MAX_RECV_COUNT_PER_LOOP)
 	{
-		mClient->recvData(mTempRecvBuffer, nRecv, fromAddr);
+		sockaddr_in fromAddr{};
+#ifdef WINDOWS
+		int fromLen = sizeof(fromAddr);
+#elif defined LINUX
+		socklen_t fromLen = sizeof(fromAddr);
+#endif
+		const int nRecv = recvfrom(mSocket, mTempRecvBuffer, FrameDefine::CLIENT_RECV_BUFFER, 0, (sockaddr*)&fromAddr, &fromLen);
+		if (nRecv > 0)
+		{
+			mClient->recvData(mTempRecvBuffer, nRecv, fromAddr);
+			continue;
+		}
+		if (nRecv == 0)
+		{
+			// UDP允许0字节数据报
+			// 当前业务没有意义,直接忽略
+			continue;
+		}
+
+#ifdef WINDOWS
+		const int errorCode = WSAGetLastError();
+		if (errorCode == WSAEWOULDBLOCK)
+		{
+			// 当前UDP接收队列已经读空
+			break;
+		}
+		if (errorCode == WSAEINTR)
+		{
+			// 被中断,继续尝试
+			continue;
+		}
+#else
+		const int errorCode = errno;
+		if (errorCode == EAGAIN || errorCode == EWOULDBLOCK)
+		{
+			// 当前UDP接收队列已经读空
+			break;
+		}
+		if (errorCode == EINTR)
+		{
+			continue;
+		}
+#endif
+		LOG("UDP recvfrom失败,error:" + IToS(errorCode));
+		break;
 	}
 }
 

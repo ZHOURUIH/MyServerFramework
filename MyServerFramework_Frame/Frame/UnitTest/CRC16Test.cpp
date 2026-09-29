@@ -1,24 +1,26 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
-namespace
+namespace CRC16TestLocal
 {
 #define CRC_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("CRC16Test FAILED: ") + (msg)); } } while(0)
 #define CRC_ASSERT_EQ(a, b, msg) \
 	do { if ((a) != (b)) { ERROR(string("CRC16Test FAILED: ") + (msg) + \
 		" | expected=" + IToS((int)(b)) + " actual=" + IToS((int)(a))); } } while(0)
+}
 
-	// ========== crc16: 空数据（零长度）==========
-	static void testCRC16_Empty()
-	{
+void CRC16Test::testCRC16_Empty()
+{
+	using namespace CRC16TestLocal;
 		// 初始 CRC 值为 0，空数据应返回 0 或某个确定值
 		BinaryUtility::crc16(0, "", 0);
 		CRC_ASSERT(true, "empty data no crash"); // 不崩溃就算过
 	}
 
-	// ========== crc16: 单字节 ==========
-	static void testCRC16_SingleByte()
-	{
+void CRC16Test::testCRC16_SingleByte()
+{
+	using namespace CRC16TestLocal;
 		char data[] = { 0x00 };
 		ushort r0 = BinaryUtility::crc16(0x0000, data, 1);
 		// 验证相同输入产生相同输出
@@ -31,9 +33,9 @@ namespace
 		CRC_ASSERT(r0 != r2 || true, "different byte may differ");
 	}
 
-	// ========== crc16: 标准测试向量（CCITT）==========
-	static void testCRC16_KnownVectors()
-	{
+void CRC16Test::testCRC16_KnownVectors()
+{
+	using namespace CRC16TestLocal;
 		// "123456789" 的标准 CRC-16/CCITT-FALSE 结果是 0xBB3D
 		// 但具体结果取决于查表实现和初始值，这里主要验证一致性和链式计算
 		const char* msg = "123456789";
@@ -43,9 +45,9 @@ namespace
 		CRC_ASSERT_EQ(r1, r2, "known string deterministic");
 	}
 
-	// ========== crc16: 增量式计算一致性 ==========
-	static void testCRC16_Incremental()
-	{
+void CRC16Test::testCRC16_Incremental()
+{
+	using namespace CRC16TestLocal;
 		// 一次性计算 "ABCDEFGH"
 		const char* fullMsg = "ABCDEFGH";
 		ushort fullCrc = BinaryUtility::crc16(0x0000, fullMsg, 8);
@@ -57,9 +59,9 @@ namespace
 		CRC_ASSERT_EQ(fullCrc, incrementalCrc, "incremental matches full calculation");
 	}
 
-	// ========== crc16: 三段增量一致性 ==========
-	static void testCRC16_ThreeSegments()
-	{
+void CRC16Test::testCRC16_ThreeSegments()
+{
+	using namespace CRC16TestLocal;
 		// 完整: "HELLO_WORLD_TEST"
 		const char* full = "HELLO_WORLD_TEST";
 		ushort fullCrc = BinaryUtility::crc16(0x0000, full, 15);
@@ -72,9 +74,9 @@ namespace
 		CRC_ASSERT_EQ(fullCrc, c3, "three-segment incremental matches");
 	}
 
-	// ========== crc16: bufferOffset 参数 ==========
-	static void testCRC16_BufferOffset()
-	{
+void CRC16Test::testCRC16_BufferOffset()
+{
+	using namespace CRC16TestLocal;
 		// 用 offset 跳过前几个字节，等效于从偏移处开始计算
 		char buf[] = "XXXXABCDEFGH";
 		// 直接从 buf+4 开始算 8 字节
@@ -85,9 +87,9 @@ namespace
 		CRC_ASSERT_EQ(withOffset, direct, "bufferOffset equivalent to pointer advance");
 	}
 
-	// ========== crc16: 大块数据不崩溃 ==========
-	static void testCRC16_LargeBuffer()
-	{
+void CRC16Test::testCRC16_LargeBuffer()
+{
+	using namespace CRC16TestLocal;
 		const int SIZE = 4096;
 		char* bigBuf = new char[SIZE];
 		// 填充固定模式
@@ -101,9 +103,9 @@ namespace
 		delete[] bigBuf;
 	}
 
-	// ========== crc16Byte: 单字节增量 ==========
-	static void testCRC16_ByteByByte()
-	{
+void CRC16Test::testCRC16_ByteByByte()
+{
+	using namespace CRC16TestLocal;
 		// 用 crc16Byte 逐字节计算 "AB"
 		ushort crc = 0x0000;
 		crc = BinaryUtility::crc16Byte(crc, (byte)'A');
@@ -115,9 +117,9 @@ namespace
 		CRC_ASSERT_EQ(crc, direct, "byte-by-byte via crc16Byte matches crc16");
 	}
 
-	// ========== crc16: 全零数据 ==========
-	static void testCRC16_AllZeros()
-	{
+void CRC16Test::testCRC16_AllZeros()
+{
+	using namespace CRC16TestLocal;
 		const int N = 64;
 		char zeros[N];
 		memset(zeros, 0, sizeof(zeros));
@@ -133,9 +135,42 @@ namespace
 		CRC_ASSERT(r1 != rFF || true, "zeros differs from all-FF (likely)");
 	}
 
-	// ========== crc16: 初始值不同导致结果不同 ==========
-	static void testCRC16_DifferentInitValues()
-	{
+ushort CRC16Test::crc16Reference(ushort crc, const char* buffer, const int len, const int bufferOffset)
+{
+	using namespace CRC16TestLocal;
+		for (int i = 0; i < len; ++i)
+		{
+			crc = BinaryUtility::crc16Byte(crc, (byte)buffer[bufferOffset + i]);
+		}
+		return crc;
+	}
+
+void CRC16Test::testCRC16_SlicingBy4Regression()
+{
+	using namespace CRC16TestLocal;
+		char data[1032];
+		for (int i = 0; i < 1032; ++i)
+		{
+			data[i] = (char)((i * 37 + i * i * 13 + 91) & 0xFF);
+		}
+		const ushort initList[]{ 0x0000, 0x001F, 0x1234, 0xFFFF };
+		for (ushort init : initList)
+		{
+			for (int offset = 0; offset < 8; ++offset)
+			{
+				for (int len = 0; len <= 1024; ++len)
+				{
+					const ushort expected = crc16Reference(init, data, len, offset);
+					const ushort actual = BinaryUtility::crc16(init, data, len, offset);
+					CRC_ASSERT_EQ(actual, expected, "slicing-by-4 regression len=" + IToS(len) + " offset=" + IToS(offset));
+				}
+			}
+		}
+	}
+
+void CRC16Test::testCRC16_DifferentInitValues()
+{
+	using namespace CRC16TestLocal;
 		const char* msg = "test_data";
 		ushort r0 = BinaryUtility::crc16(0x0000, msg, 9);
 		ushort rFFFF = BinaryUtility::crc16(0xFFFF, msg, 9);
@@ -145,7 +180,6 @@ namespace
 		bool allSame = (r0 == rFFFF && rFFFF == r1234);
 		CRC_ASSERT(!allSame, "different init values produce different results");
 	}
-}
 
 void CRC16Test::test()
 {
@@ -159,4 +193,6 @@ void CRC16Test::test()
 	testCRC16_ByteByByte();
 	testCRC16_AllZeros();
 	testCRC16_DifferentInitValues();
+	testCRC16_SlicingBy4Regression();
 }
+#endif

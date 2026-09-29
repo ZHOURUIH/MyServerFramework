@@ -3,6 +3,9 @@
 #include "ThreadLock.h"
 #include "StreamBuffer.h"
 #include "DoubleBuffer.h"
+#include "SerializerBitRead.h"
+#include <deque>
+#include <vector>
 
 // 当前程序是服务器时,表示连接到服务器的一个客户端
 class MICRO_LEGEND_FRAME_API TCPServerClient
@@ -12,6 +15,8 @@ public:
 	virtual ~TCPServerClient();
 	virtual void init();
 	void update(float elapsedTime);
+	// 主线程在endFrame调用,按Buffer2剩余空间尽可能提交待发送数据给Send线程
+	bool submitSendData();
 	void sendPacket(PacketTCP* packet);
 	void sendPacket(ushort packetType, const string& name);
 	// 此函数在sendThread调用
@@ -47,7 +52,12 @@ protected:
 	void debugInfo(const string& info) const;
 	void debugError(const string& info) const;
 	void executeAllPacket();
-	void writeToSendBuffer1(ushort packetType, bool hasSign, ullong fieldFlag, uint bodySize, char* bodyBuffer);
+	void writeToSendBuffer1(ushort packetType, bool hasSign, ullong fieldFlag, uint bodySize, const char* bodyBuffer);
+	// Buffer1放不下时进入这里。延迟队列只在主线程访问,不需要额外加锁。
+	bool addPendingSendData(const char* data, int dataCount);
+	// 将延迟队列按FIFO顺序尽可能写入target,返回实际写入的字节数。
+	int flushPendingSendData(StreamBuffer* target);
+	void destroyAllPacket();
 protected:
 	ArrayList<2048, PacketTCP*> mWillDestroyPackets;// 用于缓存
 	DoubleBuffer<PacketTCP*> mExecutePacketList;	// 客户端收到消息的列表
@@ -55,10 +65,14 @@ protected:
 	string mIP;										// 客户端的IP地址
 	StreamBuffer* mSendBuffer = nullptr;			// 客户端发送数据缓冲区,只在发送线程中访问
 	StreamBuffer* mRecvBuffer = nullptr;			// 客户端接收数据缓冲区,只在接收线程中访问
-	ThreadLock mPacketTempBuffer2Lock;				// mPacketTempBuffer1的线程锁
+	SerializerBitRead mRecvReader;					// 只在接收线程解析消息时使用,避免每个消息重复构造Reader
+	ThreadLock mPacketTempBuffer2Lock;				// mPacketTempBuffer2的线程锁
 	SerializerBitWrite* mSendWriter = nullptr;		// 只在发送消息时用将要发送的数据写入到发送缓冲区,避免频繁构造析构
 	StreamBuffer* mPacketTempBuffer1 = nullptr;		// 待发送消息的临时缓冲区,存储已经序列化,但是还没有写入发送缓冲区的数据,中转数据用,减少加锁时间,只在主线程中访问
 	StreamBuffer* mPacketTempBuffer2 = nullptr;		// 待发送消息的临时缓冲区,存储已经序列化,但是还没有写入发送缓冲区的数据,中转数据用,减少加锁时间,在主线程和Send线程中访问
+	std::deque<std::vector<char>> mPendingSendQueue;	// Buffer1空间不足时的延迟发送FIFO,只在主线程访问,按最终序列化字节保存
+	int mPendingSendFrontOffset = 0;			// 延迟队列队首已经提交的字节偏移
+	int mPendingSendBytes = 0;				// 延迟队列中尚未提交到Buffer2的总字节数
 	sockaddr_in mUDPAddress;						// 发送给客户端udp消息的地址
 	MY_SOCKET mSocket = 0;							// 客户端套接字
 	llong mPlayerGUID = 0;							// 客户端的角色唯一ID,未登录角色时为无效ID

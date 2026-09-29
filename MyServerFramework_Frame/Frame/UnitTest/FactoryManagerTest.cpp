@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define FMT_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("FactoryManagerTest FAILED: ") + (msg)); } } while(0)
@@ -228,3 +229,4 @@ void FactoryManagerTest::testIsFactoryFlag()
 	FMT_ASSERT(mgr.isFactory() == true, "FactoryManager::isFactory() should return true");
 	mgr.quit();
 }
+#endif

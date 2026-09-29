@@ -6,7 +6,7 @@
 #include "Vector.h"
 #include "CustomThread.h"
 
-// 当前程序是一个服务器
+// WebSocket服务器系统,当前程序是一个服务器
 class MICRO_LEGEND_FRAME_API WebSocketServerSystem : public FrameComponent
 {
 	BASE(WebSocketServerSystem, FrameComponent);
@@ -15,8 +15,8 @@ public:
 	void init() override;
 	void quit() override;
 	void update(float elapsedTime) override;
-	float getHeartBeatTimeOut()	const											{ return mHeartBeatTimeOut; }
-	bool getOutputLog() const 													{ return mOutputLog; }
+	float getHeartBeatTimeOut() const											{ return mHeartBeatTimeOut; }
+	bool getOutputLog() const													{ return mOutputLog; }
 	bool isAvailable() const													{ return mSocket != INVALID_SOCKET; }
 	int getClientCount() const													{ return mClientList.size(); }
 	ushort getPort() const														{ return mPort; }
@@ -27,47 +27,57 @@ public:
 	void setFreezeAccountCallback(FreezeAccountCallback callback)				{ mFreezeAccount = callback; }
 	void increaseSendPacketCount()												{ ++mSendPacketCount; }
 	void increaseReceivePacketCount(int count)									{ mReceivePacketCount += count; }
-	void freezeAccount(llong accountGUID, llong timeSecond, const char* reason) { CALL(mFreezeAccount, accountGUID, timeSecond, reason); }
-	// 将消息数据写入到缓冲区,在发送消息前调用
+	void freezeAccount(llong accountGUID, llong timeSecond, const char* reason)	{ CALL(mFreezeAccount, accountGUID, timeSecond, reason); }
+	// 将消息数据写入到公共序列化缓冲区,在发送消息前调用
 	void writePacket(PacketWebSocket* packet);
+	// 将所有客户端标记为断开
 	void logoutAll();
 protected:
+	// 主线程处理Accept线程接收到的新连接
 	int notifyAcceptClient(MY_SOCKET socket, const string& ip);
-	void disconnectSocket(int clientGUID, const string& reason);	// 与客户端断开连接,只能在主线程中调用
+	// 主线程断开并销毁指定客户端
+	void disconnectSocket(int clientGUID, const string& reason);
+	// 接收新客户端连接的线程函数
 	void acceptThread();
+	// 向客户端发送数据的线程函数
 	void sendThread();
+	// 接收客户端数据的线程函数
 	void recvThread();
-	int generateSocketGUID() { return mSocketGUIDSeed++; }
+	// 生成客户端唯一ID
+	int generateSocketGUID()													{ return mSocketGUIDSeed++; }
+	// 处理send或者recv的Socket错误
 	void checkSendRecvError(WebSocketServerClient* client, int successLength) const;
 protected:
-	Vector<pair<MY_SOCKET, string>> mAcceptBuffer;				// 连接缓存列表
-	HashMap<int, WebSocketServerClient*> mClientList;			// 客户端列表,用于主线程访问
-	Vector<WebSocketServerClient*> mSendClientList;				// 客户端列表,用于发送线程访问,修改客户端列表时,需要同步修改这三个列表
-	Vector<WebSocketServerClient*> mRecvClientList;				// 客户端列表,用于接收线程访问
-	CustomThread* mSendThread = nullptr;						// 发送线程
-	CustomThread* mReceiveThread = nullptr;						// 接收线程
-	CustomThread* mAcceptThread = nullptr;						// 连接线程
-	ThreadLock mSendLock;										// mSendClientList的锁,其实可以使用读写锁来代替,可以不用复制多份列表
-	ThreadLock mRecvLock;										// mRecvClientList的锁
-	ThreadLock mAcceptLock;										// mAcceptBuffer的锁
-	SerializerWrite* mPacketDataBuffer = nullptr;				// 用于在发送消息时消息序列化,序列化以后再加密然后写入到发送缓冲区,之前是存在PacketWebSocket中,每个Packet都有一个,但是那样很占内存
-	WebServerCheckPingCallback mServerCheckPing = nullptr;		// 服务器主动检查客户端延迟的函数
-	FreezeAccountCallback mFreezeAccount = nullptr;				// 冻结账号的函数
-	MY_SOCKET mSocket = INVALID_SOCKET;							// 服务器套接字
-	char* mRecvBuffer = nullptr;								// 数据接收缓冲区
-	float mCurServerHeartBeatTime = mServerHeartBeatTimeOut;	// 当前服务器心跳计时
-	float mHeartBeatTimeOut = 0.0f;								// 心跳超时时间
-	float mDumpPacketTimer = 0.0f;								// 用于每隔一定时间打印一次收发包信息的计时器
-	int mServerHeartBeat = 0;									// 服务器当前心跳次数
-	int mSocketGUIDSeed = 1;									// 客户端连接的ID种子
-	int mWritePacketBytes = 0;									// 记录写包数据的大小
-	int mWritePacketCount = 0;									// 记录写包数据的数量
-	int mSendPacketCount = 0;									// 记录发包的数量
-	atomic<int> mReceiveBytesCount;								// 记录接收到的包字节数
-	atomic<int> mReceivePacketCount;							// 记录接收到的包数量
-	ushort mPort = 0;											// 端口号
-	bool mOutputLog = true;										// 是否输出日志
-	bool mWinsockInitialized = false;							// 是否已经初始化了winsock,防止重复调用WSACleanup
-	static constexpr float mDumpPacketTimeInternal = 10.0f;		// 每10秒打印一次收发数据信息
-	static constexpr float mServerHeartBeatTimeOut = 60.0f;		// 服务器自身心跳间隔时间
+	Vector<pair<MY_SOCKET, string>> mAcceptBuffer;					// Accept线程接收到的新连接缓存,first是Socket,second是IP
+	Vector<pair<MY_SOCKET, string>> mTempAcceptBuffer;				// 主线程处理新连接时使用的临时缓存
+	HashMap<int, WebSocketServerClient*> mClientList;				// 主线程维护的所有WebSocket客户端,key是clientGUID
+	Vector<WebSocketServerClient*> mSendClientList;					// 发送线程使用的客户端列表
+	Vector<WebSocketServerClient*> mRecvClientList;					// 接收线程使用的客户端列表
+	CustomThread* mSendThread = nullptr;							// WebSocket发送线程
+	CustomThread* mReceiveThread = nullptr;							// WebSocket接收线程
+	CustomThread* mAcceptThread = nullptr;							// WebSocket客户端连接接收线程
+	ThreadLock mSendLock;											// mSendClientList线程锁,保证发送过程中客户端不会被销毁
+	ThreadLock mRecvLock;											// mRecvClientList线程锁,保证接收过程中客户端不会被销毁
+	ThreadLock mAcceptLock;											// mAcceptBuffer线程锁
+	SerializerWrite* mPacketDataBuffer = nullptr;					// 主线程序列化待发送消息时使用的公共缓冲区
+	WebServerCheckPingCallback mServerCheckPing = nullptr;			// 服务器主动Ping客户端的回调
+	FreezeAccountCallback mFreezeAccount = nullptr;					// 冻结账号回调
+	MY_SOCKET mSocket = INVALID_SOCKET;								// WebSocket服务器监听Socket
+	char* mRecvBuffer = nullptr;									// 接收线程共用的临时Socket接收缓冲区
+	int mRecvEpollFD = -1;											// Linux下监听所有客户端可读事件的epoll句柄
+	float mCurServerHeartBeatTime = mServerHeartBeatTimeOut;		// 当前服务器心跳计时
+	float mHeartBeatTimeOut = 0.0f;									// 客户端心跳超时时间
+	float mDumpPacketTimer = 0.0f;									// 网络消息统计输出计时
+	int mServerHeartBeat = 0;										// 服务器心跳输出计数
+	int mSocketGUIDSeed = 1;										// 客户端GUID生成种子
+	int mWritePacketBytes = 0;										// 统计周期内序列化写入的消息总字节数
+	int mWritePacketCount = 0;										// 统计周期内序列化写入的消息数量
+	int mSendPacketCount = 0;										// 统计周期内发送的消息数量
+	atomic<int> mReceiveBytesCount;									// 统计周期内接收到的Socket总字节数,接收线程写入
+	atomic<int> mReceivePacketCount;								// 统计周期内接收到的消息数量,可能由子线程写入
+	ushort mPort = 0;												// WebSocket服务器监听端口
+	bool mOutputLog = true;											// 是否输出网络消息日志
+	bool mWinsockInitialized = false;								// Windows下Winsock是否已经初始化
+	static constexpr float mDumpPacketTimeInternal = 10.0f;			// 网络消息统计日志输出间隔,单位秒
+	static constexpr float mServerHeartBeatTimeOut = 60.0f;			// 服务器自身心跳日志输出间隔,单位秒
 };

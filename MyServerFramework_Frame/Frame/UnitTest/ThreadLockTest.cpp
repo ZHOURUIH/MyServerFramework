@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define TLT_ASSERT(expr, msg) \
     do { if (!(expr)) { ERROR(string("ThreadLockTest FAILED: ") + (msg)); } } while(0)
@@ -156,3 +157,4 @@ void ThreadLockTest::testTimeLock60FPS()
     }
     TLT_ASSERT(total >= 0, "TimeLock 60fps total >= 0");
 }
+#endif

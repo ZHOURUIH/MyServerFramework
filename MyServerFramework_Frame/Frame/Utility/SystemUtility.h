@@ -12,7 +12,7 @@ namespace SystemUtility
 	MICRO_LEGEND_FRAME_API extern int mMainThread;				// 主线程的线程ID
 	//------------------------------------------------------------------------------------------------------------------------------
 	MICRO_LEGEND_FRAME_API void stop();
-	void sleep(ulong timeMS)
+	inline void sleep(ulong timeMS)
 	{
 #ifdef WINDOWS
 		Sleep(timeMS);
@@ -21,17 +21,17 @@ namespace SystemUtility
 #endif
 	}
 	// 只需要在windows下才会暂停,linux中不需要暂停
-	void systemPause()
+	inline void systemPause()
 	{
 #ifdef WINDOWS
 		system("pause");
 #endif
 	}
 	// 获取系统从启动到现在所经过的毫秒,每帧更新一次的
-	llong getTimeMSecondUTC() { return mTimeMSecondUTC; }
-	void setTimeMSecondUTC(const llong timeMS) { mTimeMSecondUTC = timeMS; }
+	inline llong getTimeMSecondUTC() { return mTimeMSecondUTC; }
+	inline void setTimeMSecondUTC(const llong timeMS) { mTimeMSecondUTC = timeMS; }
 	// 获取系统从启动到现在所经过的毫秒,实时的
-	llong getRealTimeMS()
+	inline llong getRealTimeMS()
 	{
 #ifdef WINDOWS
 		return timeGetTime();
@@ -69,8 +69,8 @@ namespace SystemUtility
 	// 获取当前时间,以字符串形式表示
 	MICRO_LEGEND_FRAME_API string getTime(bool timeStamp = false);
 	// 获取从1970年1月1日到现在的秒数,本地时间,UTC时间
-	llong getTimeSecondUTC() { return mTimeSecondUTC; }
-	void setTimeSecondUTC(llong timeS) { mTimeSecondUTC = timeS; }
+	inline llong getTimeSecondUTC() { return mTimeSecondUTC; }
+	inline void setTimeSecondUTC(llong timeS) { mTimeSecondUTC = timeS; }
 	constexpr int daysToSeconds(int days) { return 24 * 60 * 60 * days; }
 	// 获取今天24点的时间戳
 	MICRO_LEGEND_FRAME_API llong getTodayEnd();
@@ -95,7 +95,7 @@ namespace SystemUtility
 	MICRO_LEGEND_FRAME_API void makeSockAddr(sockaddr_in& addr, ulong hostlong, ushort port);
 	MICRO_LEGEND_FRAME_API void print(const char* str, bool nextLine = true);
 	MICRO_LEGEND_FRAME_API void input(string& str);
-	int getThreadID()
+	inline int getThreadID()
 	{
 #ifdef WINDOWS
 		return (int)GetCurrentThreadId();
@@ -106,7 +106,7 @@ namespace SystemUtility
 #endif
 	}
 	// 获得程序当前所在路径,带文件名
-	string getProgramFile()
+	inline string getProgramFile()
 	{
 		MyCharArray<256> name;
 #ifdef WINDOWS
@@ -136,9 +136,9 @@ namespace SystemUtility
 	// fillPath为绝对路径,带文件名
 	MICRO_LEGEND_FRAME_API void launchExeInScreen(const string& screenName, const string& fullPath);
 	MICRO_LEGEND_FRAME_API int getPID();
-	bool isMainThread() { return getThreadID() == mMainThread; }
-	void setMainThread(const int id) { mMainThread = id; }
-	void checkMainThread()
+	inline bool isMainThread() { return getThreadID() == mMainThread; }
+	inline void setMainThread(const int id) { mMainThread = id; }
+	inline void checkMainThread()
 	{
 #ifdef WINDOWS
 		if (!isMainThread())
@@ -147,12 +147,12 @@ namespace SystemUtility
 		}
 #endif
 	}
-	llong makeIDMain()
+	inline llong makeIDMain()
 	{
 		checkMainThread();
 		return ++mIDSeedMain;
 	}
-	llong makeIDThread() { return ++mIDSeedThread; }
+	inline llong makeIDThread() { return ++mIDSeedThread; }
 	MICRO_LEGEND_FRAME_API string getStackTrace(int depth);
 }
 
@@ -180,7 +180,6 @@ using SystemUtility::setMainThread;
 using SystemUtility::setTimeMSecondUTC;
 using SystemUtility::setTimeSecondUTC;
 using SystemUtility::makeIDThread;
-using SystemUtility::sleep;
 using SystemUtility::systemPause;
 using SystemUtility::getTimeStruct;
 using SystemUtility::convertToTimestamp;

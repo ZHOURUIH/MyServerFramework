@@ -17,7 +17,7 @@ public:
 	{
 		if (mInstance != nullptr)
 		{
-			ERROR("不能定义重复类型的对象池");
+			ERROR("不能定义重复类型的对象池,type:" + string(typeid(ClassType).name()));
 		}
 		mInstance = this;
 	}

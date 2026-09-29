@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 // ============================================================
 // ValueModifyTest
@@ -30,6 +31,8 @@ void ValueModifyTest::test()
     testValueModifyMixedIntBool();
     testValueModifyLargeScale();
     testMapModifyLargeScale();
+	testMapModify();
+	testValueModify();
 }
 
 // ------------------------------------------------------------------
@@ -374,3 +377,109 @@ void ValueModifyTest::testMapModifyLargeScale()
         VMT_ASSERT(!target.contains(i));
     }
 }
+
+// ============================================================
+// Consolidated queue/modify tests
+// ============================================================
+#define VALUEMODIFYTEST_QMT_ASSERT(expr, msg) \
+	do { if (!(expr)) { ERROR(string("ValueModifyTest FAILED: ") + (msg)); } } while(0)
+#define VALUEMODIFYTEST_QMT_ASSERT_EQ(a, b, msg) \
+	do { if ((a) != (b)) { ERROR(string("ValueModifyTest FAILED: ") + (msg) + " expected=" + IToS((int)(b)) + " actual=" + IToS((int)(a))); } } while(0)
+
+void ValueModifyTest::testMapModify()
+{
+    // erase 构造（只有 key，mAdd=false）
+    {
+        MapModify<int, int> m(42);
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mKey, 42, "MapModify erase ctor mKey==42");
+        VALUEMODIFYTEST_QMT_ASSERT(!m.mAdd, "MapModify erase ctor mAdd==false");
+    }
+
+    // insert 构造（key + value，mAdd=true）
+    {
+        MapModify<int, int> m(10, 100);
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mKey, 10, "MapModify insert ctor mKey==10");
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mValue, 100, "MapModify insert ctor mValue==100");
+        VALUEMODIFYTEST_QMT_ASSERT(m.mAdd, "MapModify insert ctor mAdd==true");
+    }
+
+    // string key
+    {
+        MapModify<string, int> m(string("name"), 999);
+        VALUEMODIFYTEST_QMT_ASSERT(m.mKey == "name", "MapModify string key");
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mValue, 999, "MapModify string value");
+        VALUEMODIFYTEST_QMT_ASSERT(m.mAdd, "MapModify string mAdd==true");
+    }
+
+    // erase 构造 string key
+    {
+        MapModify<string, float> m(string("erase_key"));
+        VALUEMODIFYTEST_QMT_ASSERT(m.mKey == "erase_key", "MapModify string erase key");
+        VALUEMODIFYTEST_QMT_ASSERT(!m.mAdd, "MapModify string erase mAdd==false");
+    }
+
+    // 批量验证，模拟修改列表
+    {
+        Vector<MapModify<int, string>> modifyList;
+        modifyList.emplace(MapModify<int, string>(1, "one"));
+        modifyList.emplace(MapModify<int, string>(2, "two"));
+        modifyList.emplace(MapModify<int, string>(3));     // erase 3
+        modifyList.emplace(MapModify<int, string>(4, "four"));
+
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(modifyList.size(), 4, "modifyList size==4");
+        VALUEMODIFYTEST_QMT_ASSERT(modifyList[0].mAdd, "modifyList[0].mAdd==true");
+        VALUEMODIFYTEST_QMT_ASSERT(!modifyList[2].mAdd, "modifyList[2].mAdd==false");
+        VALUEMODIFYTEST_QMT_ASSERT(modifyList[1].mKey == 2, "modifyList[1].mKey==2");
+        VALUEMODIFYTEST_QMT_ASSERT(modifyList[1].mValue == "two", "modifyList[1].mValue==two");
+        VALUEMODIFYTEST_QMT_ASSERT(modifyList[2].mKey == 3, "modifyList[2].mKey==3");
+    }
+
+}
+
+void ValueModifyTest::testValueModify()
+{
+    // add=true
+    {
+        ValueModify<int> m(42, true);
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mValue, 42, "ValueModify value==42");
+        VALUEMODIFYTEST_QMT_ASSERT(m.mAdd, "ValueModify add==true");
+    }
+
+    // add=false（erase）
+    {
+        ValueModify<int> m(99, false);
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(m.mValue, 99, "ValueModify value==99");
+        VALUEMODIFYTEST_QMT_ASSERT(!m.mAdd, "ValueModify add==false");
+    }
+
+    // float 类型
+    {
+        ValueModify<float> m(3.14f, true);
+        VALUEMODIFYTEST_QMT_ASSERT(fabsf(m.mValue - 3.14f) < 1e-4f, "ValueModify float value");
+        VALUEMODIFYTEST_QMT_ASSERT(m.mAdd, "ValueModify float add==true");
+    }
+
+    // string 类型
+    {
+        ValueModify<string> m(string("hello"), true);
+        VALUEMODIFYTEST_QMT_ASSERT(m.mValue == "hello", "ValueModify string value");
+        VALUEMODIFYTEST_QMT_ASSERT(m.mAdd, "ValueModify string add==true");
+    }
+
+    // 批量验证
+    {
+        Vector<ValueModify<int>> list;
+        list.emplace(ValueModify<int>(10, true));
+        list.emplace(ValueModify<int>(20, true));
+        list.emplace(ValueModify<int>(10, false)); // erase 10
+        list.emplace(ValueModify<int>(30, true));
+
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(list.size(), 4, "ValueModify batch size==4");
+        VALUEMODIFYTEST_QMT_ASSERT(list[0].mAdd, "batch[0].mAdd==true");
+        VALUEMODIFYTEST_QMT_ASSERT(list[1].mAdd, "batch[1].mAdd==true");
+        VALUEMODIFYTEST_QMT_ASSERT(!list[2].mAdd, "batch[2].mAdd==false");
+        VALUEMODIFYTEST_QMT_ASSERT_EQ(list[2].mValue, 10, "batch[2].mValue==10");
+    }
+
+}
+#endif

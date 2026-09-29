@@ -1,4 +1,5 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
 #define IS_POD_TYPE_ASSERT(expr) \
 	if (!(expr)) \
@@ -20,14 +21,17 @@ struct IPTUnrelated {};
 //-------------------------------------------------------------
 // 用于触发 IsPodIntegerType SFINAE 的模板函数
 //-------------------------------------------------------------
-template<typename T, typename = typename IsPodIntegerType<T>::mType>
-static bool isPodIntFn(T) { return true; }
+template<typename T, typename>
+bool IsPODTypeTraitsTest::isPodIntFn(T)
+{ return true; }
 
-template<typename T, typename = typename IsPodSignedIntegerType<T>::mType>
-static bool isPodSignedFn(T) { return true; }
+template<typename T, typename>
+bool IsPODTypeTraitsTest::isPodSignedFn(T)
+{ return true; }
 
-template<typename T, typename = typename IsPodUnsignedIntegerType<T>::mType>
-static bool isPodUnsignedFn(T) { return true; }
+template<typename T, typename>
+bool IsPODTypeTraitsTest::isPodUnsignedFn(T)
+{ return true; }
 
 //-------------------------------------------------------------
 
@@ -318,3 +322,4 @@ void IsPODTypeTraitsTest::test()
 	testCompileTimeEnableIf();
 	testMixedTypeChecks();
 }
+#endif

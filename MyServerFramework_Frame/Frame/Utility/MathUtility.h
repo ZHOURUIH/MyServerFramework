@@ -6,6 +6,7 @@
 #include "Line2.h"
 #include "ThreadLock.h"
 #include "HashMap.h"
+#include "Map.h"
 #include "Set.h"
 #include "Vector.h"
 
@@ -375,21 +376,21 @@ namespace MathUtility
 	}
 	//------------------------------------------------------------------------------------------------------------------------------
 	// public
-	Vector3 toVec3(Vector2Int vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
-	Vector3 toVec3(Vector2UInt vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
-	Vector3 toVec3(Vector2UShort vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
-	Vector3 toVec3(Vector2 vec2) { return { vec2.x, vec2.y, 0.0f }; }
-	Vector2 toVec2(Vector3 vec3) { return { vec3.x, vec3.y }; }
-	Vector2Int toVec2Int(Vector2 vec2) { return { (int)vec2.x, (int)vec2.y }; }
-	Vector2Int toVec2Int(Vector3 vec3) { return { (int)vec3.x, (int)vec3.y }; }
-	Vector2Int toVec2Int(Vector2UInt vec2) { return { (int)vec2.x, (int)vec2.y }; }
-	Vector2Int toVec2Int(Vector2Short vec2) { return { vec2.x, vec2.y }; }
-	Vector2Int toVec2Int(Vector2UShort vec2) { return { vec2.x, vec2.y }; }
-	Vector2UInt toVec2UInt(Vector2 vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
-	Vector2UInt toVec2UInt(Vector3 vec3) { return { (uint)vec3.x, (uint)vec3.y }; }
-	Vector2UInt toVec2UInt(Vector2Int vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
-	Vector2UInt toVec2UInt(Vector2Short vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
-	Vector2UInt toVec2UInt(Vector2UShort vec2) { return { vec2.x, vec2.y }; }
+	inline Vector3 toVec3(Vector2Int vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
+	inline Vector3 toVec3(Vector2UInt vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
+	inline Vector3 toVec3(Vector2UShort vec2) { return { (float)vec2.x, (float)vec2.y, 0.0f }; }
+	inline Vector3 toVec3(Vector2 vec2) { return { vec2.x, vec2.y, 0.0f }; }
+	inline Vector2 toVec2(Vector3 vec3) { return { vec3.x, vec3.y }; }
+	inline Vector2Int toVec2Int(Vector2 vec2) { return { (int)vec2.x, (int)vec2.y }; }
+	inline Vector2Int toVec2Int(Vector3 vec3) { return { (int)vec3.x, (int)vec3.y }; }
+	inline Vector2Int toVec2Int(Vector2UInt vec2) { return { (int)vec2.x, (int)vec2.y }; }
+	inline Vector2Int toVec2Int(Vector2Short vec2) { return { vec2.x, vec2.y }; }
+	inline Vector2Int toVec2Int(Vector2UShort vec2) { return { vec2.x, vec2.y }; }
+	inline Vector2UInt toVec2UInt(Vector2 vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
+	inline Vector2UInt toVec2UInt(Vector3 vec3) { return { (uint)vec3.x, (uint)vec3.y }; }
+	inline Vector2UInt toVec2UInt(Vector2Int vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
+	inline Vector2UInt toVec2UInt(Vector2Short vec2) { return { (uint)vec2.x, (uint)vec2.y }; }
+	inline Vector2UInt toVec2UInt(Vector2UShort vec2) { return { vec2.x, vec2.y }; }
 	template<typename T>
 	constexpr T getMin(const T a, const T b) { return a < b ? a : b; }
 	template<typename T>
@@ -400,11 +401,11 @@ namespace MathUtility
 	constexpr bool isEqual(const float value1, const float value2, const float precision = MIN_DELTA) { return isZero(value1 - value2, precision); }
 	constexpr int indexToX(int index, int width) { return index % width; }
 	constexpr int indexToY(int index, int width) { return index / width; }
-	Vector2Int indexToIntPos(int index, int width) { return { index % width, index / width }; }
-	int intPosToIndex(Vector2Int pos, int width) { return pos.x + pos.y * width; }
-	int intPosToIndex(Vector2Short pos, int width) { return pos.x + pos.y * width; }
-	int intPosToIndex(Vector2UShort pos, int width) { return pos.x + pos.y * width; }
-	int intPosToIndex(Vector2UInt pos, int width) { return pos.x + pos.y * width; }
+	inline Vector2Int indexToIntPos(int index, int width) { return { index % width, index / width }; }
+	inline int intPosToIndex(Vector2Int pos, int width) { return pos.x + pos.y * width; }
+	inline int intPosToIndex(Vector2Short pos, int width) { return pos.x + pos.y * width; }
+	inline int intPosToIndex(Vector2UShort pos, int width) { return pos.x + pos.y * width; }
+	inline int intPosToIndex(Vector2UInt pos, int width) { return pos.x + pos.y * width; }
 	constexpr int intPosToIndex(int x, int y, int width) { return x + y * width; }
 	// 是否为偶数
 	// 对于a % b的计算,如果b为2的n次方,则a % b等效于a & (b - 1)
@@ -566,14 +567,15 @@ namespace MathUtility
 	constexpr float frameToSecond(const int frame) { return frame * 0.0333f; }
 	constexpr float getSquaredLength(Vector2 vec) { return vec.x * vec.x + vec.y * vec.y; }
 	constexpr float getSquaredLength(const Vector3& vec) { return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z; }
-	float getLength(const float x, const float y) { return sqrt(x * x + y * y); }
-	float getLength(const float x, const float y, float z) { return sqrt(x * x + y * y + z * z); }
-	float getLength(Vector2 vec) { return sqrt(vec.x * vec.x + vec.y * vec.y); }
-	float getLength(const Vector3& vec) { return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z); }
+	inline float getLength(const float x, const float y) { return sqrt(x * x + y * y); }
+	inline float getLength(const float x, const float y, float z) { return sqrt(x * x + y * y + z * z); }
+	inline float getLength(Vector2 vec) { return sqrt(vec.x * vec.x + vec.y * vec.y); }
+	inline float getLength(const Vector3& vec) { return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z); }
 	MICRO_LEGEND_FRAME_API Vector3 normalize(const Vector3& value);
 	MICRO_LEGEND_FRAME_API Vector2 normalize(Vector2 value);
 	// 此处计算结果与unity中的Vector3.Cross()一致
-	Vector3 cross(const Vector3& v0, const Vector3& v1) { return { v1.y * v0.z - v0.y * v1.z, v1.x * v0.z - v0.x * v1.z, v1.x * v0.y - v0.x * v1.y }; }
+	inline Vector3 cross(const Vector3& v0, const Vector3& v1) { return { v0.y * v1.z - v0.z * v1.y, v0.z * v1.x - v0.x * v1.z, v0.x * v1.y - v0.y * v1.x }; }
+	inline float cross(const Vector2& v0, const Vector2& v1) { return v0.x * v1.y - v0.y * v1.x; }
 	constexpr float dot(const Vector3& v0, const Vector3& v1) { return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z; }
 	constexpr float dot(Vector2 v0, Vector2 v1) { return v0.x * v1.x + v0.y * v1.y; }
 	constexpr float toDegree(float radian) { return radian * Rad2Deg; }
@@ -588,15 +590,15 @@ namespace MathUtility
 	constexpr bool isVectorEqual(Vector2 vec0, Vector2 vec1) { return isEqual(vec0.x, vec1.x) && isEqual(vec0.y, vec1.y); }
 	constexpr bool isVectorEqual(const Vector3& vec0, const Vector3& vec1, float precision) { return isEqual(vec0.x, vec1.x, precision) && isEqual(vec0.y, vec1.y, precision) && isEqual(vec0.z, vec1.z, precision); }
 	constexpr bool isVectorEqual(Vector2 vec0, Vector2 vec1, float precision) { return isEqual(vec0.x, vec1.x, precision) && isEqual(vec0.y, vec1.y, precision); }
-	Vector3 resetY(const Vector3& vec) { return { vec.x, 0.0f, vec.z }; }
-	Line3 resetY(const Line3& line) { return { {line.mStart.x, 0.0f, line.mStart.z},{line.mEnd.x, 0.0f, line.mEnd.z} }; }
+	inline Vector3 resetY(const Vector3& vec) { return { vec.x, 0.0f, vec.z }; }
+	inline Line3 resetY(const Line3& line) { return { {line.mStart.x, 0.0f, line.mStart.z},{line.mEnd.x, 0.0f, line.mEnd.z} }; }
 	// 非线程安全
 	MICRO_LEGEND_FRAME_API float randomFloat(float minFloat, float maxFloat);
 	// 非线程安全,范围[minInt, maxInt]  
 	MICRO_LEGEND_FRAME_API int randomInt(int minInt, int maxInt);
 	MICRO_LEGEND_FRAME_API llong randomLong(llong minInt, llong maxInt);
 	// 非线程安全,根据一定几率随机返回true或false,probability范围为0到1
-	bool randomHit(const float probability)
+	inline bool randomHit(const float probability)
 	{
 		if (probability <= 0.0f)
 		{
@@ -610,7 +612,7 @@ namespace MathUtility
 	}
 	// 非线程安全,根据一定几率随机返回true或false,实际几率为probability除以scale
 	// 一般scale应该尽量大一些,比如1万,10万,100万,以确保随机几率正常
-	bool randomHit(const int probability, const int scale)
+	inline bool randomHit(const int probability, const int scale)
 	{
 		if (probability == 0)
 		{
@@ -772,13 +774,13 @@ namespace MathUtility
 	MICRO_LEGEND_FRAME_API void randomSelect(int count, int selectCount, Set<int>& selectIndexes);
 	// 非线程安全,根据权重随机选择多个下标
 	MICRO_LEGEND_FRAME_API void randomSelect(const int* oddsList, int oddsCount, const int selectCount, Vector<int>& selectIndexes);
-	void randomSelect(const Vector<int>& oddsList, int selectCount, Vector<int>& selectIndexes)
+	inline void randomSelect(const Vector<int>& oddsList, int selectCount, Vector<int>& selectIndexes)
 	{
 		randomSelect(oddsList.data(), oddsList.size(), selectCount, selectIndexes);
 	}
 	// 根据权重随机选择一个下标
 	MICRO_LEGEND_FRAME_API int randomSelect(const int* oddsList, int oddsCount);
-	int randomSelect(const Vector<int>& oddsList)
+	inline int randomSelect(const Vector<int>& oddsList)
 	{
 		return randomSelect(oddsList.data(), oddsList.size());
 	}
@@ -1066,16 +1068,16 @@ namespace MathUtility
 	}
 	constexpr float inverseLerp(const float a, const float b, const float value) { return divide(value - a, b - a); }
 	// 绕Y轴旋转向量
-	void rotateVector3Ref(Vector3& vec, const Vector3& axis, float radian) { vec = Quaternion(axis, radian) * vec; }
-	void rotateVector3AroundYRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::UP, radian); }
-	void rotateVector3AroundXRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::RIGHT, radian); }
-	void rotateVector3AroundZRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::FORWARD, radian); }
+	inline void rotateVector3Ref(Vector3& vec, const Vector3& axis, float radian) { vec = Quaternion(axis, radian) * vec; }
+	inline void rotateVector3AroundYRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::UP, radian); }
+	inline void rotateVector3AroundXRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::RIGHT, radian); }
+	inline void rotateVector3AroundZRef(Vector3& vec, float radian) { rotateVector3Ref(vec, Vector3::FORWARD, radian); }
 	MICRO_LEGEND_FRAME_API Vector3 rotateVector3(const Vector3& vec, const Vector3& axis, float radian);
-	Vector3 rotateVector3AroundY(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::UP, radian); }
-	Vector3 rotateVector3AroundX(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::RIGHT, radian); }
-	Vector3 rotateVector3AroundZ(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::BACK, radian); }
-	float getAngleBetweenVector(const Vector3& vec1, const Vector3& vec2) { return acos(dot(normalize(vec1), normalize(vec2))); }
-	float getAngleBetweenVector(Vector2 vec1, Vector2 vec2) { return acos(dot(normalize(vec1), normalize(vec2))); }
+	inline Vector3 rotateVector3AroundY(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::UP, radian); }
+	inline Vector3 rotateVector3AroundX(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::RIGHT, radian); }
+	inline Vector3 rotateVector3AroundZ(const Vector3& vec, float radian) { return rotateVector3(vec, Vector3::BACK, radian); }
+	inline float getAngleBetweenVector(const Vector3& vec1, const Vector3& vec2) { return acos(dot(normalize(vec1), normalize(vec2))); }
+	inline float getAngleBetweenVector(Vector2 vec1, Vector2 vec2) { return acos(dot(normalize(vec1), normalize(vec2))); }
 	MICRO_LEGEND_FRAME_API float getAngleFromVector2ToVector2(Vector2 from, Vector2 to, bool radian = true);
 	// 求Z轴顺时针旋转一定角度后的向量,角度范围是-MATH_PI 到 MATH_PI
 	MICRO_LEGEND_FRAME_API Vector3 getVectorFromAngle(float angle);
@@ -1135,7 +1137,7 @@ namespace MathUtility
 	// 四舍五入
 	constexpr llong roundDouble(const double value) { return value > 0.0 ? (llong)(value + 0.5) : (llong)(value - 0.5); }
 	constexpr int round_(const float value) { return value > 0.0f ? (int)(value + 0.5f) : (int)(value - 0.5f); }
-	void round(Vector3& value)
+	inline void round(Vector3& value)
 	{
 		value.x = ::round(value.x);
 		value.y = ::round(value.y);

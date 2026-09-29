@@ -1,14 +1,16 @@
-﻿#include "FrameHeader.h"
+﻿#ifdef WINDOWS
+#include "FrameHeader.h"
 
-namespace
+namespace QuickSortTestLocal
 {
 #define QS_ASSERT(expr, msg) \
 	do { if (!(expr)) { ERROR(string("QuickSortTest FAILED: ") + (msg)); } } while(0)
+}
 
-	// ========== helper: verify sorted (ascending) ==========
-	template<typename T>
-	static bool isSortedAscend(const T* arr, int count)
-	{
+template<typename T>
+bool QuickSortTest::isSortedAscend(const T* arr, int count)
+{
+	using namespace QuickSortTestLocal;
 		for (int i = 1; i < count; ++i)
 		{
 			if (arr[i] < arr[i - 1])
@@ -19,9 +21,10 @@ namespace
 		return true;
 	}
 
-	template<typename T>
-	static bool isSortedDescend(const T* arr, int count)
-	{
+template<typename T>
+bool QuickSortTest::isSortedDescend(const T* arr, int count)
+{
+	using namespace QuickSortTestLocal;
 		for (int i = 1; i < count; ++i)
 		{
 			if (arr[i] > arr[i - 1])
@@ -32,9 +35,9 @@ namespace
 		return true;
 	}
 
-	// ---------- quickSortAscend: 基本升序 ----------
-	static void testQuickSortAscend_Basic()
-	{
+void QuickSortTest::testQuickSortAscend_Basic()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 3, 8, 1, 9, 2, 7, 4, 6};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1);
@@ -42,9 +45,9 @@ namespace
 		QS_ASSERT(arr[0] == 1 && arr[n - 1] == 9, "ascend range");
 	}
 
-	// ---------- quickSortAscend: 已有序（最优路径）----------
-	static void testQuickSortAscend_AlreadySorted()
-	{
+void QuickSortTest::testQuickSortAscend_AlreadySorted()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {1, 2, 3, 4, 5, 6, 7};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		int copy[n];
@@ -53,27 +56,27 @@ namespace
 		QS_ASSERT(isSortedAscend(copy, n), "ascend already sorted stable");
 	}
 
-	// ---------- quickSortAscend: 逆序（最坏情况之一）----------
-	static void testQuickSortAscend_Reverse()
-	{
+void QuickSortTest::testQuickSortAscend_Reverse()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {9, 8, 7, 6, 5, 4, 3, 2, 1};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1);
 		QS_ASSERT(isSortedAscend(arr, n), "ascend reverse");
 	}
 
-	// ---------- quickSortAscend: 全部相同元素 ----------
-	static void testQuickSortAscend_AllSame()
-	{
+void QuickSortTest::testQuickSortAscend_AllSame()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 5, 5, 5, 5};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1);
 		QS_ASSERT(isSortedAscend(arr, n), "ascend all same");
 	}
 
-	// ---------- quickSortAscend: 单元素 / 两元素 ----------
-	static void testQuickSortAscend_TrivialSize()
-	{
+void QuickSortTest::testQuickSortAscend_TrivialSize()
+{
+	using namespace QuickSortTestLocal;
 		int a1[] = {42};
 		MathUtility::quickSortAscend(a1, 0, 0);
 		QS_ASSERT(a1[0] == 42, "single element");
@@ -83,9 +86,9 @@ namespace
 		QS_ASSERT(a2[0] == 5 && a2[1] == 10, "two elements");
 	}
 
-	// ---------- quickSortAscend: 含负数 ----------
-	static void testQuickSortAscend_Negative()
-	{
+void QuickSortTest::testQuickSortAscend_Negative()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {-3, 5, -1, 0, -7, 2};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1);
@@ -93,18 +96,18 @@ namespace
 		QS_ASSERT(arr[0] == -7 && arr[n - 1] == 5, "ascend negative range");
 	}
 
-	// ---------- quickSortAscend: float 类型 ----------
-	static void testQuickSortAscend_Float()
-	{
+void QuickSortTest::testQuickSortAscend_Float()
+{
+	using namespace QuickSortTestLocal;
 		float arr[] = {3.14f, -1.5f, 0.0f, 2.71f, -0.01f};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1);
 		QS_ASSERT(isSortedAscend(arr, n), "ascend float");
 	}
 
-	// ---------- quickSortDescend: 基本降序 ----------
-	static void testQuickSortDescend_Basic()
-	{
+void QuickSortTest::testQuickSortDescend_Basic()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 3, 8, 1, 9, 2, 7, 4, 6};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortDescend(arr, 0, n - 1);
@@ -112,9 +115,9 @@ namespace
 		QS_ASSERT(arr[0] == 9 && arr[n - 1] == 1, "descend range");
 	}
 
-	// ---------- quickSortDescend: 负数 ----------
-	static void testQuickSortDescend_Negative()
-	{
+void QuickSortTest::testQuickSortDescend_Negative()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {-3, 5, -1, 0, -7, 2};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		quickSortDescend(arr, 0, n - 1);
@@ -122,9 +125,9 @@ namespace
 		QS_ASSERT(arr[0] == 5 && arr[n - 1] == -7, "descend negative range");
 	}
 
-	// ---------- quickSortAscendPtr: 指针数组升序 ----------
-	static void testQuickSortAscendPtr_Basic()
-	{
+void QuickSortTest::testQuickSortAscendPtr_Basic()
+{
+	using namespace QuickSortTestLocal;
 		int values[] = {30, 10, 20, 50, 40};
 		int* ptrs[5];
 		FOR(5)
@@ -140,9 +143,9 @@ namespace
 		QS_ASSERT(*ptrs[0] == 10 && *ptrs[4] == 50, "ascend ptr range");
 	}
 
-	// ---------- quickSortAscendPtr: 相同值 ----------
-	static void testQuickSortAscendPtr_DuplicateValues()
-	{
+void QuickSortTest::testQuickSortAscendPtr_DuplicateValues()
+{
+	using namespace QuickSortTestLocal;
 		int values[] = {20, 10, 20, 10, 20};
 		int* ptrs[5];
 		FOR(5)
@@ -156,9 +159,9 @@ namespace
 		}
 	}
 
-	// ---------- quickSortDescendPtr: 指针数组降序 ----------
-	static void testQuickSortDescendPtr_Basic()
-	{
+void QuickSortTest::testQuickSortDescendPtr_Basic()
+{
+	using namespace QuickSortTestLocal;
 		int values[] = {30, 10, 20, 50, 40};
 		int* ptrs[5];
 		FOR(5)
@@ -173,9 +176,9 @@ namespace
 		QS_ASSERT(*ptrs[0] == 50 && *ptrs[4] == 10, "descend ptr range");
 	}
 
-	// ---------- compare 函数指针版本: ascend ----------
-	static int compareInt(const int& a, const int& b)
-	{
+int QuickSortTest::compareInt(const int& a, const int& b)
+{
+	using namespace QuickSortTestLocal;
 		if (a < b)
 		{
 			return -1;
@@ -187,26 +190,27 @@ namespace
 		return 0;
 	}
 
-	static void testQuickSortAscend_Compare()
-	{
+void QuickSortTest::testQuickSortAscend_Compare()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 3, 8, 1, 9, 2};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortAscend(arr, 0, n - 1, compareInt);
 		QS_ASSERT(isSortedAscend(arr, n), "ascend compare basic");
 	}
 
-	// ---------- compare 函数指针版本: descend ----------
-	static void testQuickSortDescend_Compare()
-	{
+void QuickSortTest::testQuickSortDescend_Compare()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 3, 8, 1, 9, 2};
 		const int n = (int)(sizeof(arr) / sizeof(arr[0]));
 		MathUtility::quickSortDescend(arr, 0, n - 1, compareInt);
 		QS_ASSERT(isSortedDescend(arr, n), "descend compare basic");
 	}
 
-	// ---------- compare 函数指针: nullptr 安全 ----------
-	static void testQuickSort_CompareNullptr()
-	{
+void QuickSortTest::testQuickSort_CompareNullptr()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {3, 1, 2};
 		// 不应崩溃，直接返回
 		quickSortAscend(arr, 0, 2, (CompareTCallback<int>)nullptr);
@@ -220,9 +224,9 @@ namespace
 		QS_ASSERT(pivot == -1, "nonrecursive descend null returns -1");
 	}
 
-	// ---------- 大量数据稳定性 ----------
-	static void testQuickSort_LargeDataset()
-	{
+void QuickSortTest::testQuickSort_LargeDataset()
+{
+	using namespace QuickSortTestLocal;
 		const int N = 1000;
 		int* arr = new int[N];
 		FOR(N)
@@ -239,9 +243,9 @@ namespace
 		delete[] arr;
 	}
 
-	// ---------- quickSortNonRecursive 返回 pivot ----------
-	static void testQuickSortNonRecursive_PivotReturn()
-	{
+void QuickSortTest::testQuickSortNonRecursive_PivotReturn()
+{
+	using namespace QuickSortTestLocal;
 		int arr[] = {5, 3, 8, 1, 9};
 		int pivot = MathUtility::quickSortNonRecursiveAscend(arr, 0, 4);
 		QS_ASSERT(pivot >= 0 && pivot <= 4, "nonrecur pivot valid range");
@@ -255,7 +259,6 @@ namespace
 			QS_ASSERT(arr[i] > arr[pivot], "nonrecur right side > pivot");
 		}
 	}
-}
 
 void QuickSortTest::test()
 {
@@ -277,3 +280,4 @@ void QuickSortTest::test()
 	testQuickSort_LargeDataset();
 	testQuickSortNonRecursive_PivotReturn();
 }
+#endif

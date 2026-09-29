@@ -24,6 +24,8 @@ public:
 	virtual void update(float elapsedTime) {}
 	// 所有系统的update调用完以后再调用lateUpdate
 	virtual void lateUpdate(const float elapsedTime) {}
+	// 所有系统的lateUpdate调用完以后再调用endFrame,用于整帧最终提交
+	virtual void endFrame(const float elapsedTime) {}
 	virtual bool isClassPool() const 		{ return false; }
 	virtual bool isFactory() const			{ return false; }
 	void setDestroied(bool destroied)		{ mDestroied = destroied; }

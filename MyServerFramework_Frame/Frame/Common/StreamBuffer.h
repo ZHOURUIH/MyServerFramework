@@ -82,6 +82,10 @@ public:
 	// 将 other 的全部数据合并到当前缓冲区尾部, other 不变
 	// 空间不足时: clearIfFull=true 先清空再写入, false 则返回失败
 	bool mergeFrom(const StreamBuffer* other, bool clearIfFull = false);
+	// 将当前缓冲区头部数据移动到target尾部,会从当前缓冲区移除已移动的数据
+	// 只移动target当前剩余空间能够容纳的数据,maxCount < 0表示不限制最大移动量
+	// 返回实际移动的字节数,空间不足不是错误,只会少移动或返回0
+	int moveTo(StreamBuffer* target, int maxCount = -1);
 	// 将数据线性化: 全部搬移到 buffer[0] 开始的连续区域
 	// 如果数据已经连续(无环形跨越)则不做任何操作
 	void linearize();

@@ -3,6 +3,7 @@
 
 class MICRO_LEGEND_FRAME_API TickerTest
 {
+#ifdef WINDOWS
 public:
     static void test();
 private:
@@ -21,4 +22,5 @@ private:
     static void testTickerResetPropertyClearsCallback();
     static void testTickerMultipleCallbackSwap();
     static void testTickerCallbackReturnsTrueMany();
+#endif
 };

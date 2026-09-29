@@ -7,7 +7,8 @@
 class MICRO_LEGEND_FRAME_API SerializerBitRead
 {
 public:
-	SerializerBitRead(const char* buffer, int bufferSize);
+	SerializerBitRead(const char* buffer, const int bufferSize) : mBuffer(buffer), mBufferSize(bufferSize), mBitIndex(0) {}
+	void reset(const char* buffer, const int bufferSize) { mBuffer = buffer; mBufferSize = bufferSize; mBitIndex = 0; }
 	bool readBool(bool& value) { return readBoolBit(mBuffer, mBufferSize, mBitIndex, value); }
 	bool readBuffer(char* destBuffer, const int readLength)
 	{

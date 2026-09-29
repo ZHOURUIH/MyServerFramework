@@ -6,7 +6,7 @@ template<typename T>
 class Singleton
 {
 protected:
-	static T* ms_Singleton;
+	inline static T* ms_Singleton = nullptr;
 public:
 	Singleton(void)
 	{

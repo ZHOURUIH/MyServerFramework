@@ -55,7 +55,7 @@ void MemoryTracker::RegisterFree(void* ptr)
 void MemoryTracker::DumpReport(const char* filename)
 {
 #ifdef _MEMORY_TRACK
-    createFolder(getFilePath(filename));
+    createDir(getFilePath(filename));
     mIsSelfAlloc = true;
     FILE* fp = nullptr;
     fopen_s(&fp, filename, "w");
